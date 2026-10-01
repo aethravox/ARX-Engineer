@@ -203,3 +203,37 @@ message(STATUS "  Runtime   : ${ARX_BUILD_RUNTIME}")
 message(STATUS "  2D/3D     : ${ARX_BUILD_2D}/${ARX_BUILD_3D}")
 message(STATUS "  Bullet    : ${ARX_USE_BULLET}")
 message(STATUS "")
+
+# ==============================================================================
+# Android: libarx_engine.so (NativeActivity)
+# ==============================================================================
+if(ARX_PLATFORM_ANDROID)
+    # android_native_app_glue
+    add_library(native_app_glue STATIC
+        ${ANDROID_NDK_HOME}/sources/android/native_app_glue/android_native_app_glue.c)
+    target_include_directories(native_app_glue PUBLIC
+        ${ANDROID_NDK_HOME}/sources/android/native_app_glue)
+
+    # libarx_engine.so (NativeActivity entry point)
+    add_library(arx_engine SHARED
+        src/platforms/android/main_android.cpp
+    )
+    target_link_libraries(arx_engine PRIVATE
+        arx_editor_lib
+        arx_core
+        zen_static
+        native_app_glue
+        android
+        log
+        EGL
+        GLESv2
+    )
+    target_include_directories(arx_engine PRIVATE
+        ${ANDROID_NDK_HOME}/sources/android/native_app_glue
+        ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
+    )
+    set_target_properties(arx_engine PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    )
+    message(STATUS "ARX: Android target arx_engine (shared lib) configurado")
+endif()
