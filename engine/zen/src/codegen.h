@@ -134,7 +134,6 @@ class CodeGen {
     void buildRuntimeNumToStr();  // genera __zen_num_to_str(double) -> char*
     void buildRuntimeList();      // genera funciones runtime de listas
     void buildRuntimeStruct();    // genera funciones runtime de structs
-    void buildRuntimeDict();      // genera funciones runtime de dicts
     llvm::Value* toDouble(llvm::Value* val, ZenType type);
     llvm::Value* toBool(llvm::Value* val, ZenType type);
     llvm::Value* toString(llvm::Value* val, ZenType type);  // convierte cualquier valor a i8*
