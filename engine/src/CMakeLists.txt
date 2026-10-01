@@ -9,6 +9,7 @@
 file(GLOB_RECURSE ARX_CORE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/core/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/os/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/os/touch_mouse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics/*.cpp
