@@ -3645,7 +3645,7 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
     }
     // lista_vacia() -> lista vacia
     if (name == "lista_vacia" || name == "empty_list" || name == "new_list") {
-        auto* list = generateListLit(nullptr);
+        auto list = generateListLit(nullptr);
         return list;
     }
     // imprimir(x) - alias de muestra pero como expresion (retorna x)
