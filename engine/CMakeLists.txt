@@ -124,6 +124,7 @@ if(ARX_BUILD_EDITOR)
     # porque imgui es un target importado (se crea en su propio CMakeLists en
     # el subdirectorio de FetchContent) y CMake no deja modificarlo desde fuera.
     add_compile_definitions(IMGUI_ENABLE_DOCKING IMGUI_DEFINE_MATH_OPERATORS)
+add_compile_definitions(FMT_HEADER_ONLY)
 
     # IMPORTANTE: Usar la rama 'docking' de ImGui en lugar de un tag específico.
     # El tag 'v1.91.5' del repo master NO tiene las funciones de Docking mergeadas
@@ -154,12 +155,14 @@ FetchContent_MakeAvailable(stb)
 
 # fmt — librería de formateo (usada por logging). Header-only si se define FMT_HEADER_ONLY.
 FetchContent_Declare(fmt
+set(FMT_COMPILE_TIME_CHECKS OFF CACHE BOOL "" FORCE)
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
     GIT_TAG        11.0.2
     GIT_SHALLOW    TRUE)
 set(FMT_DOC OFF CACHE BOOL "" FORCE)
 set(FMT_TEST OFF CACHE BOOL "" FORCE)
 set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
+set(FMT_HEADER_ONLY ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(fmt)
 
 # miniaudio — audio backend header-only (sin dependencias externas).
@@ -210,9 +213,9 @@ message(STATUS "")
 if(ARX_PLATFORM_ANDROID)
     # android_native_app_glue
     add_library(native_app_glue STATIC
-        ${ANDROID_NDK_HOME}/sources/android/native_app_glue/android_native_app_glue.c)
+        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
     target_include_directories(native_app_glue PUBLIC
-        ${ANDROID_NDK_HOME}/sources/android/native_app_glue)
+        ${ANDROID_NDK}/sources/android/native_app_glue)
 
     # libarx_engine.so (NativeActivity entry point)
     add_library(arx_engine SHARED
@@ -229,7 +232,7 @@ if(ARX_PLATFORM_ANDROID)
         GLESv2
     )
     target_include_directories(arx_engine PRIVATE
-        ${ANDROID_NDK_HOME}/sources/android/native_app_glue
+        ${ANDROID_NDK}/sources/android/native_app_glue
         ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
     )
     set_target_properties(arx_engine PROPERTIES
