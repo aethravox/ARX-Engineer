@@ -22,6 +22,7 @@
 #include "scene/animation/tween.hpp"
 #include "scene/tilemap/tilemap.hpp"
 #include "scene/particles/particles.hpp"
+#include "scene/3d/vox_extra_3d.hpp"
 
 namespace arx {
 
@@ -62,6 +63,10 @@ static const char* icon_name_for_class(const std::string& cls) {
     if (cls == "VoxTileMap") return "vox_tilemap";
     if (cls == "VoxParticles2D") return "vox_particles";
     if (cls == "VoxParticles3D") return "vox_particles";
+    if (cls == "VoxDirectionalLight3D") return "vox_light_directional";
+    if (cls == "VoxOmniLight3D") return "vox_light_omni";
+    if (cls == "VoxLight3D") return "vox_light_directional";
+    if (cls == "VoxSprite3D") return "vox_sprite3d";
     if (cls == "Vox3D")                  return "vox3d";
     if (cls == "Vox2D")                  return "vox2d";
     return "vox"; // default para Vox y tipos desconocidos
@@ -132,6 +137,9 @@ Vox* SceneTreeDock::create_vox_by_type(const std::string& type_name,
     else if (type_name == "VoxTileMap")          v = new VoxTileMap();
     else if (type_name == "VoxParticles2D")     v = new VoxParticles2D();
     else if (type_name == "VoxParticles3D")     v = new VoxParticles3D();
+    else if (type_name == "VoxDirectionalLight3D") v = new VoxDirectionalLight3D();
+    else if (type_name == "VoxOmniLight3D")      v = new VoxOmniLight3D();
+    else if (type_name == "VoxSprite3D")         v = new VoxSprite3D();
     else {
         ARX_LOG_WARN("SceneTreeDock: tipo desconocido '{}'", type_name);
         return nullptr;

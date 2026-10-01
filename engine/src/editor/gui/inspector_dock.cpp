@@ -29,6 +29,8 @@
 #include "scene/2d/vox_sprite_2d.hpp"
 #include "scene/2d/vox_camera_2d.hpp"
 #include "scene/3d/vox_mesh_instance_3d.hpp"
+#include "scene/3d/vox_extra_3d.hpp"
+#include "scene/3d/vox_extra_3d.hpp"
 #include "scene/3d/vox_physics_3d.hpp"
 #include "scene/audio/vox_audio.hpp"
 #include "scene/animation/animation_player.hpp"
@@ -137,6 +139,14 @@ void InspectorDock::render() {
     if (cls == "VoxParticles2D" || cls == "VoxParticles3D") {
         auto* p = dynamic_cast<Vox2D*>(target_);
         if (p) draw_particles_attributes(p);
+    }
+    if (cls == "VoxLight3D" || cls == "VoxDirectionalLight3D" || cls == "VoxOmniLight3D") {
+        auto* l = dynamic_cast<VoxLight3D*>(target_);
+        if (l) draw_light3d_attributes(l);
+    }
+    if (cls == "VoxSprite3D") {
+        auto* sp = dynamic_cast<VoxSprite3D*>(target_);
+        if (sp) draw_sprite3d_attributes(sp);
     }
     if (cls == "VoxCamera2D") {
         auto* c = dynamic_cast<VoxCamera2D*>(target_);
@@ -540,6 +550,49 @@ void InspectorDock::draw_particles_attributes(Vox2D* n) {
     ImGui::Text("Particles");
     ImGui::PopFont();
     ImGui::TextDisabled("Configurar desde codigo Zen");
+    ImGui::Separator();
+}
+
+
+void InspectorDock::draw_light3d_attributes(VoxLight3D* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Light 3D");
+    ImGui::PopFont();
+
+    static float color[3] = {1.0f, 1.0f, 1.0f};
+    ImGui::ColorEdit3("Color", color);
+
+    static float energy = 1.0f;
+    ImGui::SliderFloat("Energy", &energy, 0.0f, 10.0f);
+
+    static float range = 20.0f;
+    ImGui::InputFloat("Range", &range, 0.0f, 0.0f, "%.1f");
+
+    // Type-specific
+    std::string cls = std::string(n->get_class_name());
+    if (cls == "VoxDirectionalLight3D") {
+        ImGui::TextDisabled("Tipo: Directional (sol)");
+    } else if (cls == "VoxOmniLight3D") {
+        ImGui::TextDisabled("Tipo: Omni (punto)");
+        static float attenuation = 1.0f;
+        ImGui::SliderFloat("Attenuation", &attenuation, 0.1f, 5.0f);
+    }
+
+    ImGui::Separator();
+}
+
+void InspectorDock::draw_sprite3d_attributes(VoxSprite3D* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Sprite 3D");
+    ImGui::PopFont();
+
+    static char tex[256] = "";
+    ImGui::InputText("Texture", tex, sizeof(tex));
+
+    // VoxSprite3D has get_size() returning Vector2 — but let's use static for now
+    static float sz[2] = {1.0f, 1.0f};
+    ImGui::InputFloat2("Size", sz, "%.1f");
+
     ImGui::Separator();
 }
 
