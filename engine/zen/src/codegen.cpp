@@ -84,7 +84,8 @@ void CodeGen::declareExternals() {
     auto* i32Ty = llvm::Type::getInt32Ty(context);
     auto* voidTy = llvm::Type::getVoidTy(context);
 
-    strcmpFunc  = getOrInsertExtern("strcmp",  i32Ty, {i8Ptr, i8Ptr});
+    strncmpFunc  = getOrInsertExtern("strcmp",  i32Ty, {i8Ptr, i8Ptr});
+    strncmpFunc = getOrInsertExtern("strncmp", i32Ty, {i8Ptr, i8Ptr, i64Ty});
     strlenFunc  = getOrInsertExtern("strlen",  i64Ty, {i8Ptr});
     strstrFunc  = getOrInsertExtern("strstr",  i8Ptr, {i8Ptr, i8Ptr});
     strcpyFunc  = getOrInsertExtern("strcpy",  i8Ptr, {i8Ptr, i8Ptr});
@@ -3039,7 +3040,7 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         auto str = toString(str_val.first, str_val.second);
         auto pref = toString(pref_val.first, pref_val.second);
         // Usar strncmp: strncmp(str, pref, strlen(pref)) == 0
-        auto* result = builder.CreateCall(strcmpFunc, {str, pref, builder.CreateCall(strlenFunc, {pref})});
+        auto* result = builder.CreateCall(strncmpFunc, {str, pref, builder.CreateCall(strlenFunc, {pref})});
         auto* cmp = builder.CreateICmpEQ(result, builder.getInt32(0));
         return std::make_pair(cmp, ZenType::Bool);
     }
@@ -3061,7 +3062,7 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         auto* offset_ptr = builder.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr, "offset_ptr");
         auto* str_offset = builder.CreateInBoundsGEP(
             llvm::Type::getInt8Ty(context), str, diff, "str_offset");
-        auto* cmp_result = builder.CreateCall(strcmpFunc, {str_offset, suf, flen});
+        auto* cmp_result = builder.CreateCall(strncmpFunc, {str_offset, suf, flen});
         auto* eq = builder.CreateICmpEQ(cmp_result, builder.getInt32(0));
         auto* result = builder.CreateSelect(neg, builder.getInt1(0), eq);
         return std::make_pair(result, ZenType::Bool);
