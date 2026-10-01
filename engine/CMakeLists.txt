@@ -154,16 +154,18 @@ FetchContent_Declare(stb
 FetchContent_MakeAvailable(stb)
 
 # fmt — librería de formateo (usada por logging). Header-only si se define FMT_HEADER_ONLY.
+if(NOT ARX_PLATFORM_ANDROID)
 FetchContent_Declare(fmt
 set(FMT_COMPILE_TIME_CHECKS OFF CACHE BOOL "" FORCE)
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG        11.0.2
+    GIT_TAG        8.1.1
     GIT_SHALLOW    TRUE)
 set(FMT_DOC OFF CACHE BOOL "" FORCE)
 set(FMT_TEST OFF CACHE BOOL "" FORCE)
 set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
 set(FMT_HEADER_ONLY ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(fmt)
+endif()
 
 # miniaudio — audio backend header-only (sin dependencias externas).
 FetchContent_Declare(miniaudio

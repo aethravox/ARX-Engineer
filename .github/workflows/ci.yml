@@ -1,0 +1,49 @@
+name: ARX Engine CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ llvm-14-dev lld-14 liblld-14-dev mingw-w64
+    
+    - name: Build arx_core
+      run: |
+        cd engine
+        mkdir -p build && cd build
+        cmake .. -DARX_BUILD_EDITOR=ON
+        cmake --build . --target arx_core -j$(nproc)
+    
+    - name: Build arx_editor
+      run: |
+        cd engine/build
+        cmake --build . --target arx_editor -j$(nproc)
+    
+    - name: Build zen compiler
+      run: |
+        cd engine/build
+        cmake --build . --target zen_bin -j$(nproc)
+    
+    - name: Run Zen tests
+      run: |
+        cd engine/build
+        ./bin/zen ../../tests/test_zen_basic.zen --build
+        ./test_zen_basic
+    
+    - name: Test cross-compile
+      run: |
+        cd engine/build
+        echo 'muestra "cross-compile test"' > /tmp/test.zen
+        ./bin/zen /tmp/test.zen --obj --platform linux
+        ./bin/zen /tmp/test.zen --obj --platform windows
+        ./bin/zen /tmp/test.zen --obj --platform android
