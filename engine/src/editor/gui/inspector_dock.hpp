@@ -32,6 +32,8 @@ private:
     void draw_audio_stream_player_attributes(class VoxAudioStreamPlayer* n);
     void draw_animation_player_attributes(class VoxAnimationPlayer* n);
     void draw_tween_attributes(class Tween* n);
+    void draw_tilemap_attributes(class VoxTileMap* n);
+    void draw_particles_attributes(class Vox2D* n);
 
     Vox* target_ = nullptr;
 };

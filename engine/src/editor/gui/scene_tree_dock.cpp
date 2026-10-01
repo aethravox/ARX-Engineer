@@ -20,6 +20,8 @@
 #include "scene/audio/vox_audio.hpp"
 #include "scene/animation/animation_player.hpp"
 #include "scene/animation/tween.hpp"
+#include "scene/tilemap/tilemap.hpp"
+#include "scene/particles/particles.hpp"
 
 namespace arx {
 
@@ -57,6 +59,9 @@ static const char* icon_name_for_class(const std::string& cls) {
     if (cls == "VoxAudioStreamPlayer") return "vox_audio";
     if (cls == "VoxAnimationPlayer") return "vox_animation";
     if (cls == "Tween") return "vox_tween";
+    if (cls == "VoxTileMap") return "vox_tilemap";
+    if (cls == "VoxParticles2D") return "vox_particles";
+    if (cls == "VoxParticles3D") return "vox_particles";
     if (cls == "Vox3D")                  return "vox3d";
     if (cls == "Vox2D")                  return "vox2d";
     return "vox"; // default para Vox y tipos desconocidos
@@ -124,6 +129,9 @@ Vox* SceneTreeDock::create_vox_by_type(const std::string& type_name,
     else if (type_name == "VoxAudioStreamPlayer")  v = new VoxAudioStreamPlayer();
     else if (type_name == "VoxAnimationPlayer")  v = new VoxAnimationPlayer();
     else if (type_name == "Tween")              v = new Tween();
+    else if (type_name == "VoxTileMap")          v = new VoxTileMap();
+    else if (type_name == "VoxParticles2D")     v = new VoxParticles2D();
+    else if (type_name == "VoxParticles3D")     v = new VoxParticles3D();
     else {
         ARX_LOG_WARN("SceneTreeDock: tipo desconocido '{}'", type_name);
         return nullptr;

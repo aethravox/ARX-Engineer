@@ -33,6 +33,8 @@
 #include "scene/audio/vox_audio.hpp"
 #include "scene/animation/animation_player.hpp"
 #include "scene/animation/tween.hpp"
+#include "scene/tilemap/tilemap.hpp"
+#include "scene/particles/particles.hpp"
 
 namespace arx {
 
@@ -127,6 +129,14 @@ void InspectorDock::render() {
     if (cls == "Tween") {
         auto* t = dynamic_cast<Tween*>(target_);
         if (t) draw_tween_attributes(t);
+    }
+    if (cls == "VoxTileMap") {
+        auto* t = dynamic_cast<VoxTileMap*>(target_);
+        if (t) draw_tilemap_attributes(t);
+    }
+    if (cls == "VoxParticles2D" || cls == "VoxParticles3D") {
+        auto* p = dynamic_cast<Vox2D*>(target_);
+        if (p) draw_particles_attributes(p);
     }
     if (cls == "VoxCamera2D") {
         auto* c = dynamic_cast<VoxCamera2D*>(target_);
@@ -513,6 +523,23 @@ void InspectorDock::draw_tween_attributes(Tween* n) {
     ImGui::Text("Tween");
     ImGui::PopFont();
     ImGui::TextDisabled("Tween activo - usar desde codigo Zen");
+    ImGui::Separator();
+}
+
+
+void InspectorDock::draw_tilemap_attributes(VoxTileMap* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("TileMap");
+    ImGui::PopFont();
+    ImGui::TextDisabled("TileSet: %d tiles", n->get_tileset() ? n->get_tileset()->get_tile_count() : 0);
+    ImGui::Separator();
+}
+
+void InspectorDock::draw_particles_attributes(Vox2D* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Particles");
+    ImGui::PopFont();
+    ImGui::TextDisabled("Configurar desde codigo Zen");
     ImGui::Separator();
 }
 
