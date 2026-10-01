@@ -31,6 +31,7 @@
 #include "scene/3d/vox_mesh_instance_3d.hpp"
 #include "scene/3d/vox_extra_3d.hpp"
 #include "navigation/navigation.hpp"
+#include "scene/net/vox_multiplayer.hpp"
 #include "scene/3d/vox_extra_3d.hpp"
 #include "scene/3d/vox_physics_3d.hpp"
 #include "scene/audio/vox_audio.hpp"
@@ -152,6 +153,9 @@ void InspectorDock::render() {
     if (cls == "NavigationAgent3D") {
         auto* na = dynamic_cast<NavigationAgent3D*>(target_);
         if (na) draw_navigation_agent_attributes(na);
+    }
+    if (cls == "VoxMultiplayerSpawner" || cls == "VoxMultiplayerSynchronizer") {
+        draw_multiplayer_attributes(target_);
     }
     if (cls == "VoxCamera2D") {
         auto* c = dynamic_cast<VoxCamera2D*>(target_);
@@ -619,6 +623,29 @@ void InspectorDock::draw_navigation_agent_attributes(NavigationAgent3D* n) {
     auto next = n->get_next_location();
     ImGui::TextDisabled("Next: (%.1f, %.1f, %.1f)", next.x, next.y, next.z);
 
+    ImGui::Separator();
+}
+
+
+void InspectorDock::draw_multiplayer_attributes(Vox* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Multiplayer");
+    ImGui::PopFont();
+
+    std::string cls = std::string(n->get_class_name());
+    if (cls == "VoxMultiplayerSpawner") {
+        ImGui::TextDisabled("Spawner: sincroniza creacion/destruccion de Voxes");
+    } else if (cls == "VoxMultiplayerSynchronizer") {
+        auto* sync = dynamic_cast<VoxMultiplayerSynchronizer*>(n);
+        if (sync) {
+            bool pos = sync->get_position_sync();
+            bool rot = sync->get_rotation_sync();
+            bool scl = sync->get_scale_sync();
+            ImGui::Checkbox("Sync Position", &pos); sync->set_position_sync(pos);
+            ImGui::Checkbox("Sync Rotation", &rot); sync->set_rotation_sync(rot);
+            ImGui::Checkbox("Sync Scale", &scl);    sync->set_scale_sync(scl);
+        }
+    }
     ImGui::Separator();
 }
 
