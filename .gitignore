@@ -67,3 +67,6 @@ temp/
 # === OS ===
 .directory
 .Trash-*
+
+# Python scripts
+*.py
