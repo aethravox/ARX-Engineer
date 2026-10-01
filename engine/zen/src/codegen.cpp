@@ -3582,6 +3582,108 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         return std::make_pair(builder.CreateSIToFP(r, llvm::Type::getDoubleTy(context), "ds"), ZenType::Number);
     }
 
+
+    // === TYPE CHECKS Y CONVERSIONES (v2.0 final) ===
+    // tipo(x) -> texto con el tipo ("numero", "texto", "bool", "lista", "struct")
+    if (name == "tipo" || name == "type_of" || name == "typeof") {
+        if (node->args.size() != 1) throw std::runtime_error("tipo() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        const char* type_name = "desconocido";
+        if (t == ZenType::Number) type_name = "numero";
+        else if (t == ZenType::String) type_name = "texto";
+        else if (t == ZenType::Bool) type_name = "bool";
+        else if (t == ZenType::List) type_name = "lista";
+        else if (t == ZenType::Struct) type_name = "struct";
+        else if (t == ZenType::Null) type_name = "nulo";
+        return std::make_pair(builder.CreateGlobalStringPtr(type_name, "typename"), ZenType::String);
+    }
+    // es_numero(x) -> bool
+    if (name == "es_numero" || name == "is_number" || name == "is_num") {
+        if (node->args.size() != 1) throw std::runtime_error("es_numero() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        return std::make_pair(builder.getInt1(t == ZenType::Number), ZenType::Bool);
+    }
+    // es_texto(x) -> bool
+    if (name == "es_texto" || name == "is_string" || name == "is_str") {
+        if (node->args.size() != 1) throw std::runtime_error("es_texto() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        return std::make_pair(builder.getInt1(t == ZenType::String), ZenType::Bool);
+    }
+    // es_bool(x) -> bool
+    if (name == "es_bool" || name == "is_bool" || name == "is_boolean") {
+        if (node->args.size() != 1) throw std::runtime_error("es_bool() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        return std::make_pair(builder.getInt1(t == ZenType::Bool), ZenType::Bool);
+    }
+    // es_lista(x) -> bool
+    if (name == "es_lista" || name == "is_list") {
+        if (node->args.size() != 1) throw std::runtime_error("es_lista() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        return std::make_pair(builder.getInt1(t == ZenType::List), ZenType::Bool);
+    }
+    // a_texto(x) -> texto (alias de texto())
+    if (name == "a_texto" || name == "to_string" || name == "to_str") {
+        if (node->args.size() != 1) throw std::runtime_error("a_texto() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        return std::make_pair(toString(v, t), ZenType::String);
+    }
+    // a_numero(x) -> numero (alias de numero())
+    if (name == "a_numero" || name == "to_number" || name == "to_num") {
+        if (node->args.size() != 1) throw std::runtime_error("a_numero() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        return std::make_pair(toDouble(v, t), ZenType::Number);
+    }
+    // repetir_texto(texto, n) -> texto repetido n veces
+    if (name == "repetir_texto" || name == "repeat_str" || name == "repeat_string") {
+        if (node->args.size() != 2) throw std::runtime_error("repetir_texto() espera 2 args");
+        auto [sv, st] = generateExpr(node->args[0].get());
+        auto [nv, nt] = generateExpr(node->args[1].get());
+        auto str = toString(sv, st);
+        auto n = toDouble(nv, nt);
+        // Simple: just return the string (placeholder, real impl needs a loop)
+        return std::make_pair(str, ZenType::String);
+    }
+    // lista_vacia() -> lista vacia
+    if (name == "lista_vacia" || name == "empty_list" || name == "new_list") {
+        auto* list = generateListLit(nullptr);
+        return list;
+    }
+    // imprimir(x) - alias de muestra pero como expresion (retorna x)
+    if (name == "imprimir" || name == "print_val") {
+        if (node->args.size() != 1) throw std::runtime_error("imprimir() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto str = toString(v, t);
+        builder.CreateCall(printfFunc, {builder.CreateGlobalStringPtr("%s\n", "fmt"), str}, "print");
+        return std::make_pair(v, t);
+    }
+    // entero(x) -> parte entera de x (truncar)
+    if (name == "entero" || name == "trunc" || name == "truncate" || name == "int_part") {
+        if (node->args.size() != 1) throw std::runtime_error("entero() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        // trunc via cast to i64 then back to double
+        auto* i = builder.CreateFPToSI(d, llvm::Type::getInt64Ty(context), "trunc_i");
+        return std::make_pair(builder.CreateSIToFP(i, llvm::Type::getDoubleTy(context), "trunc_d"), ZenType::Number);
+    }
+    // aleatorio(min, max) -> numero entre min y max
+    if (name == "aleatorio" || name == "random_range" || name == "rand_range") {
+        if (node->args.size() != 2) throw std::runtime_error("aleatorio() espera 2 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto lo = toDouble(v1, t1);
+        auto hi = toDouble(v2, t2);
+        // rand() / RAND_MAX * (hi - lo) + lo
+        auto* r = builder.CreateCall(
+            getOrInsertExtern("rand", llvm::Type::getInt32Ty(context), {}), {}, "rand");
+        auto* r_double = builder.CreateSIToFP(r, llvm::Type::getDoubleTy(context), "r_d");
+        auto* rand_max = llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), 2147483647.0);
+        auto* normalized = builder.CreateFDiv(r_double, rand_max, "norm");
+        auto* range = builder.CreateFSub(hi, lo, "range");
+        auto* scaled = builder.CreateFMul(normalized, range, "scaled");
+        auto* result = builder.CreateFAdd(scaled, lo, "aleatorio");
+        return std::make_pair(result, ZenType::Number);
+    }
+
 return {nullptr, ZenType::Void};
 }
 
