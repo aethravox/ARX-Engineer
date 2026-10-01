@@ -1,0 +1,17 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.arx]
+@="ARXEngine.Project"
+
+[HKEY_CLASSES_ROOT\ARXEngine.Project]
+@="ARX Engine Project"
+
+[HKEY_CLASSES_ROOT\ARXEngine.Project\DefaultIcon]
+@="arx-engine.exe,0"
+
+[HKEY_CLASSES_ROOT\ARXEngine.Project\shell]
+
+[HKEY_CLASSES_ROOT\ARXEngine.Project\shell\open]
+
+[HKEY_CLASSES_ROOT\ARXEngine.Project\shell\open\command]
+@="\"C:\\Program Files\\ARX Engine\\arx-engine.exe\" \"%1\""
