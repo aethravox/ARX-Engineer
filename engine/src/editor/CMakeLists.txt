@@ -8,6 +8,9 @@ file(GLOB_RECURSE EDITOR_SOURCES
 add_library(arx_editor_lib STATIC ${EDITOR_SOURCES})
 
 target_include_directories(arx_editor_lib PUBLIC
+    if(ARX_PLATFORM_ANDROID)
+        target_include_directories(arx_editor_lib PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+    endif()
     ${ARX_THIRDPARTY}/nanosvg
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src

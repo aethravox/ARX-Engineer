@@ -44,6 +44,9 @@ endif()
 add_library(arx_core STATIC ${ARX_CORE_SOURCES} ${ARX_PLATFORM_SOURCES})
 
 target_include_directories(arx_core PUBLIC
+    if(ARX_PLATFORM_ANDROID)
+        target_include_directories(arx_core PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+    endif()
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${ARX_THIRDPARTY}
     ${ARX_THIRDPARTY}/glad
@@ -97,6 +100,9 @@ endif()
 
 # miniaudio include path
 target_include_directories(arx_core PUBLIC ${miniaudio_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/../common/include)
+    if(ARX_PLATFORM_ANDROID)
+        target_include_directories(arx_core PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+    endif()
 target_compile_definitions(arx_core PUBLIC
     ARX_VERSION="${ARX_VERSION_STRING}"
     ARX_PLATFORM_${ARX_PLATFORM}=1
@@ -131,6 +137,9 @@ set(JOLT_INCLUDE_DIR ${ARX_THIRDPARTY}/Jolt/Include)
 set(JOLT_LIB_DIR ${ARX_THIRDPARTY}/Jolt/Linux_Old)
 
 target_include_directories(arx_core PUBLIC ${JOLT_INCLUDE_DIR})
+    if(ARX_PLATFORM_ANDROID)
+        target_include_directories(arx_core PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+    endif()
 
 option(ARX_LINK_JOLT "Linkear Jolt Physics (requiere SSE4.1+)" OFF)
 if(ARX_LINK_JOLT AND EXISTS ${JOLT_LIB_DIR}/libJolt.a)
@@ -319,6 +328,9 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/arx
     FILES_MATCHING PATTERN "*.hpp")
 target_include_directories(arx_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty/stb)
+    if(ARX_PLATFORM_ANDROID)
+        target_include_directories(arx_core PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+    endif()
 target_sources(arx_core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/render/stb_image_impl.cpp)
 
 # Zen bridge (solo si LLVM está disponible)

@@ -152,19 +152,20 @@ FetchContent_Declare(stb
     GIT_SHALLOW    TRUE)
 FetchContent_MakeAvailable(stb)
 
-# fmt — librería de formateo (usada por logging). Header-only si se define FMT_HEADER_ONLY.
+# fmt — librería de formateo (usada por logging).
+# En Android, fmt no compila con NDK r29, usar stub
+if(ARX_PLATFORM_ANDROID)
+    add_library(fmt INTERFACE)
+    target_include_directories(fmt INTERFACE ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+else()
 FetchContent_Declare(fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG        11.0.2
+    GIT_TAG        7.1.3
     GIT_SHALLOW    TRUE)
 set(FMT_DOC OFF CACHE BOOL "" FORCE)
 set(FMT_TEST OFF CACHE BOOL "" FORCE)
 set(FMT_INSTALL OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(fmt)
-if(ARX_PLATFORM_ANDROID)
-    # Stub: fmt no compila con NDK r29, crear target vacio
-    add_library(fmt INTERFACE)
-    target_include_directories(fmt INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/fmt-include)
 endif()
 
 # miniaudio — audio backend header-only (sin dependencias externas).
@@ -172,6 +173,11 @@ FetchContent_Declare(miniaudio
     GIT_REPOSITORY https://github.com/mackron/miniaudio.git
     GIT_TAG        master
     GIT_SHALLOW    TRUE)
+if(ARX_PLATFORM_ANDROID)
+    set(MINIAUDIO_NO_LIBVORBIS ON CACHE BOOL "" FORCE)
+    set(MINIAUDIO_NO_OPUS ON CACHE BOOL "" FORCE)
+    set(MINIAUDIO_NO_MINIMP3 ON CACHE BOOL "" FORCE)
+endif()
 FetchContent_MakeAvailable(miniaudio)
 
 # ---- Zen (lenguaje de scripting del motor) ---------------------------------

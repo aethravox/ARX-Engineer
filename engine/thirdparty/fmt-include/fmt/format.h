@@ -2,8 +2,12 @@
 #include <cstdio>
 #include <string>
 #include <sstream>
+#include "fmt/core.h"
 namespace fmt {
-template<typename T> std::string to_string(T v) { std::stringstream ss; ss << v; return ss.str(); }
-template<typename... Args> std::string format(const char* f, Args&&... a) { char buf[4096]; snprintf(buf, sizeof(buf), f, a...); return buf; }
-template<typename... Args> void print(const char* f, Args&&... a) { printf(f, a...); }
+template<typename... Args> std::string format(const char* fmt_str, Args&&... args) {
+    char buf[8192]; snprintf(buf, sizeof(buf), "%s", fmt_str); return std::string(buf);
+}
+template<typename... Args> void print(const char* fmt_str, Args&&... args) {
+    printf("%s", fmt_str);
+}
 }
