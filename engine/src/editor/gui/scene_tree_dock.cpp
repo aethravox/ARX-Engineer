@@ -18,6 +18,8 @@
 #include "scene/3d/vox_mesh_instance_3d.hpp"  // también define VoxCamera3D
 #include "scene/3d/vox_physics_3d.hpp"
 #include "scene/audio/vox_audio.hpp"
+#include "scene/animation/animation_player.hpp"
+#include "scene/animation/tween.hpp"
 
 namespace arx {
 
@@ -53,6 +55,8 @@ static const char* icon_name_for_class(const std::string& cls) {
     if (cls == "VoxRayCast3D")           return "vox_ray_cast_3d";
     if (cls == "VoxCollisionShape3D")    return "vox_collision_shape_3d";
     if (cls == "VoxAudioStreamPlayer") return "vox_audio";
+    if (cls == "VoxAnimationPlayer") return "vox_animation";
+    if (cls == "Tween") return "vox_tween";
     if (cls == "Vox3D")                  return "vox3d";
     if (cls == "Vox2D")                  return "vox2d";
     return "vox"; // default para Vox y tipos desconocidos
@@ -118,6 +122,8 @@ Vox* SceneTreeDock::create_vox_by_type(const std::string& type_name,
     else if (type_name == "VoxRayCast3D")          v = new VoxRayCast3D();
     else if (type_name == "VoxCollisionShape3D")   v = new VoxCollisionShape3D();
     else if (type_name == "VoxAudioStreamPlayer")  v = new VoxAudioStreamPlayer();
+    else if (type_name == "VoxAnimationPlayer")  v = new VoxAnimationPlayer();
+    else if (type_name == "Tween")              v = new Tween();
     else {
         ARX_LOG_WARN("SceneTreeDock: tipo desconocido '{}'", type_name);
         return nullptr;

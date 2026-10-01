@@ -31,6 +31,8 @@
 #include "scene/3d/vox_mesh_instance_3d.hpp"
 #include "scene/3d/vox_physics_3d.hpp"
 #include "scene/audio/vox_audio.hpp"
+#include "scene/animation/animation_player.hpp"
+#include "scene/animation/tween.hpp"
 
 namespace arx {
 
@@ -117,6 +119,14 @@ void InspectorDock::render() {
     if (cls == "VoxMeshInstance3D") {
         auto* m = dynamic_cast<VoxMeshInstance3D*>(target_);
         if (m) draw_mesh_instance3d_attributes(m);
+    }
+    if (cls == "VoxAnimationPlayer") {
+        auto* a = dynamic_cast<VoxAnimationPlayer*>(target_);
+        if (a) draw_animation_player_attributes(a);
+    }
+    if (cls == "Tween") {
+        auto* t = dynamic_cast<Tween*>(target_);
+        if (t) draw_tween_attributes(t);
     }
     if (cls == "VoxCamera2D") {
         auto* c = dynamic_cast<VoxCamera2D*>(target_);
@@ -475,6 +485,34 @@ void InspectorDock::draw_mesh_instance3d_attributes(VoxMeshInstance3D* n) {
     static bool receive_shadow = true;
     ImGui::Checkbox("Receive Shadow", &receive_shadow);
 
+    ImGui::Separator();
+}
+
+
+void InspectorDock::draw_animation_player_attributes(VoxAnimationPlayer* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Animation Player");
+    ImGui::PopFont();
+
+    ImGui::TextDisabled("Current: %s", n->get_current_animation().c_str());
+    ImGui::TextDisabled("Position: %.2f", n->get_current_position());
+    ImGui::TextDisabled("Playing: %s", n->is_playing() ? "YES" : "NO");
+
+    float speed = n->get_speed();
+    if (ImGui::SliderFloat("Speed", &speed, 0.1f, 4.0f)) {
+        n->set_speed(speed);
+    }
+
+    if (ImGui::Button("Stop")) n->stop();
+
+    ImGui::Separator();
+}
+
+void InspectorDock::draw_tween_attributes(Tween* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Tween");
+    ImGui::PopFont();
+    ImGui::TextDisabled("Tween activo - usar desde codigo Zen");
     ImGui::Separator();
 }
 
