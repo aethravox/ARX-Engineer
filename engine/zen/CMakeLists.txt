@@ -59,6 +59,7 @@ add_library(zen_static STATIC
     src/zen_vm.cpp
     src/zen_linker.cpp
     src/zen_runtimes.cpp
+    src/zen_api.cpp
 )
 
 target_include_directories(zen_static PUBLIC

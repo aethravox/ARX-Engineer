@@ -21,14 +21,14 @@ target_include_directories(arx_editor_lib PUBLIC
 set(ARX_COMMON_LIB ${CMAKE_SOURCE_DIR}/../common/build/libarx_common.a
     CACHE FILEPATH "Path to libarx_common.a")
 if(EXISTS ${ARX_COMMON_LIB})
-    target_link_libraries(arx_editor_lib PUBLIC
+    target_link_libraries(arx_editor_lib PUBLIC zen_static
         arx_core
         ${ARX_COMMON_LIB}
     )
 else()
     message(WARNING "libarx_common.a no encontrado en ${ARX_COMMON_LIB}. "
                     "Ejecutá 'cmake .. && make' en common/ primero.")
-    target_link_libraries(arx_editor_lib PUBLIC arx_core)
+    target_link_libraries(arx_editor_lib PUBLIC zen_static arx_core)
 endif()
 
 # ImGui core sources + Backend de ImGui para GLFW + OpenGL3.

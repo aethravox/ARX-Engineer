@@ -72,6 +72,9 @@ void FilesystemDock::render_directory(const std::filesystem::path& p) {
         std::string name = e.filename().string();
         bool is_dir = std::filesystem::is_directory(e);
 
+        // Ocultar project.arx (el proyecto no debe mostrarse a sí mismo)
+        if (name == "project.arx") continue;
+
         // Label con icono
         const char* icon = is_dir ? "[D] " : icon_for_file(name);
         std::string label = std::string(icon) + name;
