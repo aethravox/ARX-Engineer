@@ -3248,6 +3248,257 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         return std::make_pair(result, ZenType::Number);
     }
 
+
+    // === MATH BUILTINS (v2.0) ===
+    // abs(x) -> |x|
+    if (name == "abs" || name == "valor_absoluto") {
+        if (node->args.size() != 1) throw std::runtime_error("abs() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("fabs", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "abs"), ZenType::Number);
+    }
+    // piso(x) -> floor
+    if (name == "piso" || name == "floor" || name == "piso_inf") {
+        if (node->args.size() != 1) throw std::runtime_error("piso() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("floor", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "floor"), ZenType::Number);
+    }
+    // techo(x) -> ceil
+    if (name == "techo" || name == "ceil" || name == "piso_sup") {
+        if (node->args.size() != 1) throw std::runtime_error("techo() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("ceil", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "ceil"), ZenType::Number);
+    }
+    // redondear(x) -> round
+    if (name == "redondear" || name == "round") {
+        if (node->args.size() != 1) throw std::runtime_error("redondear() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("round", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "round"), ZenType::Number);
+    }
+    // raiz(x) -> sqrt
+    if (name == "raiz" || name == "sqrt" || name == "raiz_cuadrada") {
+        if (node->args.size() != 1) throw std::runtime_error("raiz() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("sqrt", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "sqrt"), ZenType::Number);
+    }
+    // seno(x) -> sin (radianes)
+    if (name == "seno" || name == "sin" || name == "sin_rad") {
+        if (node->args.size() != 1) throw std::runtime_error("seno() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("sin", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "sin"), ZenType::Number);
+    }
+    // coseno(x) -> cos
+    if (name == "coseno" || name == "cos" || name == "cos_rad") {
+        if (node->args.size() != 1) throw std::runtime_error("coseno() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("cos", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "cos"), ZenType::Number);
+    }
+    // tangente(x) -> tan
+    if (name == "tangente" || name == "tan") {
+        if (node->args.size() != 1) throw std::runtime_error("tangente() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("tan", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {d}, "tan"), ZenType::Number);
+    }
+    // atan2(y, x) -> arco tangente
+    if (name == "atan2" || name == "arctan2") {
+        if (node->args.size() != 2) throw std::runtime_error("atan2() espera 2 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto y = toDouble(v1, t1);
+        auto x = toDouble(v2, t2);
+        return std::make_pair(builder.CreateCall(
+            getOrInsertExtern("atan2", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context)}),
+            {y, x}, "atan2"), ZenType::Number);
+    }
+    // min(a, b) -> menor
+    if (name == "min" || name == "menor") {
+        if (node->args.size() != 2) throw std::runtime_error("min() espera 2 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto a = toDouble(v1, t1);
+        auto b = toDouble(v2, t2);
+        auto* cmp = builder.CreateFCmpOLT(a, b, "cmp");
+        return std::make_pair(builder.CreateSelect(cmp, a, b, "min"), ZenType::Number);
+    }
+    // max(a, b) -> mayor
+    if (name == "max" || name == "mayor") {
+        if (node->args.size() != 2) throw std::runtime_error("max() espera 2 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto a = toDouble(v1, t1);
+        auto b = toDouble(v2, t2);
+        auto* cmp = builder.CreateFCmpOGT(a, b, "cmp");
+        return std::make_pair(builder.CreateSelect(cmp, a, b, "max"), ZenType::Number);
+    }
+    // potencia(base, exp) -> pow
+    if (name == "potencia" || name == "pow" || name == "power") {
+        if (node->args.size() != 2) throw std::runtime_error("potencia() espera 2 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto base = toDouble(v1, t1);
+        auto exp = toDouble(v2, t2);
+        return std::make_pair(builder.CreateCall(powFunc, {base, exp}, "pow"), ZenType::Number);
+    }
+    // limitar(valor, min, max) -> clamp
+    if (name == "limitar" || name == "clamp") {
+        if (node->args.size() != 3) throw std::runtime_error("limitar() espera 3 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto [v3, t3] = generateExpr(node->args[2].get());
+        auto val = toDouble(v1, t1);
+        auto lo = toDouble(v2, t2);
+        auto hi = toDouble(v3, t3);
+        // clamp = max(min(val, hi), lo)
+        auto* cmp1 = builder.CreateFCmpOLT(val, hi, "c1");
+        auto* step1 = builder.CreateSelect(cmp1, val, hi, "s1");
+        auto* cmp2 = builder.CreateFCmpOGT(step1, lo, "c2");
+        auto* result = builder.CreateSelect(cmp2, step1, lo, "clamp");
+        return std::make_pair(result, ZenType::Number);
+    }
+    // interpolar(a, b, t) -> lerp
+    if (name == "interpolar" || name == "lerp") {
+        if (node->args.size() != 3) throw std::runtime_error("interpolar() espera 3 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto [v3, t3] = generateExpr(node->args[2].get());
+        auto a = toDouble(v1, t1);
+        auto b = toDouble(v2, t2);
+        auto t = toDouble(v3, t3);
+        // lerp = a + (b - a) * t
+        auto* diff = builder.CreateFSub(b, a, "diff");
+        auto* scaled = builder.CreateFMul(diff, t, "scaled");
+        auto* result = builder.CreateFAdd(a, scaled, "lerp");
+        return std::make_pair(result, ZenType::Number);
+    }
+    // distancia(x1, y1, x2, y2) -> dist (2D)
+    if (name == "distancia" || name == "dist" || name == "distance") {
+        if (node->args.size() != 4) throw std::runtime_error("distancia() espera 4 args");
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto [v3, t3] = generateExpr(node->args[2].get());
+        auto [v4, t4] = generateExpr(node->args[3].get());
+        auto x1 = toDouble(v1, t1);
+        auto y1 = toDouble(v2, t2);
+        auto x2 = toDouble(v3, t3);
+        auto y2 = toDouble(v4, t4);
+        // dx = x2-x1, dy = y2-y1, dist = sqrt(dx*dx + dy*dy)
+        auto* dx = builder.CreateFSub(x2, x1, "dx");
+        auto* dy = builder.CreateFSub(y2, y1, "dy");
+        auto* dx2 = builder.CreateFMul(dx, dx, "dx2");
+        auto* dy2 = builder.CreateFMul(dy, dy, "dy2");
+        auto* sum = builder.CreateFAdd(dx2, dy2, "sum");
+        auto* sqrt = builder.CreateCall(
+            getOrInsertExtern("sqrt", llvm::Type::getDoubleTy(context),
+                {llvm::Type::getDoubleTy(context)}), {sum}, "sqrt");
+        return std::make_pair(sqrt, ZenType::Number);
+    }
+    // grados(radianes) -> grados
+    if (name == "grados" || name == "degrees" || name == "to_degrees") {
+        if (node->args.size() != 1) throw std::runtime_error("grados() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* result = builder.CreateFMul(d, llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), 57.295779513), "deg");
+        return std::make_pair(result, ZenType::Number);
+    }
+    // radianes(grados) -> radianes
+    if (name == "radianes" || name == "radians" || name == "to_radians") {
+        if (node->args.size() != 1) throw std::runtime_error("radianes() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* result = builder.CreateFMul(d, llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), 0.017453293), "rad");
+        return std::make_pair(result, ZenType::Number);
+    }
+    // signo(x) -> -1, 0, or 1
+    if (name == "signo" || name == "sign") {
+        if (node->args.size() != 1) throw std::runtime_error("signo() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* zero = llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), 0.0);
+        auto* one = llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), 1.0);
+        auto* neg_one = llvm::ConstantFP::get(llvm::Type::getDoubleTy(context), -1.0);
+        auto* is_pos = builder.CreateFCmpOGT(d, zero, "is_pos");
+        auto* is_neg = builder.CreateFCmpOLT(d, zero, "is_neg");
+        auto* step1 = builder.CreateSelect(is_pos, one, neg_one, "s1");
+        auto* is_zero = builder.CreateFCmpOEQ(d, zero, "is_zero");
+        auto* result = builder.CreateSelect(is_zero, zero, step1, "sign");
+        return std::make_pair(result, ZenType::Number);
+    }
+
+
+    // === STRINGS RICOS v2.0 ===
+    if (name == "empieza_con" || name == "starts_with" || name == "startswith") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("empieza_con() espera 2 args");
+        auto sv = generateExpr(node->args[0].get());
+        auto pv = generateExpr(node->args[1].get());
+        auto str = toString(sv.first, sv.second);
+        auto pref = toString(pv.first, pv.second);
+        auto* cmp = builder.CreateCall(strcmpFunc, {str, pref}, "scmp");
+        auto* eq = builder.CreateICmpEQ(cmp, builder.getInt32(0), "eq");
+        return std::make_pair(eq, ZenType::Bool);
+    }
+    if (name == "termina_con" || name == "ends_with" || name == "endswith") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("termina_con() espera 2 args");
+        auto sv = generateExpr(node->args[0].get());
+        auto fv = generateExpr(node->args[1].get());
+        auto str = toString(sv.first, sv.second);
+        auto suf = toString(fv.first, fv.second);
+        auto* slen = builder.CreateCall(strlenFunc, {str}, "slen");
+        auto* flen = builder.CreateCall(strlenFunc, {suf}, "flen");
+        auto* diff = builder.CreateSub(slen, flen, "diff");
+        auto* neg = builder.CreateICmpSLT(diff, builder.getInt64(0), "neg");
+        auto* off = builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), str, diff, "soff");
+        auto* cmp = builder.CreateCall(strcmpFunc, {off, suf}, "scmp");
+        auto* eq = builder.CreateICmpEQ(cmp, builder.getInt32(0), "eq");
+        auto* res = builder.CreateSelect(neg, builder.getInt1(0), eq, "res");
+        return std::make_pair(res, ZenType::Bool);
+    }
+    if (name == "contiene_texto" || name == "contains_str") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("contiene_texto() espera 2 args");
+        auto sv = generateExpr(node->args[0].get());
+        auto bv = generateExpr(node->args[1].get());
+        auto str = toString(sv.first, sv.second);
+        auto search = toString(bv.first, bv.second);
+        auto* r = builder.CreateCall(strstrFunc, {str, search}, "strstr");
+        auto* nn = builder.CreateICmpNE(r, llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), "nn");
+        return std::make_pair(nn, ZenType::Bool);
+    }
+    if (name == "longitud_texto" || name == "strlen" || name == "string_length") {
+        if (node->args.size() != 1)
+            throw std::runtime_error("longitud_texto() espera 1 arg");
+        auto sv = generateExpr(node->args[0].get());
+        auto str = toString(sv.first, sv.second);
+        auto* len = builder.CreateCall(strlenFunc, {str}, "sl");
+        auto* ld = builder.CreateSIToFP(len, llvm::Type::getDoubleTy(context), "ld");
+        return std::make_pair(ld, ZenType::Number);
+    }
+
 return {nullptr, ZenType::Void};
 }
 
