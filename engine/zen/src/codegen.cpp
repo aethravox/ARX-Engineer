@@ -93,6 +93,35 @@ void CodeGen::buildRuntimeDict() {
         builder.CreateCall(
             getOrInsertExtern("memset", i8Ptr, {i8Ptr, llvm::Type::getInt32Ty(context), i64Ty}),
             {raw, builder.getInt32(0), size}, "memset");
+        // Alloc keys[8] and values[8] arrays (8 * 8 bytes = 64 bytes each)
+        auto* arrSize = builder.getInt64(64);
+        auto* keysArr = builder.CreateCall(mallocFunc, {arrSize}, "keysArr");
+        auto* valuesArr = builder.CreateCall(mallocFunc, {arrSize}, "valuesArr");
+        builder.CreateCall(
+            getOrInsertExtern("memset", i8Ptr, {i8Ptr, llvm::Type::getInt32Ty(context), i64Ty}),
+            {keysArr, builder.getInt32(0), arrSize}, "memset_keys");
+        builder.CreateCall(
+            getOrInsertExtern("memset", i8Ptr, {i8Ptr, llvm::Type::getInt32Ty(context), i64Ty}),
+            {valuesArr, builder.getInt32(0), arrSize}, "memset_values");
+        // Store keys at offset 0, values at offset 8
+        auto* keysSlot = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), raw, builder.getInt64(0)),
+            i8Ptr->getPointerTo(), "keysSlot");
+        builder.CreateStore(keysArr, keysSlot);
+        auto* valuesSlot = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), raw, builder.getInt64(8)),
+            i8Ptr->getPointerTo(), "valuesSlot");
+        builder.CreateStore(valuesArr, valuesSlot);
+        // count = 0 at offset 16
+        auto* countSlot = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), raw, builder.getInt64(16)),
+            i64Ty->getPointerTo(), "countSlot");
+        builder.CreateStore(builder.getInt64(0), countSlot);
+        // capacity = 8 at offset 24
+        auto* capSlot = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), raw, builder.getInt64(24)),
+            i64Ty->getPointerTo(), "capSlot");
+        builder.CreateStore(builder.getInt64(8), capSlot);
         builder.CreateRet(raw);
     }
 
