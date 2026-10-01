@@ -30,6 +30,7 @@
 #include "scene/2d/vox_camera_2d.hpp"
 #include "scene/3d/vox_mesh_instance_3d.hpp"
 #include "scene/3d/vox_extra_3d.hpp"
+#include "navigation/navigation.hpp"
 #include "scene/3d/vox_extra_3d.hpp"
 #include "scene/3d/vox_physics_3d.hpp"
 #include "scene/audio/vox_audio.hpp"
@@ -147,6 +148,10 @@ void InspectorDock::render() {
     if (cls == "VoxSprite3D") {
         auto* sp = dynamic_cast<VoxSprite3D*>(target_);
         if (sp) draw_sprite3d_attributes(sp);
+    }
+    if (cls == "NavigationAgent3D") {
+        auto* na = dynamic_cast<NavigationAgent3D*>(target_);
+        if (na) draw_navigation_agent_attributes(na);
     }
     if (cls == "VoxCamera2D") {
         auto* c = dynamic_cast<VoxCamera2D*>(target_);
@@ -592,6 +597,27 @@ void InspectorDock::draw_sprite3d_attributes(VoxSprite3D* n) {
     // VoxSprite3D has get_size() returning Vector2 — but let's use static for now
     static float sz[2] = {1.0f, 1.0f};
     ImGui::InputFloat2("Size", sz, "%.1f");
+
+    ImGui::Separator();
+}
+
+
+void InspectorDock::draw_navigation_agent_attributes(NavigationAgent3D* n) {
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 1 ? ImGui::GetIO().Fonts->Fonts[1] : nullptr);
+    ImGui::Text("Navigation Agent 3D");
+    ImGui::PopFont();
+
+    auto target = n->get_target_position();
+    float target_arr[3] = { target.x, target.y, target.z };
+    if (ImGui::InputFloat3("Target Position", target_arr, "%.1f")) {
+        n->set_target_position(Vector3(target_arr[0], target_arr[1], target_arr[2]));
+    }
+
+    ImGui::TextDisabled("Distance: %.1f", n->distance_to_target());
+    ImGui::TextDisabled("Finished: %s", n->is_navigation_finished() ? "YES" : "NO");
+
+    auto next = n->get_next_location();
+    ImGui::TextDisabled("Next: (%.1f, %.1f, %.1f)", next.x, next.y, next.z);
 
     ImGui::Separator();
 }

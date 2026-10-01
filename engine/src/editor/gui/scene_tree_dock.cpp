@@ -23,6 +23,7 @@
 #include "scene/tilemap/tilemap.hpp"
 #include "scene/particles/particles.hpp"
 #include "scene/3d/vox_extra_3d.hpp"
+#include "navigation/navigation.hpp"
 
 namespace arx {
 
@@ -67,6 +68,7 @@ static const char* icon_name_for_class(const std::string& cls) {
     if (cls == "VoxOmniLight3D") return "vox_light_omni";
     if (cls == "VoxLight3D") return "vox_light_directional";
     if (cls == "VoxSprite3D") return "vox_sprite3d";
+    if (cls == "NavigationAgent3D") return "vox_navigation";
     if (cls == "Vox3D")                  return "vox3d";
     if (cls == "Vox2D")                  return "vox2d";
     return "vox"; // default para Vox y tipos desconocidos
@@ -140,6 +142,7 @@ Vox* SceneTreeDock::create_vox_by_type(const std::string& type_name,
     else if (type_name == "VoxDirectionalLight3D") v = new VoxDirectionalLight3D();
     else if (type_name == "VoxOmniLight3D")      v = new VoxOmniLight3D();
     else if (type_name == "VoxSprite3D")         v = new VoxSprite3D();
+    else if (type_name == "NavigationAgent3D")  v = new NavigationAgent3D();
     else {
         ARX_LOG_WARN("SceneTreeDock: tipo desconocido '{}'", type_name);
         return nullptr;

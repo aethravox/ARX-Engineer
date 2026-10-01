@@ -18,6 +18,7 @@ file(GLOB_RECURSE ARX_CORE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/input/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/resources/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/net/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/navigation/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/arxscript/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/export/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/*.cpp

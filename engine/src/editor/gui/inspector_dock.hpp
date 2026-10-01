@@ -36,6 +36,7 @@ private:
     void draw_particles_attributes(class Vox2D* n);
     void draw_light3d_attributes(class VoxLight3D* n);
     void draw_sprite3d_attributes(class VoxSprite3D* n);
+    void draw_navigation_agent_attributes(class NavigationAgent3D* n);
 
     Vox* target_ = nullptr;
 };

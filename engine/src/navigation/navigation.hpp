@@ -5,6 +5,7 @@
 
 #include "core/types.hpp"
 #include "core/object.hpp"
+#include "scene/3d/vox3d.hpp"
 
 #include <vector>
 #include <memory>
