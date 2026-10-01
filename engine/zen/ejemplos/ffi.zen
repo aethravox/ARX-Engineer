@@ -1,0 +1,35 @@
+# ffi.zen - Demo de FFI (Foreign Function Interface)
+# Llama a funciones de C desde Zen
+
+# Declarar funciones externas de libm
+extern "libm" sqrt(double) -> double
+extern "libm" sin(double) -> double
+extern "libm" cos(double) -> double
+extern "libm" pow(double, double) -> double
+
+# Tambien podemos llamar a funciones de libc
+extern "libc" abs(int) -> int
+extern "libc" strlen(str) -> int
+
+# Usar las funciones
+muestra "=== Funciones de libm ==="
+muestra "sqrt(16) = " + sqrt(16)
+muestra "sqrt(2) = " + sqrt(2)
+muestra "sin(0) = " + sin(0)
+muestra "cos(0) = " + cos(0)
+muestra "pow(2, 10) = " + pow(2, 10)
+
+muestra ""
+muestra "=== Funciones de libc ==="
+muestra "abs(-42) = " + abs(-42)
+muestra "abs(42) = " + abs(42)
+muestra "strlen(\"hola mundo\") = " + strlen("hola mundo")
+
+# Combinar con codigo Zen
+muestra ""
+muestra "=== Combinado ==="
+raiz = sqrt(144)
+muestra "sqrt(144) = " + raiz
+
+para i desde 1 hasta 5
+    muestra "sqrt(" + i + ") = " + sqrt(i)

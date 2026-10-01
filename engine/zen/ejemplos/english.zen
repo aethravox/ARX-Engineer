@@ -1,0 +1,25 @@
+# english.zen — English keywords work too!
+
+show "Hello from Zen!"
+show 42
+
+# Variables
+x = 10
+y = 20
+show x + y
+
+# If/Else
+if x > 5
+    show "x is greater than 5"
+else
+    show "x is not greater than 5"
+
+# For loop
+for i from 1 to 5
+    show i
+
+# Functions
+double(n)
+    return n * 2
+
+show double(21)

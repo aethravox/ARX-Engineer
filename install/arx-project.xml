@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-arx-project">
+    <comment>ARX Engine Project</comment>
+    <comment xml:lang="es">Proyecto de ARX Engine</comment>
+    <glob pattern="*.arx"/>
+    <icon name="arx-engine"/>
+  </mime-type>
+</mime-info>

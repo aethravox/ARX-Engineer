@@ -1,0 +1,30 @@
+# main.zen - Programa principal que importa un header .zhn
+# Demuestra el sistema de modulos de Zen:
+#   .zen = codigo fuente (implementacion)
+#   .zhn = header (declaraciones: extern, funciones, structs)
+
+# Importar el header de matematicas
+importar "matematicas"
+
+muestra "=== Zen con Imports (.zhn + .zen) ==="
+muestra ""
+
+# Usar funciones del header
+muestra "--- Funciones de libm (via FFI del header) ---"
+muestra "sqrt(144) = " + sqrt(144)
+muestra "sin(0) = " + sin(0)
+muestra "cos(0) = " + cos(0)
+muestra "pow(2, 10) = " + pow(2, 10)
+muestra "floor(3.7) = " + floor(3.7)
+muestra "ceil(3.2) = " + ceil(3.2)
+muestra ""
+
+muestra "--- Funciones de Zen (del header) ---"
+muestra "factorial(5) = " + factorial(5)
+muestra "fibonacci(10) = " + fibonacci(10)
+muestra ""
+
+muestra "--- Numeros primos ---"
+para i desde 2 hasta 20
+    si es_primo(i) == 1
+        muestra i + " es primo"

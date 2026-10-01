@@ -1,0 +1,94 @@
+# zen_en_zen.zen - Un mini-lexer de Zen escrito en Zen!
+# Demuestra que Zen ya puede escribir herramientas en si mismo.
+# Este programa lee un archivo .zen y cuenta cuantos tokens tiene.
+
+# Funciones de Zen que usamos:
+#   leer_archivo(ruta) -> texto
+#   longitud(texto) -> numero
+#   subtexto(texto, desde, hasta) -> texto
+#   muestra(x)
+#   numero(texto) -> numero
+
+# Leer el archivo pasado como argumento
+ruta = "../ejemplos/hola.zen"
+muestra "=== Mini-lexer Zen escrito en Zen ==="
+muestra "Analizando: " + ruta
+muestra ""
+
+codigo = leer_archivo(ruta)
+n = longitud(codigo)
+muestra "Longitud del archivo: " + n + " caracteres"
+muestra ""
+
+# Contar tokens basicos (sin ser un lexer completo)
+i = 0
+tokens = 0
+palabras = 0
+numeros = 0
+strings = 0
+lineas = 1
+
+mientras i < n
+    c = subtexto(codigo, i, i + 1)
+    
+    # Contar lineas
+    si c == "\n"
+        lineas += 1
+    
+    # Saltar espacios y tabs
+    si c == " " o c == "\t" o c == "\n"
+        i += 1
+        siguiente
+    
+    # Comentarios (# ...)
+    si c == "#"
+        mientras i < n y subtexto(codigo, i, i + 1) != "\n"
+            i += 1
+        siguiente
+    
+    # Strings
+    si c == "\"" o c == "\x27"
+        comilla = c
+        i += 1
+        strings += 1
+        tokens += 1
+        mientras i < n y subtexto(codigo, i, i + 1) != comilla
+            i += 1
+        i += 1  # saltar comilla de cierre
+        siguiente
+    
+    # Numeros
+    si (c >= "0" y c <= "9") o (c == "." y i + 1 < n y subtexto(codigo, i + 1, i + 2) >= "0" y subtexto(codigo, i + 1, i + 2) <= "9")
+        numeros += 1
+        tokens += 1
+        mientras i < n
+            ch = subtexto(codigo, i, i + 1)
+            si (ch >= "0" y ch <= "9") o ch == "."
+                i += 1
+            sino
+                romper
+        siguiente
+    
+    # Palabras (identificadores y keywords)
+    si (c >= "a" y c <= "z") o (c >= "A" y c <= "Z") o c == "_"
+        palabras += 1
+        tokens += 1
+        mientras i < n
+            ch = subtexto(codigo, i, i + 1)
+            si (ch >= "a" y ch <= "z") o (ch >= "A" y ch <= "Z") o (ch >= "0" y ch <= "9") o ch == "_"
+                i += 1
+            sino
+                romper
+        siguiente
+    
+    # Operadores y simbolos (1 token cada uno)
+    tokens += 1
+    i += 1
+
+muestra "=== Resultados ==="
+muestra "Lineas:        " + lineas
+muestra "Tokens totales: " + tokens
+muestra "  Palabras:    " + palabras
+muestra "  Numeros:     " + numeros
+muestra "  Strings:     " + strings
+muestra "  Otros:       " + (tokens - palabras - numeros - strings)

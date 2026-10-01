@@ -1,0 +1,61 @@
+# listas.zen - Demo de listas
+
+# Crear lista
+nums = [10, 20, 30, 40, 50]
+muestra nums
+
+# Acceder por indice
+muestra "Primero: " + nums[0]
+muestra "Tercero: " + nums[2]
+muestra "Ultimo: " + nums[4]
+
+# Modificar por indice
+nums[0] = 100
+muestra "Despues de modificar:"
+muestra nums
+
+# Longitud
+muestra "Longitud: " + longitud(nums)
+
+# Agregar elementos
+agregar(nums, 60)
+agregar(nums, 70)
+muestra "Despues de agregar:"
+muestra nums
+muestra "Nueva longitud: " + longitud(nums)
+
+# Lista de strings
+nombres = ["Ana", "Bob", "Carlos"]
+muestra nombres
+muestra "Segundo nombre: " + nombres[1]
+
+# Lista mixta (se guarda todo como string)
+mixta = [1, "hola", 42, "mundo"]
+muestra mixta
+
+# Iterar una lista
+muestra "Iterando nums:"
+para cada n en nums
+    muestra n
+
+# Iterar lista de strings
+muestra "Iterando nombres:"
+para cada nombre en nombres
+    muestra "Hola " + nombre
+
+# contiene()
+muestra "Esta 30 en nums?"
+muestra contiene(nums, 30)
+muestra "Esta 999 en nums?"
+muestra contiene(nums, 999)
+
+# quitar() (pop)
+ultimo = quitar(nums)
+muestra "Quite el ultimo: " + ultimo
+muestra nums
+
+# Lista vacia
+vacia = []
+muestra "Lista vacia:"
+muestra vacia
+muestra "Longitud de vacia: " + longitud(vacia)

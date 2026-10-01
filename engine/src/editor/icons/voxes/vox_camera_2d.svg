@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VoxCamera2D: cámara 2D -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect x="4" y="10" width="20" height="14" rx="2" fill="none" stroke="#1AD9EB" stroke-width="2"/>
+  <path d="M24 14 L28 11 L28 23 L24 20 Z" fill="none" stroke="#1AD9EB" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="14" cy="17" r="3" fill="none" stroke="#1AD9EB" stroke-width="1.5"/>
+  <circle cx="14" cy="17" r="1.5" fill="#1AD9EB"/>
+</svg>

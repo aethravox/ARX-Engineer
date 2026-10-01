@@ -1,0 +1,40 @@
+# archivos.zen - Demo de I/O de archivos y funciones del sistema
+
+# ---- Escribir un archivo ----
+contenido = "Linea 1\nLinea 2\nLinea 3\nZen Lang es lo mejor!\n"
+resultado = escribir_archivo("test_salida.txt", contenido)
+muestra "Escribir archivo: " + resultado    # 1 = OK
+
+# ---- Leer un archivo ----
+texto = leer_archivo("test_salida.txt")
+muestra "Contenido leido:"
+muestra texto
+
+# ---- Azar (numeros aleatorios) ----
+muestra "Numero aleatorio (0-99): " + azar(100)
+muestra "Otro aleatorio (0-9): " + azar(10)
+
+# ---- Reloj (timestamp) ----
+t0 = reloj()
+muestra "Timestamp actual: " + t0
+
+# ---- Dormir (esperar) ----
+muestra "Esperando 500ms..."
+dormir(500)
+t1 = reloj()
+muestra "Pasaron: " + (t1 - t0) + " segundos"
+
+# ---- Limpiar pantalla ----
+muestra "Voy a limpiar la pantalla en 1 segundo..."
+dormir(1000)
+limpiar()
+muestra "Pantalla limpia!"
+
+# ---- Numero y texto conversion ----
+n = numero("42.5")
+muestra "Numero parseado + 1: " + (n + 1)
+
+# ---- leer_linea (input interactivo) ----
+muestra "Como te llamas?"
+nombre = leer_linea()
+muestra "Hola " + nombre + "!"

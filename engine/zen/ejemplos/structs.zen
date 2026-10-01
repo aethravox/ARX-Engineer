@@ -1,0 +1,57 @@
+# structs.zen - Demo de structs
+
+# Declarar struct
+Punto {x, y}
+
+# Crear instancia
+p1 = Punto {x: 10, y: 20}
+p2 = Punto {x: 5, y: 15}
+
+# Acceder a campos
+muestra "p1.x = " + p1.x
+muestra "p1.y = " + p1.y
+muestra "p2.x = " + p2.x
+muestra "p2.y = " + p2.y
+
+# Modificar campos
+p1.x = 100
+muestra "Despues de modificar p1.x:"
+muestra "p1.x = " + p1.x
+
+# Otro struct
+Persona {nombre, edad, ciudad}
+
+ana = Persona {
+    nombre: "Ana",
+    edad: 25,
+    ciudad: "Madrid"
+}
+
+muestra "Nombre: " + ana.nombre
+muestra "Edad: " + ana.edad
+muestra "Ciudad: " + ana.ciudad
+
+# Modificar
+ana.edad = 26
+muestra "Nueva edad: " + ana.edad
+
+# Struct mas complejo
+Rect {x, y, ancho, alto}
+
+r = Rect {x: 0, y: 0, ancho: 100, alto: 50}
+muestra "Rect: x=" + r.x + " y=" + r.y + " w=" + r.ancho + " h=" + r.alto
+
+# Calcular area (usando numero() para convertir)
+area = numero(r.ancho) * numero(r.alto)
+muestra "Area: " + area
+
+# Struct con valores mixtos
+Item {nombre, precio, cantidad}
+
+manzana = Item {nombre: "Manzana", precio: 0.50, cantidad: 10}
+muestra "Producto: " + manzana.nombre
+muestra "Precio: " + manzana.precio
+muestra "Cantidad: " + manzana.cantidad
+
+total = numero(manzana.precio) * numero(manzana.cantidad)
+muestra "Total: " + total

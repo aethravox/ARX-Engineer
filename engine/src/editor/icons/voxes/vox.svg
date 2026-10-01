@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vox: nodo genérico (círculo púrpura) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <circle cx="16" cy="16" r="10" fill="none" stroke="#6B36D9" stroke-width="2"/>
+  <circle cx="16" cy="16" r="5" fill="#6B36D9"/>
+  <circle cx="16" cy="16" r="2" fill="#FFFFFF"/>
+</svg>

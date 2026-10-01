@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- VoxCollisionShape3D: forma geométrica wireframe -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <path d="M16 4 L28 12 L24 26 L8 26 L4 12 Z" fill="#6B36D9" fill-opacity="0.15" stroke="#6B36D9" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M16 4 L16 16 M4 12 L16 16 L28 12 M8 26 L16 16 L24 26" stroke="#6B36D9" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+</svg>

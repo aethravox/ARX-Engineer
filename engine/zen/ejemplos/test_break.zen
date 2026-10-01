@@ -1,0 +1,5 @@
+# test_break.zen - Caso minimo del bug
+para i desde 1 hasta 5
+    si i == 3
+        romper
+    muestra i

@@ -1,0 +1,30 @@
+=== ARX Engine - Parche Final v6 ===
+
+CAMBIO v6: El imgui.h descargado con tag 'v1.91.5' del repo master NO tiene
+el módulo de Docking mergeado (las funciones DockSpace, DockBuilder*,
+ImGuiConfigFlags_DockingEnable, etc. NO existen - solo aparecen como
+comentarios "In docking branch"). Solución: cambiar GIT_TAG a 'docking'
+para usar la rama oficial de imgui que tiene todas las funciones mergeadas.
+
+INSTRUCCIONES:
+1. Descomprime el zip en el directorio raíz de ARX:
+       cd ~/Escritorio/Aethravox_Studios/Projectos/Motores/ARX
+       unzip -o arx_patch.zip
+       cp -r arx_patch/engine/* engine/
+
+2. LIMPIAR BUILD (CRÍTICO - para que descargue la nueva rama de imgui):
+       cd engine/build
+       rm -rf CMakeCache.txt CMakeFiles _deps/imgui-subbuild _deps/imgui-src
+
+3. Recompilar (tardará más - re-descargará imgui desde la rama docking):
+       cmake .. -DCMAKE_BUILD_TYPE=Release
+       make -j$(nproc)
+
+CAMBIO PRINCIPAL EN v6 (engine/CMakeLists.txt):
+   GIT_TAG cambiado de "v1.91.5" a "docking" - rama oficial de ImGui
+   con todas las funciones de Docking mergeadas.
+
+RESULTADO ESPERADO:
+- libarx_core.a  ✓ (ya generada)
+- arx-runtime    ✓ (binario standalone)
+- arx-editor     ✓ (editor con Dear ImGui + Docking funcional)

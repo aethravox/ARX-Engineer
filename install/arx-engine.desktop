@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ARX Engine
+GenericName=Game & App Engine
+Comment=Motor de apps y juegos nativo C++ con Zen Lang
+Exec=/home/aethravox/Escritorio/Aethravox_Studios/Projectos/Motores/ARX/engine/build/bin/arx-editor %f
+Icon=/home/aethravox/Escritorio/Aethravox_Studios/Projectos/Motores/ARX/engine/src/assets/app_icon.png
+Terminal=false
+Categories=Development;IDE;GameDevelopment;
+MimeType=application/x-arx-project;
+Keywords=arx;engine;game;app;zen;ide;

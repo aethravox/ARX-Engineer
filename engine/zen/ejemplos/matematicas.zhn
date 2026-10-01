@@ -1,0 +1,36 @@
+# matematicas.zhn - Header de funciones matematicas
+# Los archivos .zhn contienen declaraciones (como .h en C++)
+
+# Funciones externas de libm
+extern "libm" sqrt(double) -> double
+extern "libm" sin(double) -> double
+extern "libm" cos(double) -> double
+extern "libm" pow(double, double) -> double
+extern "libm" floor(double) -> double
+extern "libm" ceil(double) -> double
+extern "libm" abs(double) -> double
+
+# Funciones de Zen
+factorial(n)
+    si n <= 1
+        retorna 1
+    retorna n * factorial(n - 1)
+
+fibonacci(n)
+    si n <= 1
+        retorna n
+    retorna fibonacci(n - 1) + fibonacci(n - 2)
+
+es_primo(n)
+    si n < 2
+        retorna 0
+    si n == 2
+        retorna 1
+    si n % 2 == 0
+        retorna 0
+    i = 3
+    mientras i * i <= n
+        si n % i == 0
+            retorna 0
+        i += 2
+    retorna 1

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ARX Engine — Logo versión clara (para fondos oscuros) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="80" fill="transparent"/>
+  <polygon points="256,64 432,160 432,352 256,448 80,352 80,160"
+           fill="none" stroke="#6B36D9" stroke-width="14" stroke-linejoin="round"/>
+  <polygon points="256,108 392,184 392,328 256,404 120,328 120,184"
+           fill="none" stroke="#1AD9EB" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M 256 140 L 320 360 L 296 360 L 280 308 L 232 308 L 216 360 L 192 360 Z
+           M 240 280 L 272 280 L 256 220 Z"
+        fill="#1AD9EB" stroke="#1AD9EB" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="256" cy="404" r="6" fill="#FFFFFF"/>
+  <text x="256" y="470" font-family="Arial Black, sans-serif" font-size="42"
+        font-weight="900" fill="#1AD9EB" text-anchor="middle" letter-spacing="6">ARX</text>
+</svg>

@@ -1,0 +1,46 @@
+# =============================================================
+# ARX ENGINE - CLIENTE (Visor) - Linux Makefile
+# Compilar: make -f Makefile.linux
+# Librerias: raylib, assimp, imgui, Jolt, glm, zlib
+# Todas desde third_Party (no requiere instalacion externa)
+# =============================================================
+
+CXX      = g++
+MOTOR    = ../../../Motor/platform/linux
+THIRD    = ../../../third_Party
+COMMON   = ../../../common
+
+INC_DIRS = -I. -Iscripting -I$(MOTOR) -I$(MOTOR)/core \
+           -I$(THIRD)/Include/raylib \
+           -I$(THIRD)/Include \
+           -I$(THIRD)/Include/imgui \
+           -I$(COMMON)
+
+CXXFLAGS = -std=c++17 -O2 -Wall $(INC_DIRS)
+LDFLAGS  = -L$(THIRD)/Linux \
+           -lraylib -limgui -lJolt -lassimp \
+           -lGL -lpthread -ldl -lm -lrt -lX11 -lz
+
+TARGET   = bin/linux/ARX_Cliente
+SRC      = main.cpp $(COMMON)/ARX_PlatformImpl.cpp
+OBJ      = $(SRC:.cpp=.o)
+
+.PHONY: all clean run
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+        mkdir -p bin/linux
+        $(CXX) -o $@ $^ $(LDFLAGS)
+
+%.o: %.cpp
+        $(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(COMMON)/ARX_PlatformImpl.o: $(COMMON)/ARX_PlatformImpl.cpp
+        $(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+        rm -f $(OBJ) $(TARGET)
+
+run: $(TARGET)
+        cd bin/linux && ./ARX_Cliente

@@ -1,0 +1,63 @@
+# raylib_juego.zen - Mini juego: mueve la bolita con las flechas
+
+extern "raylib" InitWindow(int, int, str) -> void
+extern "raylib" CloseWindow() -> void
+extern "raylib" WindowShouldClose() -> int
+extern "raylib" BeginDrawing() -> void
+extern "raylib" EndDrawing() -> void
+extern "raylib" ClearBackground(uint) -> void
+extern "raylib" DrawCircle(int, int, float, uint) -> void
+extern "raylib" DrawRectangle(int, int, int, int, uint) -> void
+extern "raylib" DrawText(str, int, int, int, uint) -> void
+extern "raylib" DrawLine(int, int, int, int, uint) -> void
+extern "raylib" SetTargetFPS(int) -> void
+extern "raylib" IsKeyDown(int) -> int
+extern "raylib" GetFrameTime() -> float
+
+negro = 0 + 0*256 + 0*65536 + 255*16777216
+blanco = 245 + 245*256 + 245*65536 + 255*16777216
+rojo = 230 + 41*256 + 55*65536 + 255*16777216
+verde = 0 + 228*256 + 48*65536 + 255*16777216
+amarillo = 253 + 249*256 + 0*65536 + 255*16777216
+
+KEY_RIGHT = 262
+KEY_LEFT = 263
+KEY_DOWN = 264
+KEY_UP = 265
+
+px = 400
+py = 300
+velocidad = 200
+
+InitWindow(800, 600, "Mueve la bolita con las flechas!")
+SetTargetFPS(60)
+
+mientras WindowShouldClose() == 0
+    si IsKeyDown(KEY_RIGHT) == 1
+        px += velocidad * GetFrameTime()
+    si IsKeyDown(KEY_LEFT) == 1
+        px -= velocidad * GetFrameTime()
+    si IsKeyDown(KEY_DOWN) == 1
+        py += velocidad * GetFrameTime()
+    si IsKeyDown(KEY_UP) == 1
+        py -= velocidad * GetFrameTime()
+    
+    si px < 10
+        px = 10
+    si px > 790
+        px = 790
+    si py < 10
+        py = 10
+    si py > 590
+        py = 590
+    
+    BeginDrawing()
+    ClearBackground(negro)
+    DrawLine(400, 0, 400, 600, blanco)
+    DrawCircle(px, py, 20, verde)
+    DrawText("Mueve con flechas", 10, 10, 20, blanco)
+    DrawText("X: " + px, 10, 40, 20, amarillo)
+    DrawText("Y: " + py, 10, 70, 20, amarillo)
+    EndDrawing()
+
+CloseWindow()

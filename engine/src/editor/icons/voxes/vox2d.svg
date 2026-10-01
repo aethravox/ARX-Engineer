@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vox2D: ejes 2D cyan -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <line x1="6" y1="26" x2="26" y2="26" stroke="#1AD9EB" stroke-width="2" stroke-linecap="round"/>
+  <line x1="6" y1="26" x2="6" y2="6" stroke="#1AD9EB" stroke-width="2" stroke-linecap="round"/>
+  <path d="M6 6 L9 9 M6 6 L3 9" stroke="#1AD9EB" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M26 26 L23 23 M26 26 L23 29" stroke="#1AD9EB" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <rect x="13" y="13" width="6" height="6" fill="#1AD9EB" opacity="0.6"/>
+</svg>

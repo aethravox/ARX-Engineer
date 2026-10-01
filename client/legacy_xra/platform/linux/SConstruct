@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# =============================================================
+# ARX ENGINE - CLIENTE (Visor) - Linux
+# Compilar: python3 SConstruct
+# O usar: make -f Makefile.linux
+# Librerias: raylib, assimp, imgui, Jolt, glm, zlib
+# Todas desde third_Party (no requiere instalacion externa)
+# =============================================================
+
+import os
+
+env = Environment()
+
+# Rutas base
+base_dir = Dir('#').abspath
+third_party = os.path.join(base_dir, '..', '..', '..', 'third_Party')
+common_dir  = os.path.join(base_dir, '..', '..', '..', 'common')
+motor_path  = os.path.join(base_dir, '..', '..', '..', 'Motor', 'platform', 'windows')
+
+# Incluir todas las cabeceras
+# Nota: raylib, imgui se incluyen SIN prefijo; Jolt/assimp/glm CON prefijo
+env.Append(CPPPATH=[
+    os.path.join(third_party, 'Include', 'raylib'),
+    os.path.join(third_party, 'Include'),          # assimp, glm, Jolt (se incluyen con prefijo)
+    os.path.join(third_party, 'Include', 'imgui'),
+    common_dir,
+    '#',
+    motor_path,
+    motor_path + '/core'
+])
+
+# Ruta de librerias estaticas (Linux)
+env.Append(LIBPATH=[
+    os.path.join(third_party, 'Linux'),
+    '/usr/local/lib'
+])
+
+# Librerias estaticas de third_Party + sistema
+env.Append(LIBS=[
+    'raylib',
+    'imgui',
+    'Jolt',
+    'assimp',
+    'GL',
+    'pthread',
+    'dl',
+    'm',
+    'rt',
+    'X11',
+    'z'
+])
+
+env.Append(CXXFLAGS=['-std=c++17', '-O2', '-Wall'])
+
+env.Program(
+    target='bin/linux/ARX_Cliente',
+    source=['main.cpp', os.path.join(common_dir, 'ARX_PlatformImpl.cpp')]
+)
+
+print("\n[ARX Engine] Cliente (Linux) configurado.")
+print("[!] Librerias: raylib, imgui, Jolt Physics, Assimp, GLM, zlib")
+print("[!] Ejecutable: bin/linux/ARX_Cliente")

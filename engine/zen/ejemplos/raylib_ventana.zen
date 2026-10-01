@@ -1,0 +1,28 @@
+# raylib_ventana.zen - Primera ventana con raylib desde Zen!
+
+extern "raylib" InitWindow(int, int, str) -> void
+extern "raylib" CloseWindow() -> void
+extern "raylib" WindowShouldClose() -> int
+extern "raylib" BeginDrawing() -> void
+extern "raylib" EndDrawing() -> void
+extern "raylib" ClearBackground(uint) -> void
+extern "raylib" DrawCircle(int, int, float, uint) -> void
+extern "raylib" DrawText(str, int, int, int, uint) -> void
+extern "raylib" SetTargetFPS(int) -> void
+
+# Colores como uint RGBA
+blanco = 245 + 245*256 + 245*65536 + 255*16777216
+rojo = 230 + 41*256 + 55*65536 + 255*16777216
+negro = 0 + 0*256 + 0*65536 + 255*16777216
+
+InitWindow(800, 600, "Hola Raylib desde Zen!")
+SetTargetFPS(60)
+
+mientras WindowShouldClose() == 0
+    BeginDrawing()
+    ClearBackground(blanco)
+    DrawCircle(400, 300, 50, rojo)
+    DrawText("Hola desde Zen!", 280, 200, 30, negro)
+    EndDrawing()
+
+CloseWindow()
