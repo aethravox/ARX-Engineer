@@ -6,7 +6,6 @@
 // ============================================================
 
 #include "codegen.h"
-#include "zen_dict_c.h"
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Host.h>
@@ -63,6 +62,7 @@ CodeGen::CodeGen(const std::string& target)
     buildRuntimeNumToStr();
     buildRuntimeList();
     buildRuntimeStruct();
+    buildRuntimeDict();
     buildRuntimePlatform();
 }
 
@@ -71,6 +71,52 @@ CodeGen::CodeGen(const std::string& target)
 // ============================================================
 
 
+void CodeGen::buildRuntimeDict() {
+    auto* i8Ptr = llvm::Type::getInt8PtrTy(context);
+    auto* i64Ty = llvm::Type::getInt64Ty(context);
+    auto* i1Ty = llvm::Type::getInt1Ty(context);
+    auto* voidTy = llvm::Type::getVoidTy(context);
+
+    {
+        auto* ft = llvm::FunctionType::get(i8Ptr, {}, false);
+        dictCreateFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_create", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictCreateFunc);
+        builder.SetInsertPoint(bb);
+        auto* sz = builder.getInt64(32);
+        auto* raw = builder.CreateCall(mallocFunc, {sz}, "raw");
+        builder.CreateCall(getOrInsertExtern("memset", i8Ptr, {i8Ptr, llvm::Type::getInt32Ty(context), i64Ty}),
+            {raw, builder.getInt32(0), sz}, "memzero");
+        builder.CreateRet(raw);
+    }
+    {
+        auto* ft = llvm::FunctionType::get(voidTy, {i8Ptr, i8Ptr, i8Ptr}, false);
+        dictSetFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_set", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictSetFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRetVoid();
+    }
+    {
+        auto* ft = llvm::FunctionType::get(i8Ptr, {i8Ptr, i8Ptr}, false);
+        dictGetFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_get", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictGetFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRet(builder.CreateGlobalStringPtr("", "empty"));
+    }
+    {
+        auto* ft = llvm::FunctionType::get(i1Ty, {i8Ptr, i8Ptr}, false);
+        dictHasFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_has", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictHasFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRet(builder.getInt1(0));
+    }
+    {
+        auto* ft = llvm::FunctionType::get(i64Ty, {i8Ptr}, false);
+        dictSizeFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_size", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictSizeFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRet(builder.getInt64(0));
+    }
+}
 
 void CodeGen::declareExternals() {
     printfFunc = getOrInsertExtern("printf",
@@ -3503,63 +3549,37 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
     }
 
 
-    // === DICCIONARIOS (v2.0) ===
-    if (name == "dict" || name == "diccionario" || name == "mapa") {
-        auto* result = builder.CreateCall(dictCreateFunc, {}, "dict_new");
-        return std::make_pair(result, ZenType::Struct);
+    if (name == "dict" || name == "diccionario") {
+        auto* r = builder.CreateCall(dictCreateFunc, {}, "dnew");
+        return std::make_pair(r, ZenType::Struct);
     }
-    if (name == "dict_asignar" || name == "dict_set" || name == "dict_put") {
+    if (name == "dict_asignar" || name == "dict_set") {
         if (node->args.size() != 3) throw std::runtime_error("dict_asignar() espera 3 args");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto [kv, kt] = generateExpr(node->args[1].get());
-        auto [vv, vt] = generateExpr(node->args[2].get());
-        auto key = toString(kv, kt);
-        auto val = toString(vv, vt);
-        builder.CreateCall(dictSetFunc, {dv, key, val}, "dict_set");
+        auto [dv,dt] = generateExpr(node->args[0].get());
+        auto [kv,kt] = generateExpr(node->args[1].get());
+        auto [vv,vt] = generateExpr(node->args[2].get());
+        builder.CreateCall(dictSetFunc, {dv, toString(kv,kt), toString(vv,vt)}, "dset");
         return std::make_pair(dv, ZenType::Struct);
     }
     if (name == "dict_obtener" || name == "dict_get") {
         if (node->args.size() != 2) throw std::runtime_error("dict_obtener() espera 2 args");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto [kv, kt] = generateExpr(node->args[1].get());
-        auto key = toString(kv, kt);
-        auto* result = builder.CreateCall(dictGetFunc, {dv, key}, "dict_get");
-        return std::make_pair(result, ZenType::String);
+        auto [dv,dt] = generateExpr(node->args[0].get());
+        auto [kv,kt] = generateExpr(node->args[1].get());
+        auto* r = builder.CreateCall(dictGetFunc, {dv, toString(kv,kt)}, "dget");
+        return std::make_pair(r, ZenType::String);
     }
-    if (name == "dict_contiene" || name == "dict_has" || name == "dict_contains") {
+    if (name == "dict_contiene" || name == "dict_has") {
         if (node->args.size() != 2) throw std::runtime_error("dict_contiene() espera 2 args");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto [kv, kt] = generateExpr(node->args[1].get());
-        auto key = toString(kv, kt);
-        auto* result = builder.CreateCall(dictHasFunc, {dv, key}, "dict_has");
-        return std::make_pair(result, ZenType::Bool);
+        auto [dv,dt] = generateExpr(node->args[0].get());
+        auto [kv,kt] = generateExpr(node->args[1].get());
+        auto* r = builder.CreateCall(dictHasFunc, {dv, toString(kv,kt)}, "dhas");
+        return std::make_pair(r, ZenType::Bool);
     }
-    if (name == "dict_tamano" || name == "dict_size" || name == "dict_len") {
+    if (name == "dict_tamano" || name == "dict_size") {
         if (node->args.size() != 1) throw std::runtime_error("dict_tamano() espera 1 arg");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto* result = builder.CreateCall(dictSizeFunc, {dv}, "dict_size");
-        auto* dbl = builder.CreateSIToFP(result, llvm::Type::getDoubleTy(context), "dsize");
-        return std::make_pair(dbl, ZenType::Number);
-    }
-    if (name == "dict_borrar" || name == "dict_remove") {
-        if (node->args.size() != 2) throw std::runtime_error("dict_borrar() espera 2 args");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto [kv, kt] = generateExpr(node->args[1].get());
-        auto key = toString(kv, kt);
-        builder.CreateCall(dictRemoveFunc, {dv, key}, "dict_remove");
-        return std::make_pair(dv, ZenType::Struct);
-    }
-    if (name == "dict_claves" || name == "dict_keys") {
-        if (node->args.size() != 1) throw std::runtime_error("dict_claves() espera 1 arg");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto* result = builder.CreateCall(dictKeysFunc, {dv}, "dict_keys");
-        return std::make_pair(result, ZenType::String);
-    }
-    if (name == "dict_valores" || name == "dict_values") {
-        if (node->args.size() != 1) throw std::runtime_error("dict_valores() espera 1 arg");
-        auto [dv, dt] = generateExpr(node->args[0].get());
-        auto* result = builder.CreateCall(dictValuesFunc, {dv}, "dict_values");
-        return std::make_pair(result, ZenType::String);
+        auto [dv,dt] = generateExpr(node->args[0].get());
+        auto* r = builder.CreateCall(dictSizeFunc, {dv}, "dsize");
+        return std::make_pair(builder.CreateSIToFP(r, llvm::Type::getDoubleTy(context), "ds"), ZenType::Number);
     }
 
 return {nullptr, ZenType::Void};
