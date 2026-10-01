@@ -1,0 +1,15 @@
+# Hola Mundo en Zen
+muestra "Hola Mundo desde ARX Engine!"
+muestra f"Zen version: 1.2"
+
+# Variables
+nombre = "Aethravox"
+edad = 25
+muestra f"Hola {nombre}, tienes {edad} anos"
+
+# Funcion
+funcion saludar(persona)
+    muestra f"Hola {persona}!"
+
+saludar("mundo")
+saludar("ARX")

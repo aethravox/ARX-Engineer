@@ -1,0 +1,39 @@
+# Demo de strings ricos en Zen v2.0
+muestra "=== Strings Demo ==="
+
+texto = "Hola Mundo desde ARX Engine"
+
+muestra f"Texto: {texto}"
+muestra f"Longitud: {longitud_texto(texto)}"
+muestra f"Empieza con 'Hola': {empieza_con(texto, 'Hola')}"
+muestra f"Termina con 'Engine': {termina_con(texto, 'Engine')}"
+muestra f"Contiene 'Mundo': {contiene_texto(texto, 'Mundo')}"
+muestra f"Contiene 'Python': {contiene_texto(texto, 'Python')}"
+
+muestra f"Tipo de 42: {tipo(42)}"
+muestra f"Tipo de 'hola': {tipo('hola')}"
+muestra f"Tipo de verdad: {tipo(verdad)}"
+muestra f"Es numero 42: {es_numero(42)}"
+muestra f"Es texto 42: {es_texto(42)}"
+
+# Listas
+nums = [1, 2, 3, 4, 5]
+muestra f"Lista: {nums}"
+muestra f"Longitud lista: {longitud(nums)}"
+muestra f"Contiene 3: {contiene(nums, '3')}"
+agregar(nums, "6")
+muestra f"Despues de agregar: {longitud(nums)} elementos"
+
+# Structs
+estructura Punto:
+    x
+    y
+
+p = Punto { x: 10, y: 20 }
+muestra f"Punto: ({p.x}, {p.y})"
+
+# Diccionarios
+edades = dict()
+dict_asignar(edades, "Ana", "25")
+dict_asignar(edades, "Bob", "30")
+muestra f"Dict tamano: {dict_tamano(edades)}"

@@ -1,0 +1,40 @@
+# Platformer 2D en Zen v3.0 (Gaming API)
+# Controles: A/D mover, ESPACIO saltar
+
+jugador_x = 400
+jugador_y = 300
+vel_x = 0
+vel_y = 0
+en_suelo = falso
+gravedad = 800
+
+funcion actualizar()
+    dt = delta()
+    
+    # Input
+    si tecla(65)  # A
+        vel_x = -300
+    sino si tecla(68)  # D
+        vel_x = 300
+    sino
+        vel_x = 0
+    
+    si tecla_presionada(32) y en_suelo  # ESPACIO
+        vel_y = -500
+        en_suelo = falso
+    
+    # Fisica
+    vel_y = vel_y + gravedad * dt
+    jugador_x = jugador_x + vel_x * dt
+    jugador_y = jugador_y + vel_y * dt
+    
+    # Suelo
+    si jugador_y > 500
+        jugador_y = 500
+        vel_y = 0
+        en_suelo = verdad
+    
+    # Render
+    dibujar_rect(jugador_x, jugador_y, 40, 40, 0.3, 0.6, 1.0, 1.0)
+    dibujar_rect(0, 540, 800, 60, 0.2, 0.4, 0.2, 1.0)
+    dibujar_texto("A/D mover, ESPACIO saltar", 10, 10, 1, 1, 1)

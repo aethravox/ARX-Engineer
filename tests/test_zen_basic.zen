@@ -1,0 +1,56 @@
+# Tests basicos de Zen
+resultados = 0
+pasados = 0
+
+funcion test(nombre, actual, esperado)
+    resultados = resultados + 1
+    si actual == esperado
+        pasados = pasados + 1
+        muestra f"  OK: {nombre}"
+    sino
+        muestra f"  FAIL: {nombre} (esperado {esperado}, actual {actual})"
+
+funcion test_bool(nombre, condicion)
+    resultados = resultados + 1
+    si condicion
+        pasados = pasados + 1
+        muestra f"  OK: {nombre}"
+    sino
+        muestra f"  FAIL: {nombre}"
+
+muestra "=== Tests Aritmetica ==="
+test("suma", 2 + 3, 5)
+test("resta", 10 - 4, 6)
+test("multiplicacion", 3 * 4, 12)
+test("division", 20 / 4, 5)
+test("potencia", potencia(2, 8), 256)
+test("raiz", raiz(25), 5)
+
+muestra "=== Tests Strings ==="
+test("longitud", longitud_texto("hola"), 4)
+test_bool("empieza_con", empieza_con("hola mundo", "hola"))
+test_bool("termina_con", termina_con("hola mundo", "mundo"))
+test_bool("contiene", contiene_texto("hola mundo", "mundo"))
+
+muestra "=== Tests Math ==="
+test("max", max(3, 7), 7)
+test("min", min(3, 7), 3)
+test("clamp", limitar(15, 0, 10), 10)
+test("lerp", interpolar(0, 100, 0.5), 50)
+test("dist", distancia(0, 0, 3, 4), 5)
+test("abs", abs(-42), 42)
+test("entero", entero(3.7), 3)
+test("signo_pos", signo(5), 1)
+test("signo_neg", signo(-5), -1)
+
+muestra "=== Tests Logic ==="
+test_bool("and", verdad y falso == falso)
+test_bool("or", verdad o falso == verdad)
+test_bool("not", no falso == verdad)
+
+muestra ""
+muestra f"Resultados: {pasados}/{resultados} pasados"
+si pasados == resultados
+    muestra "TODOS LOS TESTS PASARON"
+sino
+    muestra f"FAILED: {resultados - pasados} tests"
