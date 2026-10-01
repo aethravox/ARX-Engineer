@@ -132,7 +132,7 @@ bool link_object(const std::string& obj_path,
 
     } else if (platform == "web") {
         // === Web: usar emcc (Emscripten) ===
-        cmd << "source /home/aethravox/emsdk/emsdk_env.sh 2>/dev/null && emcc"
+        cmd << "/home/aethravox/emsdk/upstream/emscripten/emcc"
             << " " << obj_path
             << " -o " << output_path
             << " --closure 1 -s WASM=1 -O2";
