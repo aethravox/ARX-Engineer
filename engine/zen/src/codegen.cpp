@@ -3862,6 +3862,36 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         return std::make_pair(b, ZenType::Bool);
     }
 
+
+    // === AEX LAZY LOADING ===
+    if (name == "aex_cargar" || name == "aex_load") {
+        if (node->args.size() != 1) throw std::runtime_error("aex_cargar() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto str = toString(v, t);
+        auto* fn = getOrInsertExtern("arx_aex_cargar", llvm::Type::getInt32Ty(context), {llvm::Type::getInt8PtrTy(context)});
+        auto* r = builder.CreateCall(fn, {str}, "aex_load");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "aex_ok");
+        return std::make_pair(b, ZenType::Bool);
+    }
+    if (name == "aex_descargar" || name == "aex_unload") {
+        if (node->args.size() != 1) throw std::runtime_error("aex_descargar() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto str = toString(v, t);
+        auto* fn = getOrInsertExtern("arx_aex_descargar", llvm::Type::getInt32Ty(context), {llvm::Type::getInt8PtrTy(context)});
+        auto* r = builder.CreateCall(fn, {str}, "aex_unload");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "aex_ok");
+        return std::make_pair(b, ZenType::Bool);
+    }
+    if (name == "aex_cargado" || name == "aex_is_loaded") {
+        if (node->args.size() != 1) throw std::runtime_error("aex_cargado() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto str = toString(v, t);
+        auto* fn = getOrInsertExtern("arx_aex_cargado", llvm::Type::getInt32Ty(context), {llvm::Type::getInt8PtrTy(context)});
+        auto* r = builder.CreateCall(fn, {str}, "aex_chk");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "aex_b");
+        return std::make_pair(b, ZenType::Bool);
+    }
+
 return {nullptr, ZenType::Void};
 }
 
