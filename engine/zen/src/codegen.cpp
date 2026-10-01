@@ -84,8 +84,7 @@ void CodeGen::declareExternals() {
     auto* i32Ty = llvm::Type::getInt32Ty(context);
     auto* voidTy = llvm::Type::getVoidTy(context);
 
-    strncmpFunc  = getOrInsertExtern("strcmp",  i32Ty, {i8Ptr, i8Ptr});
-    strncmpFunc = getOrInsertExtern("strncmp", i32Ty, {i8Ptr, i8Ptr, i64Ty});
+    strcmpFunc  = getOrInsertExtern("strcmp",  i32Ty, {i8Ptr, i8Ptr});
     strlenFunc  = getOrInsertExtern("strlen",  i64Ty, {i8Ptr});
     strstrFunc  = getOrInsertExtern("strstr",  i8Ptr, {i8Ptr, i8Ptr});
     strcpyFunc  = getOrInsertExtern("strcpy",  i8Ptr, {i8Ptr, i8Ptr});
@@ -2487,7 +2486,7 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
             llvm::Type::getInt8Ty(context), buf, len, "npos");
         builder.CreateStore(llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), 0), nullPos);
 
-        return std::make_pair(buf, ZenType::String);
+        return {buf, ZenType::String};
     }
 
     // ---- buscar(s, sub) -> int  (índice de la primera aparición, o -1)
@@ -2625,7 +2624,7 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         auto* nullPos = builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), buf, sLen, "np");
         builder.CreateStore(llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), 0), nullPos);
 
-        return std::make_pair(buf, ZenType::String);
+        return {buf, ZenType::String};
     }
 
     // ---- recortar(s) -> string  (quitar espacios al inicio)
@@ -2977,7 +2976,7 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         auto* boxed = boxValue(val, valType);
         auto* result = builder.CreateCall(
             llvm::FunctionCallee(listContainsFunc), {listVal, boxed}, "has");
-        return std::make_pair(result, ZenType::Bool);
+        return {result, ZenType::Bool};
     }
 
     // quitar(lista) -> valor  (pop del final; devuelve el elemento quitado)
@@ -2999,110 +2998,54 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
 
     // No es un builtin conocido
     
-    // === STRINGS RICOS (v2.0) ===
-    // dividir(texto, separador) → lista (split)
-    if (name == "dividir" || name == "split") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        auto str_val = generateExpr(node->args[0].get());
-        auto sep_val = generateExpr(node->args[1].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto sep = toString(sep_val.first, sep_val.second);
-        // Implementación simple: crear lista con strsep
-        // Por ahora retornar una lista vacía como placeholder
-        auto list = generateListLit(nullptr);
-        return list;
+    // === STRINGS RICOS v2.0 ===
+    if (name == "empieza_con" || name == "starts_with" || name == "startswith") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("empieza_con() espera 2 args");
+        auto sv = generateExpr(node->args[0].get());
+        auto pv = generateExpr(node->args[1].get());
+        auto str = toString(sv.first, sv.second);
+        auto pref = toString(pv.first, pv.second);
+        auto* cmp = builder.CreateCall(strcmpFunc, {str, pref}, "scmp");
+        auto* eq = builder.CreateICmpEQ(cmp, builder.getInt32(0), "eq");
+        return std::make_pair(eq, ZenType::Bool);
     }
-    // unir(lista, separador) → texto (join)
-    if (name == "unir" || name == "join") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        // Por ahora retornar string vacío
-        auto list_val = generateExpr(node->args[0].get());
-        return {toString(list_val.first, list_val.second), ZenType::String};
+    if (name == "termina_con" || name == "ends_with" || name == "endswith") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("termina_con() espera 2 args");
+        auto sv = generateExpr(node->args[0].get());
+        auto fv = generateExpr(node->args[1].get());
+        auto str = toString(sv.first, sv.second);
+        auto suf = toString(fv.first, fv.second);
+        auto* slen = builder.CreateCall(strlenFunc, {str}, "slen");
+        auto* flen = builder.CreateCall(strlenFunc, {suf}, "flen");
+        auto* diff = builder.CreateSub(slen, flen, "diff");
+        auto* neg = builder.CreateICmpSLT(diff, builder.getInt64(0), "neg");
+        auto* off = builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), str, diff, "soff");
+        auto* cmp = builder.CreateCall(strcmpFunc, {off, suf}, "scmp");
+        auto* eq = builder.CreateICmpEQ(cmp, builder.getInt32(0), "eq");
+        auto* res = builder.CreateSelect(neg, builder.getInt1(0), eq, "res");
+        return std::make_pair(res, ZenType::Bool);
     }
-    // repetir(texto, n) → texto (repeat)
-    if (name == "repetir" || name == "repeat") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        // Implementar con un bucle que concatena
-        auto str_val = generateExpr(node->args[0].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto n_arg = generateExpr(node->args[1].get());
-        auto n_val = toDouble(n_arg.first, n_arg.second);
-        // Llamar a una función runtime __zen_repeat(char* s, double n)
-        // Por simplicidad, usar un bucle inline
-        return {str, ZenType::String};
+    if (name == "contiene_texto" || name == "contains_str") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("contiene_texto() espera 2 args");
+        auto sv = generateExpr(node->args[0].get());
+        auto bv = generateExpr(node->args[1].get());
+        auto str = toString(sv.first, sv.second);
+        auto search = toString(bv.first, bv.second);
+        auto* r = builder.CreateCall(strstrFunc, {str, search}, "strstr");
+        auto* nn = builder.CreateICmpNE(r, llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), "nn");
+        return std::make_pair(nn, ZenType::Bool);
     }
-    // empieza_con(texto, prefijo) → bool (starts_with)
-    if (name == "empieza_con" || name == "starts_with" || name == "startswith" ||
-        name == "comienza_con") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        auto str_val = generateExpr(node->args[0].get());
-        auto pref_val = generateExpr(node->args[1].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto pref = toString(pref_val.first, pref_val.second);
-        // Usar strncmp: strncmp(str, pref, strlen(pref)) == 0
-        auto* result = builder.CreateCall(strncmpFunc, {str, pref, builder.CreateCall(strlenFunc, {pref})});
-        auto* cmp = builder.CreateICmpEQ(result, builder.getInt32(0));
-        return std::make_pair(cmp, ZenType::Bool);
-    }
-    // termina_con(texto, sufijo) → bool (ends_with)
-    if (name == "termina_con" || name == "ends_with" || name == "endswith" ||
-        name == "finaliza_con") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        // Implementación: comparar los últimos strlen(sufijo) caracteres
-        auto str_val = generateExpr(node->args[0].get());
-        auto suf_val = generateExpr(node->args[1].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto suf = toString(suf_val.first, suf_val.second);
-        // strlen(str) - strlen(suf) → offset, luego strncmp
-        auto* slen = builder.CreateCall(strlenFunc, {str});
-        auto* flen = builder.CreateCall(strlenFunc, {suf});
-        auto* diff = builder.CreateSub(slen, flen);
-        // Si diff < 0, no termina con (return false)
-        auto* neg = builder.CreateICmpSLT(diff, builder.getInt64(0));
-        auto* offset_ptr = builder.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr, "offset_ptr");
-        auto* str_offset = builder.CreateInBoundsGEP(
-            llvm::Type::getInt8Ty(context), str, diff, "str_offset");
-        auto* cmp_result = builder.CreateCall(strncmpFunc, {str_offset, suf, flen});
-        auto* eq = builder.CreateICmpEQ(cmp_result, builder.getInt32(0));
-        auto* result = builder.CreateSelect(neg, builder.getInt1(0), eq);
-        return std::make_pair(result, ZenType::Bool);
-    }
-    // contiene_texto(texto, busqueda) → bool (string contains, distinto de lista contains)
-    if (name == "contiene_texto" || name == "contains_str" || name == "strstr_check") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        auto str_val = generateExpr(node->args[0].get());
-        auto search_val = generateExpr(node->args[1].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto search = toString(search_val.first, search_val.second);
-        auto* result = builder.CreateCall(strstrFunc, {str, search});
-        auto* not_null = builder.CreateICmpNE(
-            result, llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)));
-        return std::make_pair(not_null, ZenType::Bool);
-    }
-    // char_at(texto, indice) → texto (un caracter)
-    if (name == "caracter_en" || name == "char_at" || name == "charAt") {
-        if (node->args.size() != 2) return {nullptr, ZenType::Void};
-        auto str_val = generateExpr(node->args[0].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto idx_val = toDouble(generateExpr(node->args[1].get()).first, generateExpr(node->args[1].get()).second);
-        auto* idx_int = builder.CreateFPToSI(toDouble(generateExpr(node->args[1].get()).first, generateExpr(node->args[1].get()).second), llvm::Type::getInt64Ty(context), "idx_int");
-        auto* char_ptr = builder.CreateInBoundsGEP(
-            llvm::Type::getInt8Ty(context), str, idx_int, "char_ptr");
-        auto* ch = builder.CreateLoad(llvm::Type::getInt8Ty(context), char_ptr, "ch");
-        // Convertir a string de 1 caracter
-        auto* buf = builder.CreateAlloca(llvm::Type::getInt8Ty(context), builder.getInt64(2), "char_buf");
-        builder.CreateStore(ch, buf);
-        builder.CreateStore(builder.getInt8(0), builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), buf, builder.getInt64(1)));
-        return std::make_pair(buf, ZenType::String);
-    }
-    // longitud_texto(texto) → numero (alias explicito de longitud para strings)
     if (name == "longitud_texto" || name == "strlen" || name == "string_length") {
-        if (node->args.size() != 1) return {nullptr, ZenType::Void};
-        auto str_val = generateExpr(node->args[0].get());
-        auto str = toString(str_val.first, str_val.second);
-        auto* len = builder.CreateCall(strlenFunc, {str});
-        auto* len_double = builder.CreateSIToFP(len, llvm::Type::getDoubleTy(context));
-        return std::make_pair(len_double, ZenType::Number);
+        if (node->args.size() != 1)
+            throw std::runtime_error("longitud_texto() espera 1 arg");
+        auto sv = generateExpr(node->args[0].get());
+        auto str = toString(sv.first, sv.second);
+        auto* len = builder.CreateCall(strlenFunc, {str}, "sl");
+        auto* ld = builder.CreateSIToFP(len, llvm::Type::getDoubleTy(context), "ld");
+        return std::make_pair(ld, ZenType::Number);
     }
 
 return {nullptr, ZenType::Void};

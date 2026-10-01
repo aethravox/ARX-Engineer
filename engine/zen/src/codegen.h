@@ -89,7 +89,6 @@ class CodeGen {
     llvm::Function* structSetFunc = nullptr;      // (i8*, i64 idx, i8* value) -> void
     // Externs de libc para builtins de strings
     llvm::Function* strcmpFunc = nullptr;
-    llvm::Function* strncmpFunc = nullptr;
     llvm::Function* strlenFunc = nullptr;
     llvm::Function* strstrFunc = nullptr;
     llvm::Function* strcpyFunc = nullptr;
