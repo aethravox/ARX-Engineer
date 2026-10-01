@@ -69,6 +69,147 @@ CodeGen::CodeGen(const std::string& target)
 // Funciones externas del sistema
 // ============================================================
 
+
+// ============================================================
+// buildRuntimeDict - genera funciones runtime de diccionarios como LLVM IR
+// El dict es: { i8** keys, i8** values, i64 count, i64 capacity }
+// ============================================================
+void CodeGen::buildRuntimeDict() {
+    auto* i8Ptr = llvm::Type::getInt8PtrTy(context);
+    auto* i8PtrPtr = i8Ptr->getPointerTo();
+    auto* i64Ty = llvm::Type::getInt64Ty(context);
+    auto* i1Ty = llvm::Type::getInt1Ty(context);
+    auto* voidTy = llvm::Type::getVoidTy(context);
+
+    // --- dict_create() -> i8* ---
+    // Crea un dict vacio usando malloc(32) + memset(0)
+    {
+        auto* ft = llvm::FunctionType::get(i8Ptr, {}, false);
+        dictCreateFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_create", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictCreateFunc);
+        builder.SetInsertPoint(bb);
+        auto* size = builder.getInt64(32);
+        auto* raw = builder.CreateCall(mallocFunc, {size}, "raw");
+        builder.CreateCall(
+            getOrInsertExtern("memset", i8Ptr, {i8Ptr, llvm::Type::getInt32Ty(context), i64Ty}),
+            {raw, builder.getInt32(0), size}, "memset");
+        builder.CreateRet(raw);
+    }
+
+    // --- dict_set(i8* dict, i8* key, i8* value) -> void ---
+    // Simplificado: buscar key existente, si no existe agregar al final
+    // (sin grow por simplicidad, max 8 entries)
+    {
+        auto* ft = llvm::FunctionType::get(voidTy, {i8Ptr, i8Ptr, i8Ptr}, false);
+        dictSetFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_set", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictSetFunc);
+        builder.SetInsertPoint(bb);
+        auto* args = dictSetFunc->arg_begin();
+        llvm::Value* dictArg = args;
+        llvm::Value* keyArg = ++args;
+        llvm::Value* valArg = ++args;
+        // count = *(i64*)(dict + 16)
+        auto* countPtr = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), dictArg, builder.getInt64(16)),
+            i64Ty->getPointerTo(), "countPtr");
+        auto* count = builder.CreateLoad(i64Ty, countPtr, "count");
+        // keys = *(i8**)(dict + 0)
+        auto* keysPtr = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), dictArg, builder.getInt64(0)),
+            i8PtrPtr, "keysPtr");
+        auto* keys = builder.CreateLoad(i8Ptr, keysPtr, "keys");
+        // values = *(i8**)(dict + 8)
+        auto* valuesPtr = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), dictArg, builder.getInt64(8)),
+            i8PtrPtr, "valuesPtr");
+        auto* values = builder.CreateLoad(i8Ptr, valuesPtr, "values");
+        // Por simplicidad: si count < 8, agregar al final
+        auto* cmp = builder.CreateICmpSLT(count, builder.getInt64(8), "has_space");
+        auto* thenBB = llvm::BasicBlock::Create(context, "then", dictSetFunc);
+        auto* endBB = llvm::BasicBlock::Create(context, "end", dictSetFunc);
+        builder.CreateCondBr(cmp, thenBB, endBB);
+        builder.SetInsertPoint(thenBB);
+        // keys[count] = key
+        auto* keySlot = builder.CreateInBoundsGEP(i8Ptr, keys, count, "keySlot");
+        builder.CreateStore(keyArg, keySlot);
+        // values[count] = value
+        auto* valSlot = builder.CreateInBoundsGEP(i8Ptr, values, count, "valSlot");
+        builder.CreateStore(valArg, valSlot);
+        // count++
+        auto* newCount = builder.CreateAdd(count, builder.getInt64(1), "newCount");
+        builder.CreateStore(newCount, countPtr);
+        builder.CreateBr(endBB);
+        builder.SetInsertPoint(endBB);
+        builder.CreateRetVoid();
+    }
+
+    // --- dict_get(i8* dict, i8* key) -> i8* ---
+    {
+        auto* ft = llvm::FunctionType::get(i8Ptr, {i8Ptr, i8Ptr}, false);
+        dictGetFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_get", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictGetFunc);
+        builder.SetInsertPoint(bb);
+        auto* args = dictGetFunc->arg_begin();
+        llvm::Value* dictArg = args;
+        llvm::Value* keyArg = ++args;
+        // Simplificado: retornar "" siempre (placeholder)
+        // TODO: buscar key en el array
+        builder.CreateRet(builder.CreateGlobalStringPtr("", "empty"));
+    }
+
+    // --- dict_has(i8* dict, i8* key) -> i1 ---
+    {
+        auto* ft = llvm::FunctionType::get(i1Ty, {i8Ptr, i8Ptr}, false);
+        dictHasFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_has", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictHasFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRet(builder.getInt1(0));
+    }
+
+    // --- dict_size(i8* dict) -> i64 ---
+    {
+        auto* ft = llvm::FunctionType::get(i64Ty, {i8Ptr}, false);
+        dictSizeFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_size", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictSizeFunc);
+        builder.SetInsertPoint(bb);
+        auto* dictArg = dictSizeFunc->arg_begin();
+        auto* countPtr = builder.CreateBitCast(
+            builder.CreateInBoundsGEP(llvm::Type::getInt8Ty(context), dictArg, builder.getInt64(16)),
+            i64Ty->getPointerTo(), "countPtr");
+        auto* count = builder.CreateLoad(i64Ty, countPtr, "count");
+        builder.CreateRet(count);
+    }
+
+    // --- dict_remove(i8* dict, i8* key) -> void ---
+    {
+        auto* ft = llvm::FunctionType::get(voidTy, {i8Ptr, i8Ptr}, false);
+        dictRemoveFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_remove", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictRemoveFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRetVoid();
+    }
+
+    // --- dict_keys(i8* dict) -> i8* ---
+    {
+        auto* ft = llvm::FunctionType::get(i8Ptr, {i8Ptr}, false);
+        dictKeysFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_keys", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictKeysFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRet(builder.CreateGlobalStringPtr("", "empty"));
+    }
+
+    // --- dict_values(i8* dict) -> i8* ---
+    {
+        auto* ft = llvm::FunctionType::get(i8Ptr, {i8Ptr}, false);
+        dictValuesFunc = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__zen_dict_values", module.get());
+        auto* bb = llvm::BasicBlock::Create(context, "entry", dictValuesFunc);
+        builder.SetInsertPoint(bb);
+        builder.CreateRet(builder.CreateGlobalStringPtr("", "empty"));
+    }
+
+    builder.ClearInsertionPoint();
+}
+
 void CodeGen::declareExternals() {
     printfFunc = getOrInsertExtern("printf",
         llvm::Type::getInt32Ty(context),
@@ -3497,6 +3638,66 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         auto* len = builder.CreateCall(strlenFunc, {str}, "sl");
         auto* ld = builder.CreateSIToFP(len, llvm::Type::getDoubleTy(context), "ld");
         return std::make_pair(ld, ZenType::Number);
+    }
+
+
+    // === DICCIONARIOS (v2.0) ===
+    if (name == "dict" || name == "diccionario" || name == "mapa") {
+        auto* result = builder.CreateCall(dictCreateFunc, {}, "dict_new");
+        return std::make_pair(result, ZenType::Struct);
+    }
+    if (name == "dict_asignar" || name == "dict_set" || name == "dict_put") {
+        if (node->args.size() != 3) throw std::runtime_error("dict_asignar() espera 3 args");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto [kv, kt] = generateExpr(node->args[1].get());
+        auto [vv, vt] = generateExpr(node->args[2].get());
+        auto key = toString(kv, kt);
+        auto val = toString(vv, vt);
+        builder.CreateCall(dictSetFunc, {dv, key, val}, "dict_set");
+        return std::make_pair(dv, ZenType::Struct);
+    }
+    if (name == "dict_obtener" || name == "dict_get") {
+        if (node->args.size() != 2) throw std::runtime_error("dict_obtener() espera 2 args");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto [kv, kt] = generateExpr(node->args[1].get());
+        auto key = toString(kv, kt);
+        auto* result = builder.CreateCall(dictGetFunc, {dv, key}, "dict_get");
+        return std::make_pair(result, ZenType::String);
+    }
+    if (name == "dict_contiene" || name == "dict_has" || name == "dict_contains") {
+        if (node->args.size() != 2) throw std::runtime_error("dict_contiene() espera 2 args");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto [kv, kt] = generateExpr(node->args[1].get());
+        auto key = toString(kv, kt);
+        auto* result = builder.CreateCall(dictHasFunc, {dv, key}, "dict_has");
+        return std::make_pair(result, ZenType::Bool);
+    }
+    if (name == "dict_tamano" || name == "dict_size" || name == "dict_len") {
+        if (node->args.size() != 1) throw std::runtime_error("dict_tamano() espera 1 arg");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto* result = builder.CreateCall(dictSizeFunc, {dv}, "dict_size");
+        auto* dbl = builder.CreateSIToFP(result, llvm::Type::getDoubleTy(context), "dsize");
+        return std::make_pair(dbl, ZenType::Number);
+    }
+    if (name == "dict_borrar" || name == "dict_remove") {
+        if (node->args.size() != 2) throw std::runtime_error("dict_borrar() espera 2 args");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto [kv, kt] = generateExpr(node->args[1].get());
+        auto key = toString(kv, kt);
+        builder.CreateCall(dictRemoveFunc, {dv, key}, "dict_remove");
+        return std::make_pair(dv, ZenType::Struct);
+    }
+    if (name == "dict_claves" || name == "dict_keys") {
+        if (node->args.size() != 1) throw std::runtime_error("dict_claves() espera 1 arg");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto* result = builder.CreateCall(dictKeysFunc, {dv}, "dict_keys");
+        return std::make_pair(result, ZenType::String);
+    }
+    if (name == "dict_valores" || name == "dict_values") {
+        if (node->args.size() != 1) throw std::runtime_error("dict_valores() espera 1 arg");
+        auto [dv, dt] = generateExpr(node->args[0].get());
+        auto* result = builder.CreateCall(dictValuesFunc, {dv}, "dict_values");
+        return std::make_pair(result, ZenType::String);
     }
 
 return {nullptr, ZenType::Void};

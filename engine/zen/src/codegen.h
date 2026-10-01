@@ -85,6 +85,15 @@ class CodeGen {
     llvm::Function* listPopFunc = nullptr;        // (zen_list_t*) -> i8*
     // Funciones runtime de structs (embebidas en LLVM IR)
     llvm::Function* structCreateFunc = nullptr;   // (i64 numFields) -> i8* (struct opaco)
+    // Dict runtime functions (generadas como LLVM IR, igual que list/struct)
+    llvm::Function* dictCreateFunc = nullptr;   // () -> i8* (dict opaco)
+    llvm::Function* dictSetFunc = nullptr;      // (i8* dict, i8* key, i8* value) -> void
+    llvm::Function* dictGetFunc = nullptr;      // (i8* dict, i8* key) -> i8*
+    llvm::Function* dictHasFunc = nullptr;      // (i8* dict, i8* key) -> i1
+    llvm::Function* dictSizeFunc = nullptr;     // (i8* dict) -> i64
+    llvm::Function* dictRemoveFunc = nullptr;   // (i8* dict, i8* key) -> void
+    llvm::Function* dictKeysFunc = nullptr;     // (i8* dict) -> i8*
+    llvm::Function* dictValuesFunc = nullptr;   // (i8* dict) -> i8*
     llvm::Function* structGetFunc = nullptr;      // (i8*, i64 idx) -> i8*
     llvm::Function* structSetFunc = nullptr;      // (i8*, i64 idx, i8* value) -> void
     // Externs de libc para builtins de strings
@@ -125,6 +134,7 @@ class CodeGen {
     void buildRuntimeNumToStr();  // genera __zen_num_to_str(double) -> char*
     void buildRuntimeList();      // genera funciones runtime de listas
     void buildRuntimeStruct();    // genera funciones runtime de structs
+    void buildRuntimeDict();      // genera funciones runtime de dicts
     llvm::Value* toDouble(llvm::Value* val, ZenType type);
     llvm::Value* toBool(llvm::Value* val, ZenType type);
     llvm::Value* toString(llvm::Value* val, ZenType type);  // convierte cualquier valor a i8*
