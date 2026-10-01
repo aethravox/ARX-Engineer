@@ -8,6 +8,7 @@
 #include "core/logging.hpp"
 #include "core/math.hpp"
 #include "physics/physics_server.hpp"
+#include "audio/audio_server.hpp"
 
 #include <algorithm>
 
@@ -40,6 +41,10 @@ bool SceneTree::init(Window* w, Renderer* r) {
     } else {
         ARX_LOG_WARN("SceneTree: no se pudo crear PhysicsServer");
     }
+
+    // Inicializar AudioServer (singleton)
+    AudioServer::instance().init();
+    ARX_LOG_INFO("SceneTree: AudioServer iniciado");
 
     return true;
 }

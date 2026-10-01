@@ -29,6 +29,7 @@ private:
     void draw_camera2d_attributes(class VoxCamera2D* n);
     void draw_camera3d_attributes(class VoxCamera3D* n);
     void draw_mesh_instance3d_attributes(class VoxMeshInstance3D* n);
+    void draw_audio_stream_player_attributes(class VoxAudioStreamPlayer* n);
 
     Vox* target_ = nullptr;
 };

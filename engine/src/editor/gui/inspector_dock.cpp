@@ -30,6 +30,7 @@
 #include "scene/2d/vox_camera_2d.hpp"
 #include "scene/3d/vox_mesh_instance_3d.hpp"
 #include "scene/3d/vox_physics_3d.hpp"
+#include "scene/audio/vox_audio.hpp"
 
 namespace arx {
 
