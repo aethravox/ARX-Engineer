@@ -1,241 +1,157 @@
-# ARX — Motor de apps y juegos nativo C++
+# ARX Engine
 
-> **ARX Engineer** crea apps/juegos en C++ + ARXScript (o Luau).
-> Exporta a `.aex`, un paquete **firmado criptográficamente** y **sandboxeado por permisos**.
-> **ARX Client** (runtime ligero, ~10MB) verifica la firma y ejecuta el paquete en un sandbox seguro.
->
-> **Sin servidor propio.** El creador puede conectar su juego a su propio server (MMO, multiplayer, API REST, lo que sea).
-> El cliente solo garantiza que el paquete viene de quien dice ser y que no pide más permisos de los aprobados.
+> Motor de juegos y apps nativo en C++ con Zen Lang — bilingüe (ES/EN), LLVM AOT + VM, cross-compile standalone.
 
----
+![License](https://img.shields.io/badge/license-MIT-blue)
+![C++](https://img.shields.io/badge/C%2B%2B-20-orange)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20Android-green)
+
+## ¿Qué es?
+
+ARX Engine es un motor de juegos/apps nativo en C++20 con su propio lenguaje de scripting (**Zen**), editor visual integrado, y compilador LLVM embebido que genera ejecutables standalone para Linux, Windows y Android — **sin instalar toolchains externos**.
+
+### Características principales
+
+- **Zen Lang v1.2** — lenguaje bilingüe (español/inglés), sin tipos, sin punto y coma, con LLVM AOT + VM tree-walking
+- **Editor visual** — viewport 3D con gizmos (move/rotate/scale), inspector con atributos por tipo, code editor integrado, theme editor, sistema de iconos SVG con hot reload
+- **100% standalone** — 1 solo binario (120MB) compila para 3 plataformas sin needing clang/MinGW/NDK instalados
+- **Física dual** — Bullet (compat SSE2) + Jolt (modern SSE4.1+) con autodetección
+- **Formato .aex** — contenedor de assets firmado Ed25519 con lazy loading
+- **Hot reload** — editá `main.zen` y guardá, la VM re-ejecuta automáticamente
+- **OpenGL 2.1+** — compatible con hardware viejo (Intel 4500)
 
 ## Arquitectura
 
 ```
-┌───────────────────────────────────────────────────────┐
-│  ARX ENGINEER  (editor + motor, C++ + ImGui)          │
-│  ├─ ECS + scene tree 2D/3D                            │
-│  ├─ Renderer OpenGL 3.3+ (Vulkan experimental)        │
-│  ├─ ARXScript (lexer+parser+VM+transpiler AOT a C++)  │
-│  ├─ Luau embebido (sandboxing nativo de Roblox)       │
-│  ├─ Editor ImGui (docks, viewport, inspector)         │
-│  ├─ Physics (Bullet), Audio, Input, Networking        │
-│  └─ Export → .aex firmado                             │
-└───────────────────────────────────────────────────────┘
-                          │
-                          ▼  (distribución P2P, sin server propio)
-┌───────────────────────────────────────────────────────┐
-│  .aex  (paquete firmado con Ed25519)                  │
-│  ├─ Manifest JSON + permisos explícitos               │
-│  ├─ Signature block (Ed25519 + SHA256 hashes)         │
-│  ├─ Assets comprimidos con zstd (tar)                 │
-│  └─ Scripts (Luau bytecode o AOT nativo)              │
-└───────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌───────────────────────────────────────────────────────┐
-│  ARX CLIENT  (runtime ~10MB, C++)                     │
-│  ├─ Verifica firma Ed25519 antes de ejecutar          │
-│  ├─ Lee manifest → pide permisos al usuario           │
-│  ├─ Sandbox: solo lo que el manifest aprueba          │
-│  ├─ Carga assets + scripts en memoria                 │
-│  ├─ Ejecuta VM Luau (o nativo si AOT) + render loop   │
-│  └─ Si el juego pide red → se conecta a donde quiera  │
-└───────────────────────────────────────────────────────┘
-                          │
-                          ▼  (si el juego pide permiso de red)
-                ╔═══════════════════════════════╗
-                ║  SERVER DEL CREADOR           ║
-                ║  (Go, Rust, Node, C++, etc.)  ║
-                ║  El cliente no impone nada.   ║
-                ╚═══════════════════════════════╝
+┌──────────────────────────────────────────────────────┐
+│  ARX Engine (1 binario, 120MB)                       │
+│  ├─ Editor visual (ImGui + docking)                  │
+│  │   ├─ Viewport 3D/2D con gizmos                    │
+│  │   ├─ Inspector con atributos por tipo de Vox      │
+│  │   ├─ Code editor integrado (editar .zen)          │
+│  │   ├─ Theme editor (5 presets: ARX/Godot/VS/Light) │
+│  │   ├─ FileSystem con drag&drop de assets           │
+│  │   └─ Sistema de iconos SVG (nanosvg)              │
+│  ├─ Zen Lang (compilador + VM)                       │
+│  │   ├─ LLVM estático embebido (cross-compile)       │
+│  │   ├─ lld embebido (linker integrado)              │
+│  │   └─ Runtimes embebidos (crt+libs 3 plataformas)  │
+│  ├─ Motor                                           │
+│  │   ├─ Renderer OpenGL 2.1+                        │
+│  │   ├─ Física dual (Bullet + Jolt)                  │
+│  │   ├─ Scene tree con ~50 tipos de Voxes            │
+│  │   └─ Hot reload via VM                            │
+│  └─ Export                                          │
+│      ├─ .aex (contenedor de assets firmado)          │
+│      └─ CLI tools (arx_keygen, arx_pack, arx_verify) │
+└──────────────────────────────────────────────────────┘
 ```
 
----
+## Terminología
 
-## Diferenciador
+| ARX | Godot | Descripción |
+|-----|-------|-------------|
+| Vox | Node | Unidad básica de la escena |
+| Atributo | Property | Campo editable de un Vox |
+| Escena | Scene | Jerarquía de Voxes |
+| Zen | GDScript | Lenguaje de scripting |
 
-> **"Descarga mi .aex de 5MB, el cliente lo verifica criptográficamente, lo ejecuta sandboxed, y si el creador lo firmó con su clave privada, sabes que es auténtico."**
+## Compilar
 
-Esto **no existe hoy** en motores comerciales:
+### Requisitos
 
-- **Más abierto que App Store** (sin review process, distribución P2P)
-- **Más seguro que .exe suelto** (sandbox + firma criptográfica)
-- **Más liviano que Unity/Electron** (cliente 10MB vs 200MB+)
-- **Más poderoso que Pico-8** (red, 3D, MMO, scripting serio)
-- **Sin vendor lock-in** (estándares abiertos, MIT)
+- CMake 3.16+
+- C++20 (GCC 10+, Clang 12+)
+- LLVM 14 (`llvm-14-dev`)
+- lld-14 (`lld-14`, `liblld-14-dev`)
+- MinGW (`mingw-w64`) — para cross-compile a Windows
+- Android NDK — para cross-compile a Android
 
----
+### Build
 
-## Estructura del repositorio
+```bash
+cd engine
+mkdir build && cd build
+cmake .. -DARX_BUILD_EDITOR=ON
+cmake --build . -j$(nproc)
+```
+
+### Generar runtimes embebidos (opcional, para 100% standalone)
+
+```bash
+cd engine/zen
+python3 ../../tools/pack_runtimes.py
+# Esto genera zen_runtimes.cpp con crt+libs embebidos
+```
+
+## Uso
+
+### Editor
+
+```bash
+./build/bin/arx-editor [path/al/proyecto]
+```
+
+### Compilar Zen
+
+```bash
+# Compilar a ejecutable standalone
+./build/bin/zen main.zen --link --platform linux
+./build/bin/zen main.zen --link --platform windows
+./build/bin/zen main.zen --link --platform android
+
+# Solo generar .o (sin link)
+./build/bin/zen main.zen --obj --platform windows
+```
+
+### Empaquetar assets en .aex
+
+```bash
+# Generar claves
+./build/bin/arx_keygen --output myproject
+
+# Empaquetar
+./build/bin/arx_pack --input ./assets --output game.aex --priv myproject.priv --name "My Game"
+
+# Verificar
+./build/bin/arx_verify --input game.aex --pub myproject.pub
+```
+
+## Zen Lang — Ejemplo
+
+```
+# Hola mundo en Zen (bilingüe)
+funcion saludar(nombre)
+    muestra f"Hola {nombre}!"
+
+saludar("mundo")
+
+# Control de flujo
+para i desde 1 hasta 10
+    si i % 2 == 0
+        muestra f"{i} es par"
+    sino
+        muestra f"{i} es impar"
+```
+
+## Estructura del repo
 
 ```
 ARX/
-├── README.md                    # este archivo
-├── engine/                      # ARX Engineer (editor + motor)
-│   ├── src/                     # 17k LOC ya migrados
-│   │   ├── core/                # types, math, object, variant, logging
-│   │   ├── os/                  # abstracción OS + windowing
-│   │   ├── platforms/           # windows/linux/web/android
-│   │   ├── render/              # renderer + opengl/ + shaders
-│   │   ├── scene/               # node, scene_tree, 2D/, 3D/, resources/
-│   │   ├── physics/             # physics_server + bullet/ wrapper
-│   │   ├── audio/               # audio_server (WAV/MP3/OGG)
-│   │   ├── input/               # input + input_map
-│   │   ├── arxscript/           # lexer, parser, AST, transpiler → C++
-│   │   ├── editor/              # editor_main + gui/ + icons/
-│   │   ├── export/              # export_plugin + exporters/
-│   │   └── assets/              # splash, icons, logos
-│   ├── thirdparty/              # stack Godot (Bullet, FreeType, ENet, etc.)
-│   ├── CMakeLists.txt
-│   ├── CMakePresets.json
-│   └── LEGACY_README.md         # README del ARX Engine previo (referencia)
-│
-├── client/                      # ARX Client (runtime que ejecuta .aex)
-│   ├── src/
-│   │   ├── core/
-│   │   ├── loader/              # carga + verifica firma del .aex
-│   │   ├── sandbox/             # enforcement de permisos del manifest
-│   │   ├── runtime/             # bootstrap VM + render loop
-│   │   ├── render/              # renderer mínimo (OpenGL)
-│   │   ├── audio/
-│   │   ├── net/                 # networking con permisos
-│   │   └── platform/            # linux/windows/android/web
-│   ├── thirdparty/              # miniaudio, Luau, glad (mínimo)
-│   └── docs/
-│
-├── format/                      # spec + lib del .aex firmado
-│   ├── spec/SPEC.md             # especificación formal del formato
-│   ├── include/                 # headers C de la lib
-│   ├── src/                     # implementación
-│   └── tests/                   # round-trip tests
-│
-├── tools/                       # CLI tools
-│   ├── arx_sign/                # firmar .aex con Ed25519
-│   ├── arx_pack/                # empaquetar .arx → .aex
-│   └── arx_verify/              # verificar firma sin ejecutar
-│
-├── common/                      # código compartido engine + client
-│   ├── include/arx/
-│   │   ├── format/aex.h         # API del .aex
-│   │   └── crypto/ed25519.h     # wrapper Ed25519
-│   └── src/
-│
-├── docs/                        # docs globales
-│   ├── architecture/
-│   ├── aex_format/
-│   ├── arxscript/
-│   ├── sandbox_model/
-│   └── building/
-│
-├── build/                       # scripts de build
-│   ├── cmake/
-│   └── scripts/
-│
-├── tests/
-└── examples/
-    ├── hello_world/
-    ├── platformer_2d/
-    └── mmo_client/
+├── engine/          # Motor + editor + Zen compiler
+│   ├── src/         # Código del motor (core, scene, render, physics, editor)
+│   ├── zen/         # Zen lang (lexer, parser, codegen, VM, linker, runtimes)
+│   ├── thirdparty/  # Dependencias (bullet, nanosvg, freetype, etc.)
+│   └── tools/       # CLI tools (arx_keygen, arx_pack, arx_verify, etc.)
+├── common/          # Lib compartida (Ed25519, .aex format, manifest)
+├── install/         # Scripts de instalación (Linux .desktop, MIME types)
+└── docs/            # Documentación
 ```
-
----
-
-## Tecnologías
-
-| Componente | Tecnología |
-|------------|-----------|
-| Lenguaje del motor | C++20 |
-| Build system | CMake 3.20+ |
-| Renderer | OpenGL 3.3+ / GLES 3.0 (Vulkan experimental) |
-| Física | Bullet 3.24 |
-| Audio | miniaudio / minimp3 / libvorbis |
-| UI del editor | Dear ImGui + docking |
-| Scripting | **ARXScript** (transpiler AOT a C++) + **Luau** (sandboxing) |
-| Networking | ENet + wslay (WebSocket) + mbedtls (TLS) |
-| Criptografía | Ed25519 (libsodium o fallback) + SHA-256 |
-| Compresión | zstd + zlib |
-| Carga de modelos | Assimp |
-| Math | GLM |
-
----
-
-## Formato .aex — el corazón del proyecto
-
-Ver **[format/spec/SPEC.md](format/spec/SPEC.md)** para la especificación completa.
-
-Resumen:
-
-- Cabecera de 64 bytes (magic `AEX1` + offsets)
-- Manifest JSON con **permisos explícitos** (network, FS, audio, cámara, etc.)
-- Signature block de 292 bytes con **firma Ed25519** del creador
-- Assets comprimidos con zstd (formato TAR interno)
-- Scripts como bytecode Luau o AOT compilado a nativo
-
-El cliente verifica **todo** antes de ejecutar: hashes SHA256 + firma Ed25519 + permisos del manifest.
-
----
-
-## Estado del proyecto
-
-| Componente | Estado |
-|------------|--------|
-| ARX Engineer (editor) | ✅ Migrado desde ARX Engine previo (17k LOC) |
-| ARXScript (lexer+parser+VM+transpiler) | ✅ Migrado |
-| Renderer OpenGL + postprocess | ✅ Migrado |
-| Editor ImGui completo | ✅ Migrado |
-| Exporters Win/Linux/Android/Web | ✅ Migrado |
-| ARX Client (runtime) | 🚧 Boceto (legacy XRA preservado como referencia) |
-| Formato .aex (spec + lib) | 🚧 Spec v1.0 listo, lib pendiente |
-| Tools (arx_sign, arx_pack, arx_verify) | 🚧 Esqueletos con TODOs |
-| Sandbox enforcement | ⏳ Pendiente |
-| Tests | ⏳ Pendiente |
-| Ejemplos (hello_world, mmo_client) | ⏳ Pendiente |
-
----
-
-## Roadmap
-
-### Fase 1 — Fundación (en curso)
-- [x] Migrar código previo a la nueva estructura
-- [x] Spec del formato .aex v1.0
-- [ ] Implementar `arx::format` (lib C para .aex)
-- [ ] Implementar `arx::crypto::ed25519` (wrapper libsodium/fallback)
-- [ ] CLI `arx_sign` + `arx_verify` funcionales
-
-### Fase 2 — Cliente mínimo
-- [ ] ARX Client con render OpenGL + Luau VM
-- [ ] Cargar `.aex`, verificar firma, ejecutar `hello_world.luau`
-- [ ] Sandbox: bloquear FS/red/audio si manifest no lo aprueba
-- [ ] Build para Linux + Windows
-
-### Fase 3 — Integración con el editor
-- [ ] Botón "Export → .aex" en ARX Engineer
-- [ ] Pipeline: ARXScript → Luau bytecode (o C++ AOT) → empaquetar
-- [ ] Sistema de claves del creador (keypair management en el editor)
-
-### Fase 4 — Multiplataforma
-- [ ] Android (NDK + GLES 3.0)
-- [ ] Web (Emscripten + WebGL 2)
-- [ ] iOS (futuro)
-
-### Fase 5 — Ecosistema
-- [ ] Trust store: usuario marca claves como de confianza
-- [ ] CLI `arx_pack` para empaquetar sin abrir el editor
-- [ ] Ejemplos: hello_world, platformer_2d, mmo_client
-- [ ] Documentación web interactiva
-
----
 
 ## Licencia
 
-MIT. Las librerías third-party conservan sus licencias originales.
+MIT — 100% código original.
 
----
+## Autor
 
-## Créditos
-
-**Aethravox Studios** — diseño y desarrollo.
-
-Basado en trabajo previo de ARX Engine (17k LOC ya migrados) y XRA_Engine
-(arquitectura Cliente/Motor que inspiró la separación actual).
+**Aethravox Studios**
