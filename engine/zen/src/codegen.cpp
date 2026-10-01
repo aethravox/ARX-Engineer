@@ -6,6 +6,7 @@
 // ============================================================
 
 #include "codegen.h"
+#include "zen_gaming_api.hpp"  // Gaming API externs
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Host.h>
@@ -3682,6 +3683,183 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         auto* scaled = builder.CreateFMul(normalized, range, "scaled");
         auto* result = builder.CreateFAdd(scaled, lo, "aleatorio");
         return std::make_pair(result, ZenType::Number);
+    }
+
+
+    // === GAMING API (v3.0) ===
+    // --- INPUT: teclado ---
+    if (name == "tecla" || name == "key_down" || name == "is_key_down") {
+        if (node->args.size() != 1) throw std::runtime_error("tecla() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* i = builder.CreateFPToSI(d, llvm::Type::getInt32Ty(context), "key_i");
+        auto* fn = getOrInsertExtern("arx_key_down", llvm::Type::getInt32Ty(context), {llvm::Type::getInt32Ty(context)});
+        auto* r = builder.CreateCall(fn, {i}, "kd");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "kd_b");
+        return std::make_pair(b, ZenType::Bool);
+    }
+    if (name == "tecla_presionada" || name == "key_pressed") {
+        if (node->args.size() != 1) throw std::runtime_error("tecla_presionada() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* i = builder.CreateFPToSI(d, llvm::Type::getInt32Ty(context), "key_i");
+        auto* fn = getOrInsertExtern("arx_key_pressed", llvm::Type::getInt32Ty(context), {llvm::Type::getInt32Ty(context)});
+        auto* r = builder.CreateCall(fn, {i}, "kp");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "kp_b");
+        return std::make_pair(b, ZenType::Bool);
+    }
+    if (name == "tecla_soltada" || name == "key_released") {
+        if (node->args.size() != 1) throw std::runtime_error("tecla_soltada() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* i = builder.CreateFPToSI(d, llvm::Type::getInt32Ty(context), "key_i");
+        auto* fn = getOrInsertExtern("arx_key_released", llvm::Type::getInt32Ty(context), {llvm::Type::getInt32Ty(context)});
+        auto* r = builder.CreateCall(fn, {i}, "kr");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "kr_b");
+        return std::make_pair(b, ZenType::Bool);
+    }
+    // --- INPUT: mouse ---
+    if (name == "mouse_x" || name == "raton_x") {
+        auto* fn = getOrInsertExtern("arx_mouse_x", llvm::Type::getDoubleTy(context), {});
+        return std::make_pair(builder.CreateCall(fn, {}, "mx"), ZenType::Number);
+    }
+    if (name == "mouse_y" || name == "raton_y") {
+        auto* fn = getOrInsertExtern("arx_mouse_y", llvm::Type::getDoubleTy(context), {});
+        return std::make_pair(builder.CreateCall(fn, {}, "my"), ZenType::Number);
+    }
+    if (name == "mouse_presionado" || name == "mouse_down" || name == "mouse_pressed") {
+        if (node->args.size() != 1) throw std::runtime_error("mouse_presionado() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* i = builder.CreateFPToSI(d, llvm::Type::getInt32Ty(context), "mb_i");
+        auto* fn = getOrInsertExtern("arx_mouse_pressed", llvm::Type::getInt32Ty(context), {llvm::Type::getInt32Ty(context)});
+        auto* r = builder.CreateCall(fn, {i}, "mp");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "mp_b");
+        return std::make_pair(b, ZenType::Bool);
+    }
+    // --- AUDIO ---
+    if (name == "reproducir" || name == "play_sound" || name == "audio_play") {
+        if (node->args.size() != 1) throw std::runtime_error("reproducir() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto str = toString(v, t);
+        auto* fn = getOrInsertExtern("arx_audio_play", llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)});
+        builder.CreateCall(fn, {str}, "aplay");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    if (name == "detener_audio" || name == "stop_sound" || name == "audio_stop") {
+        auto* fn = getOrInsertExtern("arx_audio_stop", llvm::Type::getVoidTy(context), {});
+        builder.CreateCall(fn, {}, "astop");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    if (name == "volumen" || name == "set_volume" || name == "audio_volume") {
+        if (node->args.size() != 1) throw std::runtime_error("volumen() espera 1 arg");
+        auto [v, t] = generateExpr(node->args[0].get());
+        auto d = toDouble(v, t);
+        auto* fn = getOrInsertExtern("arx_audio_set_volume", llvm::Type::getVoidTy(context), {llvm::Type::getDoubleTy(context)});
+        builder.CreateCall(fn, {d}, "vol");
+        return std::make_pair(d, ZenType::Number);
+    }
+    // --- RENDER 2D ---
+    if (name == "dibujar_rect" || name == "draw_rect") {
+        if (node->args.size() != 8) throw std::runtime_error("dibujar_rect() espera 8 args (x,y,w,h,r,g,b,a)");
+        auto* fn = getOrInsertExtern("arx_draw_rect", llvm::Type::getVoidTy(context),
+            {llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context)});
+        std::vector<llvm::Value*> args;
+        for (int i = 0; i < 8; i++) {
+            auto [v, t] = generateExpr(node->args[i].get());
+            args.push_back(toDouble(v, t));
+        }
+        builder.CreateCall(fn, args, "drect");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    if (name == "dibujar_circulo" || name == "draw_circle") {
+        if (node->args.size() != 7) throw std::runtime_error("dibujar_circulo() espera 7 args (x,y,r,r,g,b,a)");
+        auto* fn = getOrInsertExtern("arx_draw_circle", llvm::Type::getVoidTy(context),
+            {llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context)});
+        std::vector<llvm::Value*> args;
+        for (int i = 0; i < 7; i++) {
+            auto [v, t] = generateExpr(node->args[i].get());
+            args.push_back(toDouble(v, t));
+        }
+        builder.CreateCall(fn, args, "dcirc");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    if (name == "dibujar_texto" || name == "draw_text") {
+        if (node->args.size() != 6) throw std::runtime_error("dibujar_texto() espera 6 args (texto,x,y,r,g,b)");
+        auto* fn = getOrInsertExtern("arx_draw_text", llvm::Type::getVoidTy(context),
+            {llvm::Type::getInt8PtrTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context)});
+        auto [sv, st] = generateExpr(node->args[0].get());
+        auto str = toString(sv, st);
+        std::vector<llvm::Value*> args = {str};
+        for (int i = 1; i < 6; i++) {
+            auto [v, t] = generateExpr(node->args[i].get());
+            args.push_back(toDouble(v, t));
+        }
+        builder.CreateCall(fn, args, "dtext");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    if (name == "dibujar_linea" || name == "draw_line") {
+        if (node->args.size() != 7) throw std::runtime_error("dibujar_linea() espera 7 args (x1,y1,x2,y2,r,g,b)");
+        auto* fn = getOrInsertExtern("arx_draw_line", llvm::Type::getVoidTy(context),
+            {llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context)});
+        std::vector<llvm::Value*> args;
+        for (int i = 0; i < 7; i++) {
+            auto [v, t] = generateExpr(node->args[i].get());
+            args.push_back(toDouble(v, t));
+        }
+        builder.CreateCall(fn, args, "dline");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    // --- ENGINE ---
+    if (name == "fps" || name == "get_fps") {
+        auto* fn = getOrInsertExtern("arx_get_fps", llvm::Type::getDoubleTy(context), {});
+        return std::make_pair(builder.CreateCall(fn, {}, "fps"), ZenType::Number);
+    }
+    if (name == "delta" || name == "get_delta" || name == "delta_time") {
+        auto* fn = getOrInsertExtern("arx_get_delta", llvm::Type::getDoubleTy(context), {});
+        return std::make_pair(builder.CreateCall(fn, {}, "delta"), ZenType::Number);
+    }
+    if (name == "salir" || name == "quit" || name == "exit_game") {
+        auto* fn = getOrInsertExtern("arx_quit", llvm::Type::getVoidTy(context), {});
+        builder.CreateCall(fn, {}, "quit");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    // --- PHYSICS ---
+    if (name == "gravedad" || name == "set_gravity") {
+        if (node->args.size() != 3) throw std::runtime_error("gravedad() espera 3 args (x,y,z)");
+        auto* fn = getOrInsertExtern("arx_physics_set_gravity", llvm::Type::getVoidTy(context),
+            {llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context)});
+        auto [v1, t1] = generateExpr(node->args[0].get());
+        auto [v2, t2] = generateExpr(node->args[1].get());
+        auto [v3, t3] = generateExpr(node->args[2].get());
+        builder.CreateCall(fn, {toDouble(v1, t1), toDouble(v2, t2), toDouble(v3, t3)}, "grav");
+        return std::make_pair(builder.getInt1(1), ZenType::Bool);
+    }
+    if (name == "raycast" || name == "lanzar_rayo") {
+        if (node->args.size() != 7) throw std::runtime_error("raycast() espera 7 args (x,y,z,dx,dy,dz,dist)");
+        auto* fn = getOrInsertExtern("arx_physics_raycast", llvm::Type::getInt32Ty(context),
+            {llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context), llvm::Type::getDoubleTy(context),
+             llvm::Type::getDoubleTy(context)});
+        std::vector<llvm::Value*> args;
+        for (int i = 0; i < 7; i++) {
+            auto [v, t] = generateExpr(node->args[i].get());
+            args.push_back(toDouble(v, t));
+        }
+        auto* r = builder.CreateCall(fn, args, "ray");
+        auto* b = builder.CreateICmpNE(r, builder.getInt32(0), "ray_b");
+        return std::make_pair(b, ZenType::Bool);
     }
 
 return {nullptr, ZenType::Void};
