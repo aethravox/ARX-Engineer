@@ -9,6 +9,7 @@
 #include "gui/filesystem_dock.hpp"
 #include "gui/code_editor_dock.hpp"
 #include "gui/theme_editor.hpp"
+#include "gui/project_settings.hpp"
 #include "gui/icon_manager.hpp"  // SVG icon system (nanosvg)
 #include "gui/project_manager.hpp"
 #include "scene/scene_tree.hpp"
@@ -858,6 +859,9 @@ ImGui::EndMenu();
 
     // Theme editor (modal/panel si está activo)
     static ThemeEditor theme_editor_;
+    static ProjectSettings project_settings_;
+    project_settings_.set_visible(show_project_settings_);
+    project_settings_.render();
     theme_editor_.set_visible(show_theme_editor_);
     theme_editor_.render();
 

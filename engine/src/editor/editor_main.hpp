@@ -72,6 +72,7 @@ private:
     bool                       show_about_         = false;
     bool                       show_documentation_ = false;
     bool                       show_theme_editor_  = false;
+    bool                       show_project_settings_ = false;
 
     // Zen VM (preview)
 #ifdef ARX_ZEN_ENABLED
