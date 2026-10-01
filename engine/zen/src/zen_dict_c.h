@@ -12,7 +12,7 @@ typedef struct {
     long  capacity;
 } zen_dict_t;
 
-static void* __zen_dict_create(void) {
+static inline void* __zen_dict_create(void) {
     zen_dict_t* d = (zen_dict_t*)calloc(1, sizeof(zen_dict_t));
     d->capacity = 8;
     d->keys = (char**)calloc(8, sizeof(char*));
@@ -21,7 +21,7 @@ static void* __zen_dict_create(void) {
     return d;
 }
 
-static void __zen_dict_set(void* raw, const char* key, const char* value) {
+static inline void __zen_dict_set(void* raw, const char* key, const char* value) {
     zen_dict_t* d = (zen_dict_t*)raw;
     if (!d || !key || !value) return;
     for (long i = 0; i < d->count; i++) {
@@ -41,7 +41,7 @@ static void __zen_dict_set(void* raw, const char* key, const char* value) {
     d->count++;
 }
 
-static const char* __zen_dict_get(void* raw, const char* key) {
+static inline const char* __zen_dict_get(void* raw, const char* key) {
     zen_dict_t* d = (zen_dict_t*)raw;
     if (!d || !key) return "";
     for (long i = 0; i < d->count; i++) {
@@ -51,7 +51,7 @@ static const char* __zen_dict_get(void* raw, const char* key) {
     return "";
 }
 
-static int __zen_dict_has(void* raw, const char* key) {
+static inline int __zen_dict_has(void* raw, const char* key) {
     zen_dict_t* d = (zen_dict_t*)raw;
     if (!d || !key) return 0;
     for (long i = 0; i < d->count; i++) {
@@ -60,12 +60,12 @@ static int __zen_dict_has(void* raw, const char* key) {
     return 0;
 }
 
-static long __zen_dict_size(void* raw) {
+static inline long __zen_dict_size(void* raw) {
     zen_dict_t* d = (zen_dict_t*)raw;
     return d ? d->count : 0;
 }
 
-static void __zen_dict_remove(void* raw, const char* key) {
+static inline void __zen_dict_remove(void* raw, const char* key) {
     zen_dict_t* d = (zen_dict_t*)raw;
     if (!d || !key) return;
     for (long i = 0; i < d->count; i++) {
@@ -82,7 +82,7 @@ static void __zen_dict_remove(void* raw, const char* key) {
     }
 }
 
-static const char* __zen_dict_keys(void* raw) {
+static inline const char* __zen_dict_keys(void* raw) {
     zen_dict_t* d = (zen_dict_t*)raw;
     if (!d || d->count == 0) return "";
     static char buf[4096];
@@ -94,7 +94,7 @@ static const char* __zen_dict_keys(void* raw) {
     return buf;
 }
 
-static const char* __zen_dict_values(void* raw) {
+static inline const char* __zen_dict_values(void* raw) {
     zen_dict_t* d = (zen_dict_t*)raw;
     if (!d || d->count == 0) return "";
     static char buf[4096];
