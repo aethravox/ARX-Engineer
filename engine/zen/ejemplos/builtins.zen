@@ -1,0 +1,72 @@
+# builtins.zen — Builtins de Zen escritos EN Zen
+#
+# Etapa 1 de "Zen sobre Zen": builtins del lenguaje escritos en Zen.
+# Para usar: importar "builtins" al inicio del archivo .zen
+
+# === FFI a libc ===
+extern "libc" printf(str) -> int
+extern "libc" strlen(str) -> int
+extern "libc" puts(str) -> int
+extern "libc" exit(int) -> void
+
+# === muestra() — imprimir en pantalla ===
+funcion muestra(x)
+    s = texto(x)
+    printf(s + "\n")
+
+funcion show(x)
+    muestra(x)
+
+funcion mostrar(x)
+    muestra(x)
+
+funcion imprime(x)
+    muestra(x)
+
+# === longitud() — longitud de un string ===
+funcion longitud(s)
+    retorna strlen(s)
+
+funcion length(s)
+    retorna longitud(s)
+
+funcion len(s)
+    retorna longitud(s)
+
+# === texto() — convertir número a string ===
+# Delega al builtin de C++ por ahora
+funcion texto(n)
+    retorna texto_c(n)
+
+funcion texto_c(n)
+    retorna n
+
+funcion text(n)
+    retorna texto(n)
+
+funcion str(n)
+    retorna texto(n)
+
+funcion tostr(n)
+    retorna texto(n)
+
+# === numero() — convertir string a número ===
+# Delega al builtin de C++ por ahora (strtod requiere i8** que Zen no maneja bien)
+funcion numero(s)
+    retorna numero_c(s)
+
+funcion numero_c(s)
+    retorna s
+
+funcion number(s)
+    retorna numero(s)
+
+funcion num(s)
+    retorna numero(s)
+
+funcion tonum(s)
+    retorna numero(s)
+
+# === salir() — terminar el programa ===
+funcion salir(codigo)
+    exit(codigo)

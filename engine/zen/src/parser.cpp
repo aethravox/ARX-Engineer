@@ -566,8 +566,32 @@ std::unique_ptr<ASTNode> Parser::parseFuncDecl() {
     int ln = peek().line;
     advance(); // consumir funcion/function
 
-    auto nameTok = expectIdentifier(
-        "Se esperaba nombre de funcion");
+    // Para Zen sobre Zen: permitir que keywords se usen como nombres de funcion
+    // (ej: funcion muestra(x), funcion longitud(s), etc.)
+    // Si el token no es IDENTIFIER pero tampoco es un delimitador, lo aceptamos
+    // como nombre de funcion.
+    Token nameTok;
+    auto t = peek();
+    if (t.type == TokenType::IDENTIFIER ||
+        t.type == TokenType::MUESTRA || t.type == TokenType::SHOW ||
+        t.type == TokenType::PRINT ||
+        t.type == TokenType::SI || t.type == TokenType::IF ||
+        t.type == TokenType::PARA || t.type == TokenType::FOR ||
+        t.type == TokenType::MIENTRAS || t.type == TokenType::WHILE) {
+        nameTok = advance();
+    } else {
+        // Aceptar cualquier token que tenga un valor de texto como nombre
+        // (esto permite que cualquier keyword sea nombre de funcion)
+        if (!t.value.empty() && t.type != TokenType::LPAREN &&
+            t.type != TokenType::RPAREN && t.type != TokenType::NEWLINE &&
+            t.type != TokenType::INDENT && t.type != TokenType::DEDENT &&
+            t.type != TokenType::EOF_TOKEN) {
+            nameTok = advance();
+        } else {
+            throw std::runtime_error(
+                "Se esperaba nombre de funcion en la linea " + std::to_string(t.line));
+        }
+    }
 
     expect(TokenType::LPAREN, "Se esperaba '(' despues del nombre de funcion");
 

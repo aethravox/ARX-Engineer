@@ -1,0 +1,13 @@
+# test_builtins.zen — Test de builtins escritos en Zen
+importar "builtins"
+
+muestra "=== Test Builtins en Zen ==="
+muestra "Hola desde Zen sobre Zen!"
+muestra 42
+muestra 3.14159
+
+s = "Hola Mundo"
+muestra "Longitud de '" + s + "': " + longitud(s)
+
+n = numero("42.5")
+muestra "Numero parseado: " + (n + 1)
