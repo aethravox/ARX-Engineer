@@ -2502,6 +2502,54 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         return {asDouble, ZenType::Number};
     }
 
+    // ---- char_at(string, indice) -> numero
+    //     Devuelve el código ASCII del carácter en la posición indicada.
+    //     char_at("hola", 0) -> 104 (ASCII de 'h')
+    //     Necesario para Zen sobre Zen: el lexer necesita leer caracteres.
+    if (name == "char_at" || name == "char_codigo" || name == "char_code" ||
+        name == "ascii_de") {
+        if (node->args.size() != 2)
+            throw std::runtime_error("char_at() espera 2 argumentos (string, indice) en linea " +
+                std::to_string(node->line));
+        auto* s = getStrArg(0);
+        auto* idx = getNumArg(1);
+        auto* idxI64 = builder.CreateFPToSI(idx, i64Ty, "idx");
+        // s[idx] - usar GEP para obtener puntero al byte
+        auto* ptr = builder.CreateGEP(
+            llvm::Type::getInt8Ty(context), s, {idxI64}, "charptr");
+        auto* ch = builder.CreateLoad(
+            llvm::Type::getInt8Ty(context), ptr, "ch");
+        auto* asDouble = builder.CreateSIToFP(ch, doubleTy, "chd");
+        return {asDouble, ZenType::Number};
+    }
+
+    // ---- char_to_str(numero) -> string
+    //     Convierte un código ASCII a un string de 1 carácter.
+    //     char_to_str(104) -> "h"
+    //     Necesario para Zen sobre Zen: el lexer necesita construir strings.
+    if (name == "char_to_str" || name == "caracter" || name == "chr" ||
+        name == "desde_ascii") {
+        if (node->args.size() != 1)
+            throw std::runtime_error("char_to_str() espera 1 argumento (codigo ASCII) en linea " +
+                std::to_string(node->line));
+        auto* n = getNumArg(0);
+        auto* asI8 = builder.CreateFPToSI(n,
+            llvm::Type::getInt8Ty(context), "chr");
+        // Allocate 2 bytes (char + null terminator)
+        auto* buf = builder.CreateCall(mallocFunc,
+            llvm::ConstantInt::get(i64Ty, 2), "chrbuf");
+        // Store the character
+        builder.CreateStore(asI8, buf);
+        // Store null terminator at buf[1]
+        auto* nullPtr = builder.CreateGEP(
+            llvm::Type::getInt8Ty(context), buf,
+            {llvm::ConstantInt::get(i64Ty, 1)}, "nullptr");
+        builder.CreateStore(
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), 0),
+            nullPtr);
+        return {buf, ZenType::String};
+    }
+
     // ---- subtexto(s, desde, hasta) -> string  (hasta exclusivo)
     //     subtexto("hola mundo", 0, 4) -> "hola"
     if (name == "subtexto" || name == "substring" || name == "substr" ||
