@@ -88,6 +88,14 @@ static Vox* create_vox_from_asset(const std::string& path, bool mode_2d) {
         auto* m = new VoxMeshInstance3D();
         m->set_name(name.empty() ? "Mesh3D" : name);
         m->set_position(Vector3(0, 1, 0));
+        // FASE 14: Cargar el mesh real del GLB
+        if (ext == "glb") {
+            if (m->load_glb(path)) {
+                ARX_LOG_INFO("Viewport: GLB cargado en VoxMeshInstance3D '{}'", m->get_name());
+            } else {
+                ARX_LOG_WARN("Viewport: no se pudo cargar GLB, usando cubo placeholder");
+            }
+        }
         ARX_LOG_INFO("Viewport: creado VoxMeshInstance3D '{}' desde '{}'", m->get_name(), path);
         return m;
     }
@@ -174,6 +182,11 @@ void ViewportPanel::render(float delta) {
     (void)delta;
     if (!ImGui::Begin("Viewport")) { ImGui::End(); return; }
 
+    // Validar que selected_ sigue siendo válido (no fue borrado)
+    if (selected_ && is_vox_valid_ && !is_vox_valid_(selected_)) {
+        selected_ = nullptr;
+    }
+
     render_toolbar();
 
     ImVec2 size = ImGui::GetContentRegionAvail();
@@ -206,6 +219,7 @@ void ViewportPanel::render(float delta) {
                 if (new_vox && root_) {
                     root_->add_child(new_vox);
                     selected_ = new_vox;
+                    notify_selected(new_vox);
                     ARX_LOG_INFO("Viewport: asset soltado y creado como hijo de root: '{}'", path);
                 }
             }
@@ -255,6 +269,16 @@ void ViewportPanel::render_2d_(ImDrawList* dl, ImVec2 p0, ImVec2 p1, ImVec2 size
 
 // ==============================================================================
 void ViewportPanel::render_3d_(ImDrawList* dl, ImVec2 p0, ImVec2 p1, ImVec2 size) {
+    // FASE 13: Inicializar renderer 3D con FBO en el primer frame
+    if (!renderer_3d_inited_) {
+        renderer_3d_.init(renderer_);
+        renderer_3d_inited_ = true;
+    }
+    
+    // Crash guard: si el render falla muchas veces, desactivarlo
+    static int render_fail_count = 0;
+    static bool render_3d_disabled = false;
+
     // Sincronizar cámara del miembro al Camera3D estático
     s_cam.yaw      = cam_yaw_pitch_.x;
     s_cam.pitch    = cam_yaw_pitch_.y;
@@ -263,6 +287,29 @@ void ViewportPanel::render_3d_(ImDrawList* dl, ImVec2 p0, ImVec2 p1, ImVec2 size
 
     float aspect = size.x / std::max(1.0f, size.y);
     glm::mat4 vp = s_cam.proj(aspect) * s_cam.view();
+
+    // FASE 13: Renderizar meshes 3D reales al FBO y mostrar como textura
+    // Crash guard: si falla muchas veces, desactivar el render 3D
+    if (!render_3d_disabled) {
+        Viewport3DRenderer::selected_vox_ = selected_;
+        int fb_w = (int)size.x;
+        int fb_h = (int)size.y;
+        ImTextureID scene_tex = renderer_3d_.render(root_, s_cam.view(), s_cam.proj(aspect), fb_w, fb_h);
+        if (scene_tex != 0) {
+            // Dibujar la textura del FBO como fondo del viewport
+            dl->AddImage(scene_tex, p0, p1);
+        } else {
+            render_fail_count++;
+            if (render_fail_count > 10) {
+                render_3d_disabled = true;
+                ARX_LOG_ERROR("Viewport: render 3D desactivado despues de 10 fallos");
+            }
+        }
+    } else {
+        // Mostrar mensaje de error en el viewport
+        dl->AddText(ImVec2(p0.x + 20, p0.y + 40), IM_COL32(255, 100, 100, 255),
+                    "Render 3D desactivado (demasiados fallos). Reinicia el editor.");
+    }
 
     // ===== Grid 3D (plano XZ, 20x20 unidades) =====
     struct GridLine { ImVec2 a, b; float depth; ImU32 color; };
@@ -416,9 +463,29 @@ void ViewportPanel::draw_vox_3d_real_(Vox3D* n, ImDrawList* dl,
                     IM_COL32(26, 217, 235, 255), 0, 0, 2.5f);
     }
 
-    // === Nombre debajo del icono ===
-    dl->AddText(ImVec2(p0.x, p1.y + 6),
-                IM_COL32(220, 220, 230, 240), name.c_str());
+    // === Nombre debajo del icono (truncado + centrado + con fondo) ===
+    {
+        // Truncar nombre a 15 caracteres
+        std::string display_name = name;
+        if (display_name.size() > 15) {
+            display_name = display_name.substr(0, 12) + "...";
+        }
+        
+        // Calcular ancho del texto
+        ImVec2 text_size = ImGui::CalcTextSize(display_name.c_str());
+        float text_x = sp.x - text_size.x * 0.5f;  // centrado
+        float text_y = p1.y + 6;
+        
+        // Fondo semitransparente para legibilidad
+        dl->AddRectFilled(
+            ImVec2(text_x - 3, text_y - 1),
+            ImVec2(text_x + text_size.x + 3, text_y + text_size.y + 1),
+            IM_COL32(0, 0, 0, 160));
+        
+        // Texto
+        dl->AddText(ImVec2(text_x, text_y),
+                    IM_COL32(220, 220, 230, 240), display_name.c_str());
+    }
 }
 
 // ==============================================================================
@@ -486,42 +553,71 @@ void ViewportPanel::handle_input_(ImVec2 p0, ImVec2 p1, ImVec2 size) {
         }
     }
 
-    // ===== Botón DERECHO = orbitar (3D) o pan (2D) =====
-    if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
-        ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-        ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
-        if (mode_2d_) {
-            pan_offset_.x += delta.x;
-            pan_offset_.y += delta.y;
-        } else {
-            // Cámara orbit: izquierda → yaw aumenta, arriba → pitch aumenta
-            // (antes estaba invertido)
-            cam_yaw_pitch_.x -= delta.x * 0.01f;
-            cam_yaw_pitch_.y += delta.y * 0.01f;
-            cam_yaw_pitch_.y = std::clamp(cam_yaw_pitch_.y, -1.55f, 1.55f);
+    // ===== CÁMARA 3D MEJORADA =====
+    // - Click izquierdo + drag (en vacío) = orbitar yaw/pitch
+    // - Click derecho + drag = pan (mover target)
+    // - Wheel = zoom (acercar/alejar)
+    // - Teclas Q/E = rotar arriba/abajo
+    // - Teclas A/D = rotar izquierda/derecha
+    // - Teclas W/S = zoom in/out
+    if (!mode_2d_) {
+        // --- Orbitar con botón IZQUIERDO + drag ---
+        // (solo si no estamos arrastrando el gizmo)
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && !gizmo_dragging_) {
+            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+            if (std::abs(delta.x) > 1.0f || std::abs(delta.y) > 1.0f) {
+                ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+                cam_yaw_pitch_.x -= delta.x * 0.01f;
+                cam_yaw_pitch_.y += delta.y * 0.01f;
+                // Clamp pitch: -89° a +89° (no dar la vuelta completa)
+                cam_yaw_pitch_.y = std::clamp(cam_yaw_pitch_.y, -1.55f, 1.55f);
+            }
         }
-    }
 
-    // ===== Botón MEDIO = pan del target (3D) =====
-    if (ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
-        ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle);
-        ImGui::ResetMouseDragDelta(ImGuiMouseButton_Middle);
-        if (mode_2d_) {
+        // --- Pan con botón DERECHO + drag ---
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+            ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
+            float f = cam_distance_ * 0.002f;
+            // Ejes right y up de la cámara
+            glm::vec3 right(std::cos(cam_yaw_pitch_.x), 0, -std::sin(cam_yaw_pitch_.x));
+            glm::vec3 fwd(right.z, 0, -right.x);  // forward en plano XZ
+            glm::vec3 up = glm::cross(right, fwd);
+            // Pan: derecha → target izq, arriba → target abajo
+            cam_target_.x -= right.x * delta.x * f + up.x * delta.y * f;
+            cam_target_.y -= right.y * delta.x * f + up.y * delta.y * f;
+            cam_target_.z -= right.z * delta.x * f + up.z * delta.y * f;
+        }
+
+        // --- Teclas para rotar/zoom (cuando el viewport tiene focus) ---
+        if (!io.WantTextInput) {
+            // Q/E = pitch (arriba/abajo)
+            if (ImGui::IsKeyDown(ImGuiKey_Q)) cam_yaw_pitch_.y -= 0.03f;
+            if (ImGui::IsKeyDown(ImGuiKey_E)) cam_yaw_pitch_.y += 0.03f;
+            cam_yaw_pitch_.y = std::clamp(cam_yaw_pitch_.y, -1.55f, 1.55f);
+            // A/D = yaw (izquierda/derecha)
+            if (ImGui::IsKeyDown(ImGuiKey_A)) cam_yaw_pitch_.x -= 0.03f;
+            if (ImGui::IsKeyDown(ImGuiKey_D)) cam_yaw_pitch_.x += 0.03f;
+            // W/S = zoom
+            if (ImGui::IsKeyDown(ImGuiKey_W)) cam_distance_ -= 0.5f;
+            if (ImGui::IsKeyDown(ImGuiKey_S)) cam_distance_ += 0.5f;
+            cam_distance_ = std::clamp(cam_distance_, 1.0f, 200.0f);
+        }
+    } else {
+        // --- Modo 2D: pan con cualquier botón ---
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left) ||
+            ImGui::IsMouseDown(ImGuiMouseButton_Right) ||
+            ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
+            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+            if (delta.x == 0 && delta.y == 0)
+                delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+            if (delta.x == 0 && delta.y == 0)
+                delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle);
+            ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+            ImGui::ResetMouseDragDelta(ImGuiMouseButton_Right);
+            ImGui::ResetMouseDragDelta(ImGuiMouseButton_Middle);
             pan_offset_.x += delta.x;
             pan_offset_.y += delta.y;
-        } else {
-            float f = cam_distance_ * 0.002f;
-            // Ejes de la cámara en el plano horizontal/vertical
-            float cp = std::cos(cam_yaw_pitch_.y);
-            glm::vec3 right( std::cos(cam_yaw_pitch_.x), 0, -std::sin(cam_yaw_pitch_.x));
-            glm::vec3 up(   -std::sin(cam_yaw_pitch_.y) * std::sin(cam_yaw_pitch_.x),
-                             std::cos(cam_yaw_pitch_.y),
-                            -std::sin(cam_yaw_pitch_.y) * std::cos(cam_yaw_pitch_.x));
-            // Pan: derecha → target se mueve a la izquierda (para que el mundo se mueva a la derecha)
-            //       arriba → target se mueve abajo (para que el mundo suba)
-            cam_target_.x += right.x * delta.x * f + up.x * delta.y * f;
-            cam_target_.y += right.y * delta.x * f + up.y * delta.y * f;
-            cam_target_.z += right.z * delta.x * f + up.z * delta.y * f;
         }
     }
 
@@ -546,7 +642,7 @@ void ViewportPanel::handle_input_(ImVec2 p0, ImVec2 p1, ImVec2 size) {
         // 2. Si el gizmo no lo capturó, seleccionar Vox
         {
             Vox* hit = pick_vox_at_(mp, p0, size);
-            if (hit) selected_ = hit;
+            if (hit) { selected_ = hit; notify_selected(hit); }
         }
         input_done:;
     }
@@ -619,6 +715,11 @@ void ViewportPanel::handle_input_() {}
 // ==============================================================================
 void ViewportPanel::render_toolbar() {
     if (ImGui::Button(mode_2d_ ? "2D" : "3D", ImVec2(40, 0))) mode_2d_ = !mode_2d_;
+    ImGui::SameLine();
+    // Boton para alternar al Code Editor (tab en el mismo dock que Viewport)
+    if (ImGui::Button("Code [F4]", ImVec2(80, 0))) {
+        ImGui::SetWindowFocus("Code Editor");
+    }
     ImGui::SameLine();
     if (ImGui::Button("Reset", ImVec2(50, 0))) {
         pan_offset_ = {0, 0}; zoom_ = 1.0f;

@@ -13,6 +13,9 @@
 #include "gui/icon_manager.hpp"  // SVG icon system (nanosvg)
 #include "gui/project_manager.hpp"
 #include "scene/scene_tree.hpp"
+#include "scene/vox.hpp"
+#include "scene/3d/vox3d.hpp"
+#include "scene/3d/vox_mesh_instance_3d.hpp"
 #include "core/logging.hpp"
 
 // IMPORTANTE: ImGui v1.91+ requiere estos defines ANTES de incluir imgui.h:
@@ -47,6 +50,18 @@ namespace arx {
 EditorMain::EditorMain()  = default;
 EditorMain::~EditorMain() = default;
 
+// Puente C para que el callback del viewport (que es C) pueda seleccionar
+// un Vox en el SceneTreeDock sin capturar punteros C++.
+static arx::SceneTreeDock* g_scene_tree_dock_for_cb = nullptr;
+static arx::CodeEditorDock* g_code_editor_dock_for_cb = nullptr;
+static bool show_close_confirm_dialog = false;
+void arx_set_scene_tree_selected(arx::Vox* v) {
+    if (g_scene_tree_dock_for_cb) g_scene_tree_dock_for_cb->set_selected(v);
+}
+void arx_open_code_file(const std::string& path) {
+    if (g_code_editor_dock_for_cb) g_code_editor_dock_for_cb->load_file(path);
+}
+
 bool EditorMain::init(Window* win, Renderer* r) {
     window_  = win;
     renderer_ = r;
@@ -59,6 +74,8 @@ bool EditorMain::init(Window* win, Renderer* r) {
 
     // Garantizar que el SceneTreeDock tenga un root desde el principio.
     if (docks_->scene_tree_dock()) {
+        g_scene_tree_dock_for_cb = docks_->scene_tree_dock();
+        if (docks_->code_editor_dock()) g_code_editor_dock_for_cb = docks_->code_editor_dock();
         docks_->scene_tree_dock()->ensure_root();
         // Inicializar el sistema de iconos SVG (carga bajo demanda + hot reload)
         IconManager::get().init("/home/aethravox/Escritorio/Projectos/Motores/ARX/engine/src/editor/icons/voxes", 24);
@@ -124,6 +141,14 @@ void EditorMain::load_project(const std::string& path) {
     // Setear el directorio del proyecto en el FileSystem dock
     if (docks_ && docks_->filesystem_dock()) {
         docks_->filesystem_dock()->set_project_dir(path);
+        // Conectar callback: doble-click en .zen abre el Code Editor
+        docks_->filesystem_dock()->on_open_zen_file = [](const std::string& path) {
+            // Esta lambda se llama cuando el user hace doble-click en un .zen
+            // Necesitamos acceder al CodeEditorDock. Usamos una variable estática
+            // o un mecanismo similar al callback del viewport.
+            extern void arx_open_code_file(const std::string&);
+            arx_open_code_file(path);
+        };
     if (docks_ && docks_->code_editor_dock()) {
         docks_->code_editor_dock()->set_project_dir(path);
     }
@@ -139,6 +164,33 @@ void EditorMain::load_project(const std::string& path) {
     }
     ARX_LOG_INFO("EditorMain: main.zen {}", main_zen_exists_ ? "encontrado" : "no encontrado");
 #endif
+
+    // FASE 14: Auto-cargar archivos .glb del proyecto al inicio
+    if (docks_ && docks_->scene_tree_dock()) {
+        Vox* root = docks_->scene_tree_dock()->get_root();
+        if (root) {
+            namespace fs = std::filesystem;
+            try {
+                for (const auto& e : fs::directory_iterator(path)) {
+                    if (!e.is_regular_file()) continue;
+                    std::string ext = e.path().extension().string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                    if (ext == ".glb") {
+                        auto* mesh_vox = new VoxMeshInstance3D();
+                        mesh_vox->set_name(e.path().stem().string());
+                        mesh_vox->set_position(Vector3(0, 1, 0));
+                        if (mesh_vox->load_glb(e.path().string())) {
+                            root->add_child(mesh_vox);
+                            ARX_LOG_INFO("EditorMain: auto-cargado GLB '{}'", e.path().filename().string());
+                        } else {
+                            delete mesh_vox;
+                            ARX_LOG_WARN("EditorMain: no se pudo cargar GLB '{}'", e.path().filename().string());
+                        }
+                    }
+                }
+            } catch (...) {}
+        }
+    }
 }
 
 void EditorMain::finish() {
@@ -489,9 +541,9 @@ void EditorMain::render_main_ui_(float delta) {
         ImGui::DockBuilderDockWindow("Vox Tree",    vox_tree_node);
         ImGui::DockBuilderDockWindow("FileSystem",  filesystem_node);
         ImGui::DockBuilderDockWindow("Viewport",    center);
+        ImGui::DockBuilderDockWindow("Code Editor", center);  // Tabbed con Viewport
         ImGui::DockBuilderDockWindow("Inspector",   right);
         ImGui::DockBuilderDockWindow("Output",      bottom);
-        ImGui::DockBuilderDockWindow("Code Editor", bottom);
         ImGui::DockBuilderDockWindow("Console",     bottom);
         // Quitar NoTabBar de los docks izquierdo, derecho e inferior
         // para que se vean los tabs (Vox Tree | FileSystem, Output | Console, etc)
@@ -627,6 +679,12 @@ ImGui::EndMenu();
     // Conectar selección del Vox Tree al Inspector y Viewport
     if (docks_ && docks_->scene_tree_dock()) {
         Vox* selected = docks_->scene_tree_dock()->get_selected();
+        // Validar que el Vox seleccionado sigue siendo parte del arbol.
+        // Si fue borrado (puntero colgante), pasar nullptr al inspector.
+        if (selected && !docks_->scene_tree_dock()->is_vox_in_tree(selected)) {
+            docks_->scene_tree_dock()->set_selected(nullptr);
+            selected = nullptr;
+        }
         if (docks_->inspector_dock()) {
             docks_->inspector_dock()->inspect(selected);
         }
@@ -634,6 +692,35 @@ ImGui::EndMenu();
             docks_->viewport_dock()->set_selected(selected);
             docks_->viewport_dock()->set_root(docks_->scene_tree_dock()->get_root());
         }
+    }
+
+    // Conectar validators: Inspector y Viewport validan que su target siga vivo
+    static bool validators_init = false;
+    if (!validators_init && docks_ && docks_->scene_tree_dock()) {
+        auto* stdock = docks_->scene_tree_dock();
+        if (docks_->inspector_dock()) {
+            docks_->inspector_dock()->is_vox_valid_ = [stdock](Vox* v) {
+                return stdock->is_vox_in_tree(v);
+            };
+        }
+        if (docks_->viewport_dock()) {
+            docks_->viewport_dock()->is_vox_valid_ = [stdock](Vox* v) {
+                return stdock->is_vox_in_tree(v);
+            };
+        }
+        validators_init = true;
+    }
+
+    // Conectar callback: cuando el viewport selecciona un Vox (drop/click),
+    // propagar al SceneTreeDock para que el Inspector lo muestre.
+    static bool cb_init = false;
+    if (!cb_init && docks_ && docks_->viewport_dock() && docks_->scene_tree_dock()) {
+        docks_->viewport_dock()->set_on_selected(
+            [](Vox* v) {
+                // Llamar a la funcion puente definida arriba.
+                arx_set_scene_tree_selected(v);
+            });
+        cb_init = true;
     }
 
     // Docks (cada uno dibuja su ventana).
@@ -644,6 +731,27 @@ ImGui::EndMenu();
 
     // Console panel (VM output)
     render_console_panel_();
+
+    // ===== Close confirmation dialog =====
+    if (show_close_confirm_dialog) {
+        ImGui::SetNextWindowSize(ImVec2(400, 150), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        if (ImGui::Begin("Cerrar ARX Engine?", &show_close_confirm_dialog,
+                         ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse)) {
+            ImGui::TextWrapped("Hay cambios sin guardar. Seguro que queres salir?");
+            ImGui::Separator();
+            if (ImGui::Button("Salir sin guardar", ImVec2(150, 0))) {
+                show_close_confirm_dialog = false;
+                // Forzar cierre
+                // Close confirmed - just return false from process() to end the loop
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancelar", ImVec2(120, 0))) {
+                show_close_confirm_dialog = false;
+            }
+        }
+        ImGui::End();
+    }
 
     // ===== About dialog =====
     if (show_about_) {

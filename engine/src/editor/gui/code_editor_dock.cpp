@@ -1,8 +1,5 @@
 // ==============================================================================
-// src/editor/gui/code_editor_dock.cpp — Editor de código Zen integrado.
-//
-// Implementación: usa ImGui::InputTextMultiline con un callback para colorear
-// el texto mientras se escribe. No requiere bibliotecas externas.
+// src/editor/gui/code_editor_dock.cpp — Editor de código Zen con tabs múltiples.
 // ==============================================================================
 #include "code_editor_dock.hpp"
 #include "core/logging.hpp"
@@ -12,41 +9,49 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include <filesystem>
 
 namespace arx {
 
-// Keywords de Zen (bilingüe ES/EN) en minúscula para matching case-insensitive
+// Keywords de Zen (bilingüe ES/EN)
 static const char* kZenKeywords[] = {
-    // ES
     "si", "sino", "para", "mientras", "muestra", "funcion", "estructura",
     "retorna", "romper", "continuar", "repetir", "desde", "hasta", "cada",
     "verdad", "falso", "nulo", "extern", "plataforma",
-    // EN
     "if", "else", "for", "while", "show", "print", "function", "struct",
     "return", "break", "continue", "repeat", "from", "to", "in",
-    "true", "false", "null", "yes", "no"
+    "true", "false", "null", "yes", "no",
+    "y", "o", "no", "es", "en",
+    "and", "or", "not", "is", "in",
+    "coincidir", "caso", "por_defecto",
+    "match", "case", "default",
+    "importar", "incluir",
+    "import", "include",
+    "sino_si", "elif",
+    "veces", "times",
+    "siguiente"
 };
 constexpr int kNumKeywords = sizeof(kZenKeywords) / sizeof(kZenKeywords[0]);
 
-// Builtins de Zen
 static const char* kZenBuiltins[] = {
     "longitud", "contiene", "quitar", "azar", "numero", "texto", "leer_linea",
-    "length", "contains", "pop", "random", "number", "string", "read_line"
+    "leer_archivo", "escribir_archivo", "reloj", "dormir", "limpiar",
+    "subtexto", "buscar", "reemplazar", "mayusculas", "minusculas", "recortar",
+    "agregar",
+    "length", "contains", "pop", "random", "number", "string", "read_line",
+    "read_file", "write_file", "clock", "sleep", "clear",
+    "substring", "find", "replace", "uppercase", "lowercase", "trim",
+    "push", "append", "add",
+    "rango", "range", "salir", "exit"
 };
 constexpr int kNumBuiltins = sizeof(kZenBuiltins) / sizeof(kZenBuiltins[0]);
 
-// Helper: ¿es un character alfanumérico o underscore?
 static bool is_ident_char(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
            (c >= '0' && c <= '9') || c == '_';
 }
+static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
-// Helper: ¿es un dígito?
-static bool is_digit(char c) {
-    return c >= '0' && c <= '9';
-}
-
-// Helper: comparar string case-insensitive
 static bool iequals(const char* a, const char* b, int len) {
     for (int i = 0; i < len; ++i) {
         char ca = a[i], cb = b[i];
@@ -57,59 +62,24 @@ static bool iequals(const char* a, const char* b, int len) {
     return true;
 }
 
-// Helper: ¿la palabra es una keyword?
 static bool is_keyword(const char* word, int len) {
     for (int i = 0; i < kNumKeywords; ++i) {
-        if ((int)std::strlen(kZenKeywords[i]) == len &&
-            iequals(word, kZenKeywords[i], len)) {
+        if ((int)std::strlen(kZenKeywords[i]) == len && iequals(word, kZenKeywords[i], len))
             return true;
-        }
     }
     return false;
 }
 
-// Helper: ¿la palabra es un builtin?
 static bool is_builtin(const char* word, int len) {
     for (int i = 0; i < kNumBuiltins; ++i) {
-        if ((int)std::strlen(kZenBuiltins[i]) == len &&
-            iequals(word, kZenBuiltins[i], len)) {
+        if ((int)std::strlen(kZenBuiltins[i]) == len && iequals(word, kZenBuiltins[i], len))
             return true;
-        }
     }
     return false;
 }
 
 // ==============================================================================
-// InputText callback para colorear el texto mientras se escribe.
-// ==============================================================================
-struct EditorCallbackData {
-    std::string* buffer;
-};
-
-static int input_text_callback(ImGuiInputTextCallbackData* data) {
-    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
-        std::string* buf = static_cast<std::string*>(data->UserData);
-        buf->resize(data->BufTextLen);
-        data->Buf = buf->data();
-    }
-    return 0;
-}
-
-// ==============================================================================
-// Render principal
-// ==============================================================================
 void CodeEditorDock::render() {
-    // Forzar tamaño/posición la primera vez (si no está dockeado)
-    static bool first_render = true;
-    if (first_render) {
-        first_render = false;
-        // Posición visible en el centro-izquierda de la pantalla
-        ImGui::SetNextWindowSize(ImVec2(700, 450), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowPos(ImVec2(50, 200), ImGuiCond_FirstUseEver);
-        // Bring to front para que no quede detrás del editor
-        ImGui::SetNextWindowFocus();
-    }
-
     if (!ImGui::Begin("Code Editor", nullptr,
                        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar)) {
         ImGui::End();
@@ -117,9 +87,86 @@ void CodeEditorDock::render() {
     }
 
     render_menu_bar_();
+    render_tabs_();
     render_editor_();
 
     ImGui::End();
+}
+
+// ==============================================================================
+void CodeEditorDock::render_tabs_() {
+    if (open_files_.empty()) return;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    float tab_height = ImGui::GetTextLineHeight() + style.FramePadding.y * 2.0f;
+
+    ImGui::BeginChild("###code_tabs", ImVec2(0, tab_height + 4), false,
+                       ImGuiWindowFlags_NoScrollbar);
+
+    for (int i = 0; i < (int)open_files_.size(); ++i) {
+        auto& f = open_files_[i];
+        ImGui::PushID(i);
+
+        // Botón X para cerrar
+        bool clicked_close = false;
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.2f, 0.2f, 0.6f));
+        std::string close_label = "x##close_" + std::to_string(i);
+        if (ImGui::SmallButton(close_label.c_str())) {
+            clicked_close = true;
+        }
+        ImGui::PopStyleColor(2);
+        ImGui::SameLine();
+
+        // Tab label (con * si está dirty)
+        std::string label = f.name;
+        if (f.dirty) label = "*" + label;
+
+        bool is_active = (i == active_tab_);
+        if (is_active) {
+            ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_TabActive]);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style.Colors[ImGuiCol_TabHovered]);
+        }
+
+        if (ImGui::SmallButton(label.c_str())) {
+            active_tab_ = i;
+        }
+
+        if (is_active) ImGui::PopStyleColor(2);
+
+        ImGui::SameLine();
+        ImGui::PopID();
+
+        if (clicked_close) {
+            close_tab_(i);
+            // Salir del loop porque los índices cambiaron
+            break;
+        }
+    }
+
+    ImGui::EndChild();
+    ImGui::Separator();
+}
+
+// ==============================================================================
+void CodeEditorDock::close_tab_(int idx) {
+    if (idx < 0 || idx >= (int)open_files_.size()) return;
+
+    // TODO: preguntar si guardar cambios si dirty
+    // Por ahora, guardamos automáticamente
+    if (open_files_[idx].dirty) {
+        // Re-activar temporalmente para guardar
+        int prev_active = active_tab_;
+        active_tab_ = idx;
+        save_file();
+        active_tab_ = prev_active;
+    }
+
+    open_files_.erase(open_files_.begin() + idx);
+    if (active_tab_ >= (int)open_files_.size()) {
+        active_tab_ = (int)open_files_.size() - 1;
+    }
+    ARX_LOG_INFO("CodeEditor: cerrado tab {}", idx);
 }
 
 // ==============================================================================
@@ -130,7 +177,13 @@ void CodeEditorDock::render_menu_bar_() {
                 save_file();
             }
             if (ImGui::MenuItem("Reload from Disk")) {
-                if (!file_path_.empty()) load_file(file_path_);
+                if (active_tab_ >= 0 && !open_files_[active_tab_].path.empty()) {
+                    load_file(open_files_[active_tab_].path);
+                }
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Close Tab")) {
+                if (active_tab_ >= 0) close_tab_(active_tab_);
             }
             ImGui::Separator();
             if (ImGui::MenuItem("Load main.zen")) {
@@ -150,15 +203,13 @@ void CodeEditorDock::render_menu_bar_() {
 
     // Hotkey Ctrl+S
     if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S)) {
-        if (!ImGui::GetIO().WantTextInput || ImGui::IsWindowFocused()) {
-            save_file();
-        }
+        save_file();
     }
 }
 
 // ==============================================================================
 void CodeEditorDock::render_editor_() {
-    if (file_path_.empty()) {
+    if (open_files_.empty() || active_tab_ < 0) {
         ImGui::TextDisabled("No hay archivo cargado.");
         if (!project_dir_.empty()) {
             ImGui::Spacing();
@@ -166,119 +217,138 @@ void CodeEditorDock::render_editor_() {
                 load_file(project_dir_ + "/main.zen");
             }
         }
+        ImGui::TextDisabled("Doble-click en un .zen del FileSystem para abrirlo.");
         return;
     }
 
-    // Info bar
-    ImGui::TextDisabled("%s %s", file_path_.c_str(), dirty_ ? "(modificado*)" : "");
-    ImGui::SameLine();
-    if (dirty_) {
-        if (ImGui::SmallButton("Guardar")) save_file();
+    auto& f = open_files_[active_tab_];
+
+    ImGui::TextDisabled("%s", f.path.c_str());
+    if (f.dirty) {
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(1, 0.8f, 0, 1), "(sin guardar)");
     }
+
     ImGui::Separator();
 
-    // Editor area
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.Size > 2 ? ImGui::GetIO().Fonts->Fonts[2] : nullptr);
-    ImGui::SetWindowFontScale(font_scale_);
-
-    // Calcular tamaño disponible
     ImVec2 avail = ImGui::GetContentRegionAvail();
-    if (show_line_numbers_) {
-        // Reservar espacio para line numbers
-        avail.x -= 50.0f;
-    }
+    if (avail.y < 50) return;
 
-    // === Line numbers panel ===
+    // Line numbers panel
     if (show_line_numbers_) {
         ImGui::BeginChild("###line_numbers", ImVec2(45, avail.y), true);
-        int lines = std::count(buffer_.begin(), buffer_.end(), '\n') + 1;
-        for (int i = 1; i <= lines; ++i) {
-            ImGui::TextDisabled("%4d", i);
+        // Contar líneas
+        int line_count = 1;
+        for (char c : f.buffer) if (c == '\n') line_count++;
+        for (int i = 1; i <= line_count; ++i) {
+            ImGui::TextDisabled("%d", i);
         }
         ImGui::EndChild();
         ImGui::SameLine();
     }
 
-    // === Editor con syntax highlighting ===
-    // InputTextMultiline no soporta syntax highlighting nativo, así que usamos
-    // un truco: dibujamos el texto con ImGui::TextUnformatted usando colores
-    // por token, encima de un InputTextMultiline invisible.
-    //
-    // Mejor enfoque: usar InputTextMultiline normal sin highlighting (más simple
-    // y funcional) y dejar el highlighting para una versión futura.
-    //
-    // TODO: implementar syntax highlighting custom con un callback de InputText
-    // o un renderer propio. Por ahora, editor simple sin colores.
+    // Editor
+    ImGui::PushItemWidth(-1);
+    // Buffer editable: necesitamos uno con tamaño amplio
+    static thread_local std::vector<char> edit_buf;
+    edit_buf.assign(f.buffer.begin(), f.buffer.end());
+    edit_buf.push_back('\\0');
+    // Dejar espacio para que el usuario agregue texto
+    edit_buf.resize(edit_buf.size() + 1024);
 
-    ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput |
-                                 ImGuiInputTextFlags_CallbackResize |
-                                 ImGuiInputTextFlags_NoHorizontalScroll;
-
-    EditorCallbackData cbd{&buffer_};
-    char* buf = buffer_.data();
-    // Asegurar que el buffer tenga al menos 1 byte (para InputText)
-    if (buffer_.empty()) buffer_.resize(1, '\0');
-
-    if (ImGui::InputTextMultiline("###code_editor", buf, buffer_.capacity() + 1,
-                                   avail, flags, input_text_callback, &cbd)) {
-        dirty_ = true;
-        // El callback ya actualizó buffer_ por el resize, pero el contenido
-        // también puede haber cambiado sin resize. InputText escribe directo al buf.
-        // Necesitamos asegurar que buffer_ tenga el tamaño correcto.
-        buffer_.resize(std::strlen(buf));
+    ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
+    if (ImGui::InputTextMultiline("###code_editor", edit_buf.data(), edit_buf.size(),
+                                   ImVec2(-1, avail.y - 20), flags)) {
+        // Cambió el texto: actualizar buffer y marcar dirty
+        std::string new_text(edit_buf.data());
+        if (new_text != f.buffer) {
+            f.buffer = new_text;
+            f.dirty = true;
+        }
     }
-
-    ImGui::SetWindowFontScale(1.0f);
-    ImGui::PopFont();
+    ImGui::PopItemWidth();
 }
 
 // ==============================================================================
 bool CodeEditorDock::load_file(const std::string& path) {
-    std::ifstream f(path);
-    if (!f.is_open()) {
-        ARX_LOG_WARN("CodeEditor: no se pudo abrir '{}'", path);
+    if (path.empty()) return false;
+
+    // ¿Ya está abierto? Solo activar el tab
+    for (int i = 0; i < (int)open_files_.size(); ++i) {
+        if (open_files_[i].path == path) {
+            active_tab_ = i;
+            ARX_LOG_INFO("CodeEditor: tab ya abierto, activado: {}", path);
+            return true;
+        }
+    }
+
+    // Cargar del disco
+    std::ifstream ifs(path);
+    if (!ifs.is_open()) {
+        ARX_LOG_ERROR("CodeEditor: no se pudo abrir '{}'", path);
         return false;
     }
     std::stringstream ss;
-    ss << f.rdbuf();
-    buffer_ = ss.str();
-    file_path_ = path;
-    dirty_ = false;
-    ARX_LOG_INFO("CodeEditor: cargado '{}' ({} bytes)", path, buffer_.size());
+    ss << ifs.rdbuf();
+    std::string content = ss.str();
+
+    OpenFile f;
+    f.path = path;
+    f.name = std::filesystem::path(path).filename().string();
+    f.buffer = content;
+    f.dirty = false;
+
+    open_files_.push_back(std::move(f));
+    active_tab_ = (int)open_files_.size() - 1;
+
+    ARX_LOG_INFO("CodeEditor: cargado '{}' ({} bytes) — tab #{}",
+                 path, (int)content.size(), active_tab_);
     return true;
 }
 
 // ==============================================================================
 bool CodeEditorDock::save_file() {
-    if (file_path_.empty()) {
-        ARX_LOG_WARN("CodeEditor: no hay archivo para guardar");
+    if (active_tab_ < 0 || active_tab_ >= (int)open_files_.size()) return false;
+    auto& f = open_files_[active_tab_];
+    if (f.path.empty()) return false;
+
+    std::ofstream ofs(f.path);
+    if (!ofs.is_open()) {
+        ARX_LOG_ERROR("CodeEditor: no se pudo escribir '{}'", f.path);
         return false;
     }
-    std::ofstream f(file_path_, std::ios::trunc);
-    if (!f.is_open()) {
-        ARX_LOG_ERROR("CodeEditor: no se pudo escribir '{}'", file_path_);
-        return false;
-    }
-    f << buffer_;
-    f.close();
-    dirty_ = false;
-    ARX_LOG_INFO("CodeEditor: guardado '{}'", file_path_);
-    // El hot reload de la VM detectará el cambio de mtime automáticamente
+    ofs << f.buffer;
+    ofs.close();
+    f.dirty = false;
+
+    ARX_LOG_INFO("CodeEditor: guardado '{}' ({} bytes)", f.path, (int)f.buffer.size());
     return true;
 }
 
 // ==============================================================================
 void CodeEditorDock::set_project_dir(const std::string& d) {
+    if (project_dir_ == d) return;
     project_dir_ = d;
-    // Auto-cargar main.zen si existe y no hay archivo cargado
-    if (file_path_.empty() && !d.empty()) {
-        std::string main_zen = d + "/main.zen";
-        std::ifstream f(main_zen);
-        if (f.is_open()) {
-            f.close();
-            load_file(main_zen);
+    // Auto-cargar main.zen si existe
+    if (!d.empty()) {
+        namespace fs = std::filesystem;
+        auto main_zen = fs::path(d) / "main.zen";
+        if (fs::exists(main_zen)) {
+            load_file(main_zen.string());
         }
     }
+}
+
+// ==============================================================================
+const std::string& CodeEditorDock::file_path() const {
+    static const std::string empty;
+    if (active_tab_ < 0 || active_tab_ >= (int)open_files_.size()) return empty;
+    return open_files_[active_tab_].path;
+}
+
+bool CodeEditorDock::is_dirty() const {
+    if (active_tab_ < 0 || active_tab_ >= (int)open_files_.size()) return false;
+    return open_files_[active_tab_].dirty;
 }
 
 } // namespace arx

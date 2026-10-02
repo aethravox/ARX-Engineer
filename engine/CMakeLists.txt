@@ -160,7 +160,7 @@ if(ARX_PLATFORM_ANDROID)
 else()
 FetchContent_Declare(fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG        7.1.3
+    GIT_TAG        10.2.1
     GIT_SHALLOW    TRUE)
 set(FMT_DOC OFF CACHE BOOL "" FORCE)
 set(FMT_TEST OFF CACHE BOOL "" FORCE)

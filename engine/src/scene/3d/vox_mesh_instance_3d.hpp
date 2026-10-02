@@ -8,6 +8,7 @@
 #include "render/renderer.hpp"
 #include "render/texture.hpp"
 #include "core/math.hpp"
+#include "assets/glb_loader.hpp"
 
 namespace arx {
 
@@ -21,6 +22,42 @@ public:
     void set_shader(std::shared_ptr<Shader> s) { shader_ = s; }
     void set_albedo(Color c)                    { albedo_ = c; }
     Color get_albedo() const                    { return albedo_; }
+
+    // === FASE 14/14B: Carga de GLB real con múltiples meshes + texturas ===
+    // Carga un archivo .glb y guarda TODOS los meshes + texturas.
+    bool load_glb(const std::string& path);
+
+    // ¿Tiene algún mesh cargado?
+    bool has_loaded_mesh() const { return has_loaded_mesh_; }
+
+    // Cantidad de meshes cargados
+    int get_mesh_count() const { return (int)loaded_meshes_.size(); }
+
+    // Acceso a un mesh específico
+    struct LoadedMesh {
+        std::vector<float> vertices;      // pos3 + normal3 + uv2 = 8 floats per vertex
+        std::vector<uint32_t> indices;
+        float albedo[4] = {0.8f, 0.8f, 0.8f, 1.0f};
+        unsigned int texture_id = 0;      // Albedo texture
+        bool has_texture = false;
+        bool has_uvs = false;
+        // FASE 15B: VBO cache (created once, reused every frame)
+        unsigned int vbo = 0;             // Vertex Buffer Object
+        unsigned int ibo = 0;             // Index Buffer Object
+        bool vbo_created = false;
+        // FASE 15C: Normal map
+        unsigned int normal_texture_id = 0;
+        bool has_normal_map = false;
+    };
+    const std::vector<LoadedMesh>& get_loaded_meshes() const { return loaded_meshes_; }
+    std::vector<LoadedMesh>& get_loaded_meshes_mut() { return loaded_meshes_; }
+    
+    // FASE 15B: Ensure VBOs are created for all loaded meshes
+    void ensure_vbos();
+
+    // Auto-escalar
+    void set_auto_scale(bool v) { auto_scale_ = v; }
+    bool get_auto_scale() const { return auto_scale_; }
 
     // Primitivas útiles.
     void set_cube_mesh() {
@@ -61,6 +98,16 @@ private:
     std::shared_ptr<Mesh>   mesh_;
     std::shared_ptr<Shader> shader_;
     Color                   albedo_ = Color::white;
+
+    // FASE 14/14B: meshes + texturas cargados de GLB
+    std::vector<LoadedMesh> loaded_meshes_;
+    bool                    has_loaded_mesh_ = false;
+    bool                    auto_scale_ = true;
+    float                   loaded_scale_ = 1.0f;
+    glm::vec3               loaded_center_ = {0, 0, 0};
+public:
+    float get_loaded_scale() const { return loaded_scale_; }
+    const glm::vec3& get_loaded_center() const { return loaded_center_; }
 };
 
 // VoxCamera3D — cámara perspectiva.

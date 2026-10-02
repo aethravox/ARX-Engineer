@@ -89,6 +89,17 @@ void FilesystemDock::render_directory(const std::filesystem::path& p) {
         // Click selecciona
         if (ImGui::IsItemClicked()) selected_ = e;
 
+        // === Doble-click en .zen abre el Code Editor ===
+        if (!is_dir && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+            std::string ext = e.extension().string();
+            std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+            if (ext == ".zen" || ext == ".zhn") {
+                if (on_open_zen_file) {
+                    on_open_zen_file(e.string());
+                }
+            }
+        }
+
         // === DRAG SOURCE: arrastrar archivo al viewport ===
         if (!is_dir && ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
             // Payload: path completo del archivo

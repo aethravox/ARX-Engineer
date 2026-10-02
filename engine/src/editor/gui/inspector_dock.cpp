@@ -45,6 +45,11 @@ namespace arx {
 void InspectorDock::render() {
     if (!ImGui::Begin("Inspector")) { ImGui::End(); return; }
 
+    // Validar que target_ sigue siendo válido (no fue borrado)
+    if (target_ && is_vox_valid_ && !is_vox_valid_(target_)) {
+        target_ = nullptr;
+    }
+
     if (!target_) {
         ImGui::TextDisabled("Selecciona un Vox para ver sus atributos");
         ImGui::End();

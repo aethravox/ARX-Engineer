@@ -8,9 +8,6 @@ file(GLOB_RECURSE EDITOR_SOURCES
 add_library(arx_editor_lib STATIC ${EDITOR_SOURCES})
 
 target_include_directories(arx_editor_lib PUBLIC
-    if(ARX_PLATFORM_ANDROID)
-        target_include_directories(arx_editor_lib PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
-    endif()
     ${ARX_THIRDPARTY}/nanosvg
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src
@@ -18,6 +15,11 @@ target_include_directories(arx_editor_lib PUBLIC
     ${imgui_SOURCE_DIR}/backends
     ${CMAKE_SOURCE_DIR}/../common/include
 )
+
+# fmt stub include path (solo Android - en PC se usa fmt real via FetchContent)
+if(ARX_PLATFORM_ANDROID)
+    target_include_directories(arx_editor_lib PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/fmt-include)
+endif()
 
 # Link against arx_common (la lib .aex de common/)
 # Asumimos que common/ ya fue construido y libarx_common.a está disponible

@@ -27,6 +27,20 @@
 #include "scene/net/vox_multiplayer.hpp"
 
 namespace arx {
+// ------------------------------------------------------------------------------
+bool SceneTreeDock::is_vox_in_tree(Vox* v) const {
+    if (!v || !root_) return false;
+    if (v == root_) return true;
+    // Buscar recursivamente en todo el arbol.
+    std::function<bool(Vox*)> visit = [&](Vox* n) -> bool {
+        if (n == v) return true;
+        for (auto* c : n->get_children()) {
+            if (visit(c)) return true;
+        }
+        return false;
+    };
+    return visit(root_);
+}
 
 // Lista de tipos disponibles en el popup "Add Vox".
 // El campo `icon` ahora es el nombre del archivo SVG (sin extensión) en

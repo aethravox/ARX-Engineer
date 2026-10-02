@@ -26,6 +26,9 @@ public:
     Vox* get_selected() const { return selected_; }
     void set_selected(Vox* v) { selected_ = v; }
 
+    // Verifica si un Vox sigue siendo parte del arbol (no fue borrado).
+    bool is_vox_in_tree(Vox* v) const;
+
     // Crear un root por defecto si no hay escena cargada
     void ensure_root();
 

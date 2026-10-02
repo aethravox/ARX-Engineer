@@ -11,6 +11,8 @@
 
 #include <imgui.h>
 #include <string>
+#include <functional>
+#include "viewport_3d_render.hpp"  // FASE 13: FBO 3D render
 // Forward declaration de glm::mat4 (es un typedef, no se puede forward-declarar
 // como class, así que incluimos el header completo).
 #include <glm/glm.hpp>
@@ -34,6 +36,12 @@ public:
     void set_selected(Vox* v) { selected_ = v; }
     Vox* get_selected() const { return selected_; }
 
+    // Permite al viewport propagar la seleccion al SceneTreeDock.
+    // Se llama desde EditorMain para conectar ambos.
+    using SelectedCallback = void(*)(Vox*);
+    void set_on_selected(SelectedCallback cb) { on_selected_ = cb; }
+    void notify_selected(Vox* v) { if (on_selected_) on_selected_(v); }
+
     // Modo del gizmo (cambiable con W/E/R)
     enum class GizmoMode {
         Move    = 0,
@@ -41,6 +49,9 @@ public:
         Scale   = 2,
     };
     GizmoMode gizmo_mode() const { return gizmo_mode_; }
+
+    // Validator: returns true if the Vox is still valid (not deleted)
+    std::function<bool(Vox*)> is_vox_valid_;
     void set_gizmo_mode(GizmoMode m) { gizmo_mode_ = m; }
 
 private:
@@ -70,6 +81,7 @@ private:
     Renderer* renderer_;
     Vox*      root_          = nullptr;
     Vox*      selected_      = nullptr;
+    SelectedCallback on_selected_ = nullptr;
     bool      mode_2d_       = false;
     bool      playing_       = false;
 
@@ -89,6 +101,11 @@ private:
     Vector3   drag_start_vox_rot_{0, 0, 0};
     Vector3   drag_start_vox_scl_{1, 1, 1};
     ImVec2    drag_start_mouse_{0, 0};
+
+    // FASE 13: Renderer 3D con FBO para meshes reales
+    Viewport3DRenderer renderer_3d_;
+    bool renderer_3d_inited_ = false;
+
 };
 
 } // namespace arx

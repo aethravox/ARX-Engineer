@@ -6,6 +6,7 @@
 #pragma once
 
 #include "scene/vox.hpp"
+#include <functional>
 
 namespace arx {
 
@@ -13,6 +14,9 @@ class InspectorDock {
 public:
     void render();
     void inspect(Vox* n) { target_ = n; }
+
+    // Validator: se llama al inicio de render() para validar target_
+    std::function<bool(Vox*)> is_vox_valid_;
     Vox* get_target() const { return target_; }
 
 private:
