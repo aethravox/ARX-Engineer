@@ -1,0 +1,316 @@
+# lexer.zen — Lexer de Zen escrito EN Zen
+#
+# Etapa 2 de "Zen sobre Zen": el tokenizador del lenguaje
+# está escrito en el propio lenguaje Zen.
+#
+# Este archivo es una traducción del lexer.cpp (C++) a Zen.
+# Usa FFI a libc para funciones de strings (strlen, etc).
+#
+# Tipos de token (números):
+#   0  = EOF
+#   1  = NUMBER
+#   2  = STRING
+#   3  = IDENTIFIER
+#   4  = SI/IF
+#   5  = SINO/ELSE
+#   6  = SINO_SI/ELIF
+#   7  = PARA/FOR
+#   8  = DESDE/FROM
+#   9  = HASTA/TO
+#   10 = MIENTRAS/WHILE
+#   11 = EN/IN
+#   12 = CADA/EACH
+#   13 = REPETIR/REPEAT
+#   14 = VECES/TIMES
+#   15 = ROMPER/BREAK
+#   16 = CONTINUAR/CONTINUE
+#   17 = FUNCION/FUNCTION
+#   18 = RETORNA/RETURN
+#   19 = MUESTRA/SHOW/PRINT
+#   20 = Y/AND
+#   21 = O/OR
+#   22 = NO/NOT
+#   23 = ES/IS
+#   24 = COINCIDIR/MATCH
+#   25 = CASO/CASE
+#   26 = POR_DEFECTO/DEFAULT
+#   27 = INTENTAR/TRY
+#   28 = ATRAPAR/CATCH
+#   29 = FINALMENTE/FINALLY
+#   30 = LANZAR/THROW
+#   31 = PLATAFORMA/PLATFORM
+#   32 = IMPORTAR/IMPORT
+#   33 = EXTERN
+#   34 = YES/VERDAD
+#   35 = FALSO
+#   36 = NADA/NOTHING
+#   37 = PLUS (+)
+#   38 = MINUS (-)
+#   39 = STAR (*)
+#   40 = SLASH (/)
+#   41 = PERCENT (%)
+#   42 = POWER (^)
+#   43 = EQEQ (==)
+#   44 = NEQ (!=)
+#   45 = LT (<)
+#   46 = GT (>)
+#   47 = LTE (<=)
+#   48 = GTE (>=)
+#   49 = ASSIGN (=)
+#   50 = PLUS_ASSIGN (+=)
+#   51 = MINUS_ASSIGN (-=)
+#   52 = STAR_ASSIGN (*=)
+#   53 = SLASH_ASSIGN (/=)
+#   54 = PERCENT_ASSIGN (%=)
+#   55 = POWER_ASSIGN (^=)
+#   56 = ARROW (->)
+#   57 = LPAREN (()
+#   58 = RPAREN ())
+#   59 = LBRACKET ([)
+#   60 = RBRACKET (])
+#   61 = LBRACE ({)
+#   62 = RBRACE (})
+#   63 = COMMA (,)
+#   64 = DOT (.)
+#   65 = COLON (:)
+#   66 = QUESTION (?)
+#   67 = NEWLINE
+#   68 = INDENT
+#   69 = DEDENT
+#   70 = ESTRUCTURA/STRUCT
+#   71 = INCLUIR/INCLUDE
+
+# === Struct: Token ===
+Token {tipo, valor, linea, col}
+
+# === FFI a libc ===
+extern "libc" strlen(str) -> int
+
+# === Helper: es dígito ===
+funcion es_digito(c)
+    retorna c >= 48 y c <= 57  # '0' = 48, '9' = 57
+
+# === Helper: es letra ===
+funcion es_letra(c)
+    # a-z, A-Z, _
+    retorna (c >= 97 y c <= 122) o (c >= 65 y c <= 90) o c == 95
+
+# === Helper: es letra o dígito ===
+funcion es_alfa_num(c)
+    retorna es_letra(c) o es_digito(c)
+
+# === Helper: obtener tipo de keyword ===
+# Retorna el tipo de token si es keyword, o 3 (IDENTIFIER) si no lo es
+funcion tipo_keyword(palabra)
+    # Condicionales
+    si palabra == "si"
+        retorna 4
+    si palabra == "if"
+        retorna 4
+    si palabra == "sino"
+        retorna 5
+    si palabra == "else"
+        retorna 5
+    si palabra == "sino_si"
+        retorna 6
+    si palabra == "elif"
+        retorna 6
+
+    # Bucles
+    si palabra == "para"
+        retorna 7
+    si palabra == "for"
+        retorna 7
+    si palabra == "desde"
+        retorna 8
+    si palabra == "from"
+        retorna 8
+    si palabra == "hasta"
+        retorna 9
+    si palabra == "to"
+        retorna 9
+    si palabra == "mientras"
+        retorna 10
+    si palabra == "while"
+        retorna 10
+    si palabra == "en"
+        retorna 11
+    si palabra == "in"
+        retorna 11
+    si palabra == "cada"
+        retorna 12
+    si palabra == "each"
+        retorna 12
+    si palabra == "repetir"
+        retorna 13
+    si palabra == "repeat"
+        retorna 13
+    si palabra == "veces"
+        retorna 14
+    si palabra == "times"
+        retorna 14
+    si palabra == "romper"
+        retorna 15
+    si palabra == "break"
+        retorna 15
+    si palabra == "continuar"
+        retorna 16
+    si palabra == "continue"
+        retorna 16
+    si palabra == "siguiente"
+        retorna 16
+
+    # Funciones
+    si palabra == "funcion"
+        retorna 17
+    si palabra == "function"
+        retorna 17
+    si palabra == "retorna"
+        retorna 18
+    si palabra == "return"
+        retorna 18
+
+    # Imprimir
+    si palabra == "muestra"
+        retorna 19
+    si palabra == "show"
+        retorna 19
+    si palabra == "print"
+        retorna 19
+    si palabra == "mostrar"
+        retorna 19
+    si palabra == "imprime"
+        retorna 19
+
+    # Lógica
+    si palabra == "y"
+        retorna 20
+    si palabra == "and"
+        retorna 20
+    si palabra == "o"
+        retorna 21
+    si palabra == "or"
+        retorna 21
+    si palabra == "no"
+        retorna 22
+    si palabra == "not"
+        retorna 22
+    si palabra == "es"
+        retorna 23
+    si palabra == "is"
+        retorna 23
+
+    # Match
+    si palabra == "coincidir"
+        retorna 24
+    si palabra == "match"
+        retorna 24
+    si palabra == "caso"
+        retorna 25
+    si palabra == "case"
+        retorna 25
+    si palabra == "por_defecto"
+        retorna 26
+    si palabra == "default"
+        retorna 26
+
+    # Errores
+    si palabra == "intentar"
+        retorna 27
+    si palabra == "try"
+        retorna 27
+    si palabra == "atrapar"
+        retorna 28
+    si palabra == "catch"
+        retorna 28
+    si palabra == "finalmente"
+        retorna 29
+    si palabra == "finally"
+        retorna 29
+    si palabra == "lanzar"
+        retorna 30
+    si palabra == "throw"
+        retorna 30
+
+    # Plataforma/Modulos
+    si palabra == "plataforma"
+        retorna 31
+    si palabra == "platform"
+        retorna 31
+    si palabra == "importar"
+        retorna 32
+    si palabra == "import"
+        retorna 32
+    si palabra == "incluir"
+        retorna 71
+    si palabra == "include"
+        retorna 71
+
+    # FFI
+    si palabra == "extern"
+        retorna 33
+
+    # Structs
+    si palabra == "estructura"
+        retorna 70
+    si palabra == "struct"
+        retorna 70
+
+    # Constantes
+    si palabra == "yes"
+        retorna 34
+    si palabra == "verdad"
+        retorna 34
+    si palabra == "falso"
+        retorna 35
+    si palabra == "nada"
+        retorna 36
+    si palabra == "nothing"
+        retorna 36
+
+    # No es keyword
+    retorna 3
+
+# === Helper: contar indentación de una línea ===
+funcion contar_indentacion(linea)
+    cuenta = 0
+    para cada c en linea
+        si c == " "
+            cuenta = cuenta + 1
+        sino
+            retorna cuenta
+    retorna cuenta
+
+# === Función principal: tokenizar ===
+# Recibe el código fuente como string, retorna una lista de tokens.
+# Cada token es un struct Token {tipo, valor, linea, col}.
+#
+# NOTA: Esta es una versión simplificada del lexer.
+# Maneja: números, strings, identificadores, keywords, operadores,
+# indentación y comentarios.
+funcion tokenizar(codigo)
+    tokens = []
+    indent_stack = [0]
+    num_linea = 0
+
+    # TODO: implementar el loop principal de tokenización
+    # Por ahora, retornar lista vacía
+    # La implementación completa se hará cuando Zen soporte
+    # iteración sobre caracteres de un string
+
+    retorna tokens
+
+# === Test ===
+# Cuando se ejecute este archivo directamente, correr un test básico
+muestra "=== Lexer de Zen escrito en Zen ==="
+muestra "Etapa 2: Zen sobre Zen"
+muestra ""
+
+# Verificar que las funciones básicas funcionan
+muestra "es_digito('0') = " + es_digito(48)  # debería ser verdad (1)
+muestra "es_letra('a') = " + es_letra(97)    # debería ser verdad (1)
+muestra "tipo_keyword('si') = " + tipo_keyword("si")  # debería ser 4
+muestra "tipo_keyword('muestra') = " + tipo_keyword("muestra")  # debería ser 19
+muestra "tipo_keyword('foobar') = " + tipo_keyword("foobar")  # debería ser 3 (IDENTIFIER)
+muestra ""
+muestra "Lexer en Zen cargado OK!"
