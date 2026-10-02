@@ -71,3 +71,4 @@ temp/
 # Python scripts
 *.py
 tinygltf/
+.github/workflows/

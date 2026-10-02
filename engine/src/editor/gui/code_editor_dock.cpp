@@ -223,7 +223,14 @@ void CodeEditorDock::render_editor_() {
 
     auto& f = open_files_[active_tab_];
 
-    ImGui::TextDisabled("%s", f.path.c_str());
+    // Mostrar HOME:// en vez de path completo
+    {
+        std::string display_path = f.path;
+        if (!project_dir_.empty() && display_path.find(project_dir_) == 0) {
+            display_path = "HOME://" + display_path.substr(project_dir_.length());
+        }
+        ImGui::TextDisabled("%s", display_path.c_str());
+    }
     if (f.dirty) {
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(1, 0.8f, 0, 1), "(sin guardar)");

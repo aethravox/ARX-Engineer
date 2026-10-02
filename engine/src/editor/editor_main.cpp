@@ -143,10 +143,6 @@ void EditorMain::load_project(const std::string& path) {
         docks_->filesystem_dock()->set_project_dir(path);
         // Conectar callback: doble-click en .zen abre el Code Editor
         docks_->filesystem_dock()->on_open_zen_file = [](const std::string& path) {
-            // Esta lambda se llama cuando el user hace doble-click en un .zen
-            // Necesitamos acceder al CodeEditorDock. Usamos una variable estática
-            // o un mecanismo similar al callback del viewport.
-            extern void arx_open_code_file(const std::string&);
             arx_open_code_file(path);
         };
     if (docks_ && docks_->code_editor_dock()) {
@@ -607,6 +603,9 @@ void EditorMain::render_main_ui_(float delta) {
             }
             ImGui::Separator();
             if (ImGui::MenuItem("Save Scene", "Ctrl+S"))   {}
+            if (ImGui::MenuItem("Exit", "Alt+F4")) {
+                show_close_confirm_dialog = true;
+            }
             if (ImGui::MenuItem("Save As..."))   {}
             ImGui::Separator();
             if (ImGui::BeginMenu("Export")) {
