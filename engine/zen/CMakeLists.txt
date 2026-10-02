@@ -53,17 +53,17 @@ message(STATUS "Zen: LLVM syslibs: ${LLVM_EXTRA_SYSLIBS}")
 # libzen — librería estática del compilador Zen (reutilizable desde el engine)
 # ============================================================
 add_library(zen_static STATIC
-    src/lexer.cpp
-    src/parser.cpp
-    src/codegen.cpp
-    src/zen_vm.cpp
-    src/zen_linker.cpp
-    src/zen_runtimes.cpp
-    src/zen_api.cpp
+    src_Old/lexer.cpp
+    src_Old/parser.cpp
+    src_Old/codegen.cpp
+    src_Old/zen_vm.cpp
+    src_Old/zen_linker.cpp
+    src_Old/zen_runtimes.cpp
+    src_Old/zen_api.cpp
 )
 
 target_include_directories(zen_static PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src_Old
     ${LLVM_INCLUDE_DIRS}
 )
 
@@ -76,7 +76,7 @@ set_target_properties(zen_static PROPERTIES OUTPUT_NAME "zen")
 # ============================================================
 # zen — ejecutable CLI (CLI wrapper sobre libzen_static)
 # ============================================================
-add_executable(zen_bin src/main.cpp)
+add_executable(zen_bin src_Old/main.cpp)
 target_link_libraries(zen_bin PRIVATE zen_static)
 set_target_properties(zen_bin PROPERTIES OUTPUT_NAME "zen")
 
