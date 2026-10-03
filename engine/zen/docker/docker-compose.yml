@@ -1,0 +1,25 @@
+# docker-compose.yml para Zen sobre Zen
+# Resource limits: 1 CPU, 512MB RAM — nunca tira la PC
+version: "3.8"
+
+services:
+  zen:
+    build: .
+    image: zen-selfhost:latest
+    container_name: zen-dev
+    volumes:
+      # Montar el repo ARX completo
+      - /home/aethravox/Escritorio/Projectos/Motores/ARX:/zen
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 128M
+    # timeout interno de 60s — Docker mata el container si se pasa
+    # (el script run_zen.sh tiene timeout 10s adicional)
+    timeout: 60
+    # stdin abierto para interaccion
+    stdin_open: true
+    tty: true
