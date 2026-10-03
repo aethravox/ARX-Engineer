@@ -2,56 +2,62 @@
 
 Progreso del bootstrap de Zen sobre Zen — el compilador Zen escrito en Zen.
 
-## Estado actual (commit FASE-1-DIAGNOSTICO)
+## Estado actual (commit FASE-1.6-DIAGNOSTICO)
 
 ```
 ✅ Modularización completa (6 archivos .zen con imports)
 ✅ Compila a binario nativo con LLVM embebido
 ✅ ./main -h muestra ayuda
-✅ ./main archivo.zen lee y procesa sin crashear
 ✅ Pipeline completo: leer → tokenizar → parsear → codegen → .ll
-✅ Exit code 0 limpio
-✅ NODO_PRINT implementado en codegen_statement
-✅ es_letra/es_digito/es_alfa_num arreglados (retornan 1/0)
-✅ Lexer Zen funciona cuando se prueba inline (sin imports)
-❌ Lexer Zen NO funciona correctamente cuando se usa con imports
-❌ ./main genera hola.ll vacio (solo ret i32 0)
+✅ Lexer Zen funciona (3 tokens para "muestra 42") ✅ NUEVO
+✅ Parser Zen funciona (1 nodo tipo PRINT para "muestra 42") ✅ NUEVO
+✅ Fix operadores o/y problemáticos en lexer.zen y parser.zen
+❌ codegen_statement crashea dentro del branch PRINT (strtod NULL)
 ```
 
 ---
 
-## FASE 1.6: Fix bug de imports en codegen C++ ⏳ NUEVO — BLOCKER
+## FASE 1.7: Fix codegen_statement PRINT ⏳ NUEVO — BLOCKER
 
-**Objetivo**: que `tokenizar()` funcione igual con import que sin import
+**Objetivo**: que `codegen_statement` genere el printf para NODO_PRINT
 
 ### Bug identificado:
 
-Cuando una función se importa con `importar "lexer"`, el codegen C++
-la trata diferente que cuando está inline. Esto causa que `tokenizar()`
-genera 2 tokens con import vs 1 token inline.
+Dentro del branch `si tipo == 12` (PRINT):
+```zen
+hijos = nodo.hijos          # obtiene lista de hijos
+arg = codegen_expresion(estado, hijos[0])   # evalúa primer hijo
+```
 
-### Hipótesis:
-
-Las funciones importadas se declaran con firma genérica (todos los
-args como `i8*`), mientras que las inline pueden usar tipos nativos
-(`double`). Esto cambia cómo se evalúan las comparaciones.
+El crash ocurre en `codegen_expresion(estado, hijos[0])`. Posibles causas:
+1. `hijos[0]` retorna NULL (lista vacía o índice inválido)
+2. `codegen_expresion` no maneja NODO_NUMBER (tipo 1) correctamente
+3. El nodo NUMBER tiene el valor como string pero codegen_expresion espera double
 
 ### Pasos:
 
-1. Comparar el IR de `tokenizar()` con import vs sin import
-2. Ver cómo el codegen C++ maneja `importar "lexer"`
-3. Posible fix: hacer que las funciones importadas mantengan sus tipos
-4. O: inline todo el lexer.zen en main.zen (workaround)
+1. Agregar debug printf dentro del branch PRINT de codegen_statement
+2. Verificar que `hijos[0]` retorna un nodo válido (no NULL)
+3. Verificar el tipo del nodo retornado (debería ser 1 = NUMBER)
+4. Debugear `codegen_expresion` para NODO_NUMBER
 
 ### Validación:
 ```bash
-./main ejemplos/hola.zen --ir
-# Debe decir "220 tokens generados" (no "6")
+./main /tmp/simple.zen --ir
+# simple.zen = "muestra 42"
+# Debe generar simple.ll con:
+#   define i32 @main() {
+#     entry:
+#       %0 = call i32 (i8*, ...) @printf(..., double 4.200000e+01)
+#       ret i32 0
+#   }
 ```
+
+### Commit esperado: `Zen sobre Zen: Fase 1.7 - Fix codegen_statement PRINT`
 
 ---
 
-## FASE 1: Codegen de statements básicos ✅ PARCIALMENTE COMPLETO
+## FASE 1: Codegen de statements básicos 🔄 80% COMPLETO
 
 **Objetivo**: que `./main hola.zen --run` imprima "Hola desde Zen!"
 
@@ -59,15 +65,18 @@ args como `i8*`), mientras que las inline pueden usar tipos nativos
 
 | # | Nodo | Tipo | Estado |
 |---|------|------|--------|
-| 1.1 | `NODO_PRINT` | 12 | ✅ Implementado |
-| 1.2 | `NODO_ASSIGN` | 10 | ✅ Ya estaba |
-| 1.3 | `NODO_EXPR_STMT` | 22 | ✅ Ya estaba |
-| 1.4 | `NODO_NUMBER` | 1 | ✅ Ya estaba |
-| 1.5 | `NODO_STRING` | 2 | ✅ Ya estaba |
-| 1.6 | `NODO_IDENTIFIER` | 5 | ⚠ Bug |
-| 1.7 | `NODO_BINARY_OP` | 6 | ✅ Ya estaba |
+| 1.1 | `NODO_PRINT` | 12 | 🔄 En progreso (crashea) |
+| 1.2 | `NODO_ASSIGN` | 10 | ✅ Implementado |
+| 1.3 | `NODO_EXPR_STMT` | 22 | ✅ Implementado |
+| 1.4 | `NODO_NUMBER` | 1 | ⚠ Revisar |
+| 1.5 | `NODO_STRING` | 2 | ✅ Implementado |
+| 1.6 | `NODO_IDENTIFIER` | 5 | ⚠ Revisar |
+| 1.7 | `NODO_BINARY_OP` | 6 | ✅ Implementado |
 
-**Bloqueado por Fase 1.6** (bug de imports)
+### Commits de la sesión:
+- `4de9709` Fix bug crítico del lexer (operadores o/y)
+- `7eafc89` Fix operadores o/y en parser.zen
+- Este commit: Diagnóstico completo
 
 ---
 
@@ -81,11 +90,20 @@ args como `i8*`), mientras que las inline pueden usar tipos nativos
 
 | Fase | Tiempo | Estado | Notas |
 |------|--------|--------|-------|
-| 1.6 - Fix bug imports | 2-4 h | ⏳ BLOCKER | Nuevo — se descubrió en Fase 1 |
-| 1 - Codegen básico | 1 h más | 🔄 En progreso | Bloqueado por 1.6 |
+| 1.7 - Fix codegen PRINT | 1-2 h | ⏳ BLOCKER | Nuevo — bug en codegen_expresion |
+| 1 - Codegen básico | casi listo | 🔄 80% | Bloqueado por 1.7 |
 | 2 - Control flow | 2 h | ⏳ pendiente | |
 | 3 - Features avanzadas | 2 h | ⏳ pendiente | |
 | 4 - **Bootstrap T-stage** 🔥 | 2-3 h | ⏳ pendiente | |
 | 5 - Linker integrado | 1-2 h | ⏳ pendiente | |
 | 6 - Android standalone | 1-2 h | ⏳ pendiente | |
 | 7 - Release | 1 h | ⏳ pendiente | |
+
+## Logros de la sesión
+
+1. ✅ Identificado el bug raíz: operadores `o`/`y` no funcionan en Zen
+2. ✅ Arreglado el lexer.zen (reemplazados todos los o/y con si anidados)
+3. ✅ Arreglado el parser.zen (reemplazados todos los o/y con flags)
+4. ✅ Lexer Zen funciona: genera tokens correctos
+5. ✅ Parser Zen funciona: genera AST correcto
+6. ✅ Diagnóstico del bug restante: codegen_statement PRINT
