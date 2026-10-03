@@ -65,6 +65,9 @@ funcion nodo_nombre(n)
 funcion nodo_op(n)
     retorna n.op
 
+funcion nodo_linea(n)
+    retorna n.linea
+
 # Variables del parser (estado global)
 tokens_parser = [0]
 pos_parser = 0
@@ -87,7 +90,7 @@ funcion match_token(tipo)
         retorna verdad
     retorna falso
 
-funcion esperar(tipo, msg)
+funcion consumir(tipo, msg)
     si token_tipo(peek()) == tipo
         retorna avanzar()
     muestra "ERROR: " + msg + " en linea " + token_linea(peek())
@@ -232,14 +235,14 @@ funcion parsear_repetir()
 funcion parsear_funcion()
     t = avanzar()
     nombre_tok = avanzar()
-    esperar(57, "Se esperaba ( despues de funcion")
+    consumir(57, "Se esperaba ( despues de funcion")
     params = [0]
     si token_tipo(peek()) != 58
         agregar(params, token_valor(avanzar()))
         mientras token_tipo(peek()) == 63
             avanzar()
             agregar(params, token_valor(avanzar()))
-    esperar(58, "Se esperaba ) ")
+    consumir(58, "Se esperaba ) ")
     si token_tipo(peek()) == 67
         avanzar()
     si token_tipo(peek()) == 68
@@ -300,7 +303,7 @@ funcion parsear_expresion()
     si token_tipo(peek()) == 66
         avanzar()
         then_expr = parsear_expresion()
-        esperar(65, "Se esperaba :")
+        consumir(65, "Se esperaba :")
         else_expr = parsear_expresion()
         n = crear_nodo(8, "", nodo_linea(expr))
         agregar(n.hijos, expr)
@@ -417,7 +420,7 @@ funcion parsear_primario()
             mientras token_tipo(peek()) == 63
                 avanzar()
                 agregar(elementos, parsear_expresion())
-        esperar(60, "Se esperaba ]")
+        consumir(60, "Se esperaba ]")
         n = crear_nodo(23, "", token_linea(t))
         para cada e en elementos
             agregar(n.hijos, e)
@@ -425,7 +428,7 @@ funcion parsear_primario()
     si token_tipo(t) == 57
         avanzar()
         expr = parsear_expresion()
-        esperar(58, "Se esperaba )")
+        consumir(58, "Se esperaba )")
         retorna expr
     si token_tipo(t) == 3 o token_tipo(t) == 20 o token_tipo(t) == 21 o token_tipo(t) == 23 o token_tipo(t) == 11
         avanzar()
@@ -437,7 +440,7 @@ funcion parsear_primario()
                 mientras token_tipo(peek()) == 63
                     avanzar()
                     agregar(args, parsear_expresion())
-            esperar(58, "Se esperaba )")
+            consumir(58, "Se esperaba )")
             n = crear_nodo(9, "", token_linea(t))
             n.nombre = token_valor(t)
             para cada a en args
@@ -448,8 +451,8 @@ funcion parsear_primario()
 
 # === Funcion principal: parsear ===
 funcion parsear(lista_tokens)
-    global tokens_parser = lista_tokens
-    global pos_parser = 0
+    tokens_parser = lista_tokens
+    pos_parser = 0
     programa = [0]
     mientras token_tipo(peek()) != 0
         s = parsear_statement()
