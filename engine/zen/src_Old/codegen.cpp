@@ -870,13 +870,32 @@ void CodeGen::generate(const std::vector<std::unique_ptr<ASTNode>>& ast) {
     // PASS 2.5: Crear main() y pre-escanear variables globales
     // Esto permite que las funciones (generadas en PASS 2) vean las variables
     // globales definidas en el nivel superior.
+    // main(int argc, char** argv) - recibe args para num_argumentos()/argumentos()
+    auto* i8PtrTy = llvm::Type::getInt8PtrTy(context);
     auto* mainType = llvm::FunctionType::get(
-        llvm::Type::getInt32Ty(context), false);
+        llvm::Type::getInt32Ty(context), {llvm::Type::getInt32Ty(context), i8PtrTy->getPointerTo()}, false);
     auto* mainFunc = llvm::Function::Create(
         mainType, llvm::Function::ExternalLinkage, "main", module.get());
+    mainFunc->getArg(0)->setName("argc");
+    mainFunc->getArg(1)->setName("argv");
     auto* entry = llvm::BasicBlock::Create(context, "entry", mainFunc);
     builder.SetInsertPoint(entry);
     currentFunction = mainFunc;
+
+    // Store argc/argv into globals for num_argumentos()/argumentos()
+    {
+        auto* argcGV = module->getGlobalVariable("__zen_argc", true);
+        if (!argcGV)
+            argcGV = new llvm::GlobalVariable(*module, llvm::Type::getInt32Ty(context), false,
+                llvm::GlobalValue::InternalLinkage, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), "__zen_argc");
+        builder.CreateStore(mainFunc->getArg(0), argcGV);
+
+        auto* argvGV = module->getGlobalVariable("__zen_argv", true);
+        if (!argvGV)
+            argvGV = new llvm::GlobalVariable(*module, i8PtrTy->getPointerTo(), false,
+                llvm::GlobalValue::InternalLinkage, llvm::ConstantPointerNull::get(i8PtrTy->getPointerTo()), "__zen_argv");
+        builder.CreateStore(mainFunc->getArg(1), argvGV);
+    }
     // Pre-escanear: crear GlobalVariables para variables globales
     // SIEMPRE usar i8* (boxed) para que funcione con cualquier tipo
     for (auto& node : ast) {
@@ -2963,10 +2982,15 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
             throw std::runtime_error("argumentos() espera 1 argumento (indice)");
         auto* idx = getNumArg(0);
         auto* idxI32 = builder.CreateFPToSI(idx, i32Ty, "argidx");
-        auto* argvVar = module->getGlobalVariable("__zen_argv");
+        // Buscar __zen_argv (i8** - puntero a array de strings)
+        auto* argvVar = module->getGlobalVariable("__zen_argv", true);
         if (!argvVar) return {llvm::ConstantPointerNull::get(i8Ptr), ZenType::String};
-        auto* argv = builder.CreateLoad(i8Ptr->getPointerTo(), argvVar, "argv");
+        // Cargar el puntero i8** de __zen_argv
+        auto* argvPtrType = i8Ptr->getPointerTo();
+        auto* argv = builder.CreateLoad(argvPtrType, argvVar, "argv");
+        // argv[n] = GEP sobre i8* (cada elemento es un i8*)
         auto* argPtr = builder.CreateGEP(i8Ptr, argv, {idxI32}, "arggep");
+        // Cargar el i8* (el string) de argv[n]
         auto* arg = builder.CreateLoad(i8Ptr, argPtr, "argval");
         return {arg, ZenType::String};
     }
@@ -2981,6 +3005,18 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
         }
         auto* argc = builder.CreateLoad(i32Ty, argcVar, "argc");
         return {builder.CreateSIToFP(argc, doubleTy, "argcd"), ZenType::Number};
+    }
+
+    // ---- listar_directorio(path) -> list de nombres de archivos
+    //     Solo archivos .zen (para CZL)
+    if (name == "listar_directorio" || name == "list_dir" || name == "listdir") {
+        if (node->args.size() != 1)
+            throw std::runtime_error("listar_directorio() espera 1 argumento (path)");
+        // Esta funcion es compleja de generar en LLVM IR.
+        // Por ahora, retornar una lista vacia.
+        // TODO: implementar con opendir/readdir
+        auto* emptyList = builder.CreateCall(llvm::FunctionCallee(listCreateFunc), {}, "emptylist");
+        return {emptyList, ZenType::List};
     }
 
     // salir(codigo)  → termina el programa

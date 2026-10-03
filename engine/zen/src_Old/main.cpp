@@ -224,7 +224,6 @@ int main(int argc, char* argv[]) {
         std::cout << "\033[90m[4/4] Generando LLVM IR...\033[0m\n";
         std::cout << "\033[90m      Plataforma target: \033[0m" << targetPlatform << "\n";
         CodeGen codegen(targetPlatform);
-        codegen.setArgv(argc, argv);
         codegen.generate(ast);
 
         if (codegen.verify()) {
