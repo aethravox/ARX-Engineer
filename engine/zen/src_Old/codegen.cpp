@@ -2462,8 +2462,24 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateExternCall(ExternCall* node) {
             auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
             converted = builder.CreateFPToSI(d, llvm::Type::getInt8Ty(context), "toi8");
         } else if (paramInfo.type == CType::Ptr) {
-            // Aceptamos string como void*
-            converted = toString(val, type);
+            // SPECIAL CASE: si el arg es un ListLit, generar C array de i8*
+            // Necesario para LLVMBuildCall(b, func, [a,b,c], n, name) y similares
+            if (node->args[i]->kind == NodeType::ListLit) {
+                auto* listLit = static_cast<ListLit*>(node->args[i].get());
+                size_t n = listLit->elements.size();
+                auto* i8PtrTy = llvm::Type::getInt8PtrTy(context);
+                auto* arrType = llvm::ArrayType::get(i8PtrTy, n);
+                auto* arr = builder.CreateAlloca(arrType, nullptr, "cargs");
+                for (size_t j = 0; j < n; j++) {
+                    auto [elemVal, elemType] = generateExpr(listLit->elements[j].get());
+                    auto* boxed = boxValue(elemVal, elemType);
+                    auto* slot = builder.CreateConstInBoundsGEP2_32(arrType, arr, 0, j, "slot");
+                    builder.CreateStore(boxed, slot);
+                }
+                converted = arr;
+            } else {
+                converted = toString(val, type);
+            }
         }
         args.push_back(converted);
     }

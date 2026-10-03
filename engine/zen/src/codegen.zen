@@ -65,10 +65,10 @@ extern "libLLVM" zen_concat(ptr, ptr) -> ptr
 extern "libLLVM" __zen_num_to_str(double) -> ptr
 extern "libLLVM" __zen_list_create(long) -> ptr
 extern "libLLVM" __zen_list_push(ptr, ptr) -> void
-extern "libLLVM" __zen_list_get(ptr, double) -> ptr
-extern "libLLVM" __zen_struct_create(double) -> ptr
-extern "libLLVM" __zen_struct_set(ptr, double, ptr) -> void
-extern "libLLVM" __zen_struct_get(ptr, double) -> ptr
+extern "libLLVM" __zen_list_get(ptr, long) -> ptr
+extern "libLLVM" __zen_struct_create(long) -> ptr
+extern "libLLVM" __zen_struct_set(ptr, long, ptr) -> void
+extern "libLLVM" __zen_struct_get(ptr, long) -> ptr
 extern "libLLVM" LLVMBuildPhi(ptr, str) -> ptr
 extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
 extern "libLLVM" LLVMGetInsertBlock(ptr) -> ptr
@@ -508,14 +508,16 @@ funcion codegen_struct_lit(estado, nodo)
     create_fn = LLVMGetNamedFunction(mod, "__zen_struct_create")
     si create_fn == 0
         retorna 0
-    args = [LLVMConstReal(LLVMDoubleType(), num)]
+    # __zen_struct_create espera long (i64)
+    cap_i64 = LLVMConstInt(LLVMInt64Type(), num, 0)
+    args = [cap_i64]
     Struct = LLVMBuildCall(b, create_fn, args, 1, "newstruct")
     set_fn = LLVMGetNamedFunction(mod, "__zen_struct_set")
     idx = 0
     mientras idx < num
         val = codegen_expresion(estado, hijos[idx])
         si set_fn != 0
-            field_idx = LLVMConstReal(LLVMDoubleType(), idx)
+            field_idx = LLVMConstInt(LLVMInt64Type(), idx, 0)
             args2 = [Struct, field_idx, val]
             LLVMBuildCall(b, set_fn, args2, 3, "sset")
         idx = idx + 1
@@ -526,9 +528,8 @@ funcion codegen_member_access(estado, nodo)
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     base = codegen_expresion(estado, hijos[0])
-    # Indice del campo — viene en nodo.valor (par-impar, 0,1,2,...)
-    # Simplificado: usar 0 (campo 0). El parser deberia pasar el idx real.
-    field_idx = LLVMConstReal(LLVMDoubleType(), 0)
+    # __zen_struct_get espera long (i64)
+    field_idx = LLVMConstInt(LLVMInt64Type(), 0, 0)
     get_fn = LLVMGetNamedFunction(mod, "__zen_struct_get")
     si get_fn == 0
         retorna 0
@@ -543,7 +544,9 @@ funcion codegen_list_lit(estado, nodo)
     si list_fn == 0
         retorna 0
     num = longitud(hijos)
-    args = [LLVMConstReal(LLVMDoubleType(), num)]
+    # __zen_list_create espera long (i64)
+    cap_i64 = LLVMConstInt(LLVMInt64Type(), num, 0)
+    args = [cap_i64]
     lista = LLVMBuildCall(b, list_fn, args, 1, "newlist")
     idx = 0
     mientras idx < num
@@ -561,10 +564,17 @@ funcion codegen_index_access(estado, nodo)
     mod = estado_modulo(estado)
     base = codegen_expresion(estado, hijos[0])
     idx_val = codegen_expresion(estado, hijos[1])
+    # __zen_list_get espera (ptr, long) - convertir idx_val de i8* a i64
+    # via strtod + fptosi
+    strtod_fn = LLVMGetNamedFunction(mod, "strtod")
+    nullp = LLVMConstPointerNull(LLVMPointerType(i8ptr_type(), 0))
+    conv_args = [idx_val, nullp]
+    idx_double = LLVMBuildCall(b, strtod_fn, conv_args, 2, "idxd")
+    idx_i64 = LLVMBuildFPToSI(b, idx_double, LLVMInt64Type(), "idxi64")
     get_fn = LLVMGetNamedFunction(mod, "__zen_list_get")
     si get_fn == 0
         retorna 0
-    args = [base, idx_val]
+    args = [base, idx_i64]
     retorna LLVMBuildCall(b, get_fn, args, 2, "lget")
 
 # ============================================================
