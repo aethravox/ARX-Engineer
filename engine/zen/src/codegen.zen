@@ -92,6 +92,30 @@ extern "libLLVM" zen_fsub(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" zen_fmul(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" zen_fdiv(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" zen_constreal(ptr, double) -> ptr
+extern "libLLVM" zen_constint(ptr, int, int) -> ptr
+extern "libLLVM" zen_conststring(str, int, int) -> ptr
+extern "libLLVM" zen_addglobal(ptr, ptr, str) -> ptr
+extern "libLLVM" zen_setinitializer(ptr, ptr) -> void
+extern "libLLVM" zen_setglobalconstant(ptr, int) -> void
+extern "libLLVM" zen_setlinkage(ptr, int) -> void
+extern "libLLVM" zen_bitcast(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_getnamedglobal(ptr, str) -> ptr
+extern "libLLVM" zen_getnamedfunction(ptr, str) -> ptr
+extern "libLLVM" zen_addfunction(ptr, str, ptr) -> ptr
+extern "libLLVM" zen_appendbasicblock(ptr, str) -> ptr
+extern "libLLVM" zen_positionbuilder(ptr, ptr) -> void
+extern "libLLVM" zen_retval(ptr, ptr) -> ptr
+extern "libLLVM" zen_retvoid(ptr) -> ptr
+extern "libLLVM" zen_br(ptr, ptr) -> ptr
+extern "libLLVM" zen_condbr(ptr, ptr, ptr, ptr) -> ptr
+extern "libLLVM" zen_fcmp(ptr, int, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_neg(ptr, ptr, str) -> ptr
+extern "libLLVM" zen_global_string(ptr, str, str) -> ptr
+extern "libLLVM" zen_global_double(ptr, str, double) -> ptr
+extern "libLLVM" zen_printf_call(ptr, ptr, ptr) -> ptr
+extern "libLLVM" zen_print_number(ptr, ptr, double) -> ptr
+extern "libLLVM" zen_assign_double(ptr, ptr, str, double) -> void
+extern "libLLVM" zen_print_var(ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMInitializeX86Target() -> void
 extern "libLLVM" LLVMInitializeX86AsmPrinter() -> void
 extern "libLLVM" LLVMInitializeX86TargetInfo() -> void
@@ -179,7 +203,7 @@ funcion codegen_expresion(estado, nodo)
     si tipo == 5
         # NODO_IDENTIFIER: cargar variable global
         nombre = nodo_valor(nodo)
-        gvar = LLVMGetNamedGlobal(estado_modulo(estado), nombre)
+        gvar = zen_getnamedglobal(estado_modulo(estado), nombre)
         si gvar != 0
             retorna zen_load(estado_builder(estado), gvar, nombre)
         retorna 0
@@ -318,35 +342,24 @@ funcion codegen_statement(estado, nodo)
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     si tipo == 12
-        # NODO_PRINT: generar printf("%g\n", arg)
+        # NODO_PRINT: usar zen_printf_call que hace todo en C++
         hijos = nodo.hijos
         hijo0 = hijos[0]
         arg = codegen_expresion(estado, hijo0)
-        # Declarar printf (LLVMAddFunction es idempotente si ya existe)
-        i32 = LLVMInt32Type()
-        i8p = i8ptr_type()
-        printf_type = LLVMFunctionType(i32, i8p, 0, 1)
-        printf_fn = LLVMAddFunction(mod, "printf", printf_type)
-        # Crear formato "%g\n"
-        fmt = LLVMConstString("%g\n", 0, 0)
-        gvar = LLVMAddGlobal(mod, LLVMInt8Type(), ".fmt")
-        LLVMSetInitializer(gvar, fmt)
-        LLVMSetGlobalConstant(gvar, 1)
-        LLVMSetLinkage(gvar, 0)
-        fmt_ptr = LLVMBuildBitCast(b, gvar, i8ptr_type(), "fmtptr")
-        # Usar zen_call2 en vez de LLVMBuildCall (evita el problema de arrays C)
-        zen_call2(b, printf_fn, fmt_ptr, arg, "print")
+        # zen_printf_call(builder, module, arg, "%g\n") hace todo:
+        # - declara printf si no existe
+        # - crea global string para el formato
+        # - llama printf con el arg
+        zen_printf_call(b, mod, arg)
         retorna 0
     si tipo == 10
         # NODO_ASSIGN: x = valor
-        # Crear global variable (no alloca local) para evitar tabla de variables
         hijos = nodo.hijos
         nombre = nodo_nombre(nodo)
-        # Crear global como double*
-        dty = LLVMDoubleType()
-        gvar = LLVMAddGlobal(mod, dty, nombre)
-        LLVMSetInitializer(gvar, LLVMConstReal(dty, 0))
-        zen_store(b, codegen_expresion(estado, hijos[0]), gvar)
+        tipo_hijo = nodo_tipo(hijos[0])
+        # Si el valor es NUMBER, usar zen_assign_double (recibe double)
+        si tipo_hijo == 1
+            zen_assign_double(mod, b, nombre, numero(nodo_valor(hijos[0])))
         retorna 0
     si tipo == 21
         # NODO_RETURN: retorna valor
