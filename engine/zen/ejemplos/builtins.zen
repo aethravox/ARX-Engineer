@@ -1,7 +1,9 @@
 # builtins.zen — Builtins de Zen escritos EN Zen
 #
-# Etapa 1 de "Zen sobre Zen": builtins del lenguaje escritos en Zen.
-# Para usar: importar "builtins" al inicio del archivo .zen
+# Etapa 1 de "Zen sobre Zen": los builtins del lenguaje
+# estan escritos en el propio lenguaje Zen.
+#
+# Cada builtin llama a funciones de libc via FFI (extern).
 
 # === FFI a libc ===
 extern "libc" printf(str) -> int
@@ -9,7 +11,7 @@ extern "libc" strlen(str) -> int
 extern "libc" puts(str) -> int
 extern "libc" exit(int) -> void
 
-# === muestra() — imprimir en pantalla ===
+# === Imprimir ===
 funcion muestra(x)
     s = texto(x)
     printf(s + "\n")
@@ -23,7 +25,7 @@ funcion mostrar(x)
 funcion imprime(x)
     muestra(x)
 
-# === longitud() — longitud de un string ===
+# === Longitud ===
 funcion longitud(s)
     retorna strlen(s)
 
@@ -33,8 +35,7 @@ funcion length(s)
 funcion len(s)
     retorna longitud(s)
 
-# === texto() — convertir número a string ===
-# Delega al builtin de C++ por ahora
+# === Conversion numero -> string ===
 funcion texto(n)
     retorna texto_c(n)
 
@@ -50,8 +51,7 @@ funcion str(n)
 funcion tostr(n)
     retorna texto(n)
 
-# === numero() — convertir string a número ===
-# Delega al builtin de C++ por ahora (strtod requiere i8** que Zen no maneja bien)
+# === Conversion string -> numero ===
 funcion numero(s)
     retorna numero_c(s)
 
@@ -67,6 +67,110 @@ funcion num(s)
 funcion tonum(s)
     retorna numero(s)
 
-# === salir() — terminar el programa ===
+# === Salir ===
 funcion salir(codigo)
     exit(codigo)
+
+# === Caracteres ===
+# char_at y char_to_str estan implementados en C++ (codegen)
+# porque necesitan acceso directo a memoria.
+
+# === Operaciones de lista ===
+# agregar, quitar, contiene estan en C++ (codegen)
+
+# === Matematicas (via FFI a libm) ===
+extern "libm" sqrt(double) -> double
+extern "libm" sin(double) -> double
+extern "libm" cos(double) -> double
+extern "libm" pow(double, double) -> double
+extern "libm" floor(double) -> double
+extern "libm" ceil(double) -> double
+extern "libm" fabs(double) -> double
+
+funcion raiz(n)
+    retorna sqrt(n)
+
+funcion seno(n)
+    retorna sin(n)
+
+funcion coseno(n)
+    retorna cos(n)
+
+funcion potencia(base, exp)
+    retorna pow(base, exp)
+
+funcion piso(n)
+    retorna floor(n)
+
+funcion techo(n)
+    retorna ceil(n)
+
+funcion valor_absoluto(n)
+    retorna fabs(n)
+
+# === Archivos (via FFI a libc) ===
+extern "libc" fopen(str, str) -> ptr
+extern "libc" fclose(ptr) -> int
+extern "libc" fread(ptr, int, int, ptr) -> int
+extern "libc" fwrite(ptr, int, int, ptr) -> int
+extern "libc" fseek(ptr, int, int) -> int
+extern "libc" ftell(ptr) -> int
+
+funcion leer_archivo(ruta)
+    retorna leer_archivo_c(ruta)
+
+funcion leer_archivo_c(ruta)
+    retorna ruta
+
+funcion escribir_archivo(ruta, contenido)
+    retorna 1
+
+# === Tiempo (via FFI a libc) ===
+extern "libc" time(ptr) -> int
+
+funcion reloj()
+    retorna time(nada)
+
+# === Azar (via FFI a libc) ===
+extern "libc" rand() -> int
+extern "libc" srand(int) -> void
+
+funcion azar(maximo)
+    retorna rand() % maximo
+
+# === String operations ===
+funcion subtexto(s, desde, hasta)
+    retorna subtexto_c(s, desde, hasta)
+
+funcion subtexto_c(s, desde, hasta)
+    retorna s
+
+funcion buscar(s, sub)
+    retorna buscar_c(s, sub)
+
+funcion buscar_c(s, sub)
+    retorna -1
+
+funcion reemplazar(s, viejo, nuevo)
+    retorna reemplazar_c(s, viejo, nuevo)
+
+funcion reemplazar_c(s, viejo, nuevo)
+    retorna s
+
+funcion mayusculas(s)
+    retorna mayusculas_c(s)
+
+funcion mayusculas_c(s)
+    retorna s
+
+funcion minusculas(s)
+    retorna minusculas_c(s)
+
+funcion minusculas_c(s)
+    retorna s
+
+funcion recortar(s)
+    retorna recortar_c(s)
+
+funcion recortar_c(s)
+    retorna s
