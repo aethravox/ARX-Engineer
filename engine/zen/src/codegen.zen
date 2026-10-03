@@ -25,7 +25,7 @@ extern "libLLVM" LLVMFloatType() -> ptr
 extern "libLLVM" LLVMDoubleType() -> ptr
 extern "libLLVM" LLVMVoidType() -> ptr
 extern "libLLVM" LLVMPointerType(ptr, uint) -> ptr
-extern "libLLVM" LLVMFunctionType(ptr, ptr, int) -> ptr
+extern "libLLVM" LLVMFunctionType(ptr, ptr, int, int) -> ptr
 extern "libLLVM" LLVMAddFunction(ptr, str, ptr) -> ptr
 extern "libLLVM" LLVMGetParam(ptr, int) -> ptr
 extern "libLLVM" LLVMAppendBasicBlock(ptr, str) -> ptr
@@ -129,46 +129,11 @@ funcion codegen_init()
     retorna estado
 
 funcion codegen_declarar_externs(estado)
-    mod = estado_modulo(estado)
-    i8p = i8ptr_type()
-    i32 = LLVMInt32Type()
-    i64 = LLVMInt64Type()
-    dty = LLVMDoubleType()
-    void_type = LLVMVoidType()
-    # libc
-    printf_type = LLVMFunctionType(i32, i8p, 1)
-    LLVMAddFunction(mod, "printf", printf_type)
-    malloc_type = LLVMFunctionType(i8p, i64, 0)
-    LLVMAddFunction(mod, "malloc", malloc_type)
-    strlen_type = LLVMFunctionType(i64, i8p, 0)
-    LLVMAddFunction(mod, "strlen", strlen_type)
-    sprintf_type = LLVMFunctionType(i32, i8p, 0)
-    LLVMAddFunction(mod, "sprintf", sprintf_type)
-    strtod_type = LLVMFunctionType(dty, i8p, 0)
-    LLVMAddFunction(mod, "strtod", strtod_type)
-    strcpy_type = LLVMFunctionType(i8p, i8p, 0)
-    LLVMAddFunction(mod, "strcpy", strcpy_type)
-    strcat_type = LLVMFunctionType(i8p, i8p, 0)
-    LLVMAddFunction(mod, "strcat", strcat_type)
-    # __zen_list_* runtime (i64 por compatibilidad con LLVM C API)
-    list_create_type = LLVMFunctionType(i8p, i64, 0)
-    LLVMAddFunction(mod, "__zen_list_create", list_create_type)
-    list_push_type = LLVMFunctionType(void_type, i8p, 1)
-    LLVMAddFunction(mod, "__zen_list_push", list_push_type)
-    list_get_type = LLVMFunctionType(i8p, dty, 0)
-    LLVMAddFunction(mod, "__zen_list_get", list_get_type)
-    # __zen_struct_* runtime
-    struct_create_type = LLVMFunctionType(i8p, dty, 0)
-    LLVMAddFunction(mod, "__zen_struct_create", struct_create_type)
-    struct_set_type = LLVMFunctionType(void_type, i8p, 2)
-    LLVMAddFunction(mod, "__zen_struct_set", struct_set_type)
-    struct_get_type = LLVMFunctionType(i8p, i8p, 1)
-    LLVMAddFunction(mod, "__zen_struct_get", struct_get_type)
-    # runtime helpers
-    num_to_str_type = LLVMFunctionType(i8p, dty, 0)
-    LLVMAddFunction(mod, "__zen_num_to_str", num_to_str_type)
-    concat_type = LLVMFunctionType(i8p, i8p, 1)
-    LLVMAddFunction(mod, "zen_concat", concat_type)
+    # DESACTIVADO: el codegen C++ ya declara las externs automaticamente.
+    # Las llamadas a LLVMFunctionType aqui requeririan 4 args (C API),
+    # pero Zen no soporta arrays de tipos facilmente.
+    # Se deja como no-op para compatibilidad.
+    retorna 0
 
 funcion codegen_finalize(estado)
     LLVMDisposeBuilder(estado_builder(estado))
@@ -377,7 +342,7 @@ funcion codegen_statement(estado, nodo)
             sino
                 romper
         double_ty = LLVMDoubleType()
-        func_type = LLVMFunctionType(double_ty, 0, 0)
+        func_type = LLVMFunctionType(double_ty, 0, 0, 0)
         func = LLVMAddFunction(mod, nombre, func_type)
         entry_bb = LLVMAppendBasicBlock(func, "entry")
         LLVMPositionBuilderAtEnd(b, entry_bb)
@@ -588,7 +553,12 @@ funcion codegen_programa(estado, programa)
     # automaticamente cuando las necesita via getOrDeclareFunction().
     # codegen_declarar_externs(estado)
     i32 = LLVMInt32Type()
-    main_type = LLVMFunctionType(i32, 0, 0)
+    # LLVMFunctionType(ret, paramTypes, paramCount, isVarArg)
+    # Para main() sin args: paramTypes=NULL, paramCount=0, isVarArg=0
+    # En Zen, 0 se boxea como string, pero LLVMFunctionType espera NULL.
+    # Truco: LLVMAddFunction ya declara main con su tipo, y LLVM no valida
+    # que paramTypes sea NULL si paramCount=0. Usamos cualquier ptr.
+    main_type = LLVMFunctionType(i32, i32, 0, 0)
     main_func = LLVMAddFunction(estado_modulo(estado), "main", main_type)
     entry = LLVMAppendBasicBlock(main_func, "entry")
     LLVMPositionBuilderAtEnd(estado_builder(estado), entry)

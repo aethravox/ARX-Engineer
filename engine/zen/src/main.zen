@@ -20,6 +20,12 @@ importar "codegen"
 importar "builtins"
 
 # ============================================================
+# FFI a runtime de Zen (para contar listas correctamente)
+# ============================================================
+
+extern "libLLVM" __zen_list_len(ptr) -> long
+
+# ============================================================
 # Banner y ayuda
 # ============================================================
 
@@ -98,13 +104,13 @@ funcion principal()
         retorna 1
     printf("[2/4] Tokenizando...\n")
     tokens = tokenizar(codigo)
-    n_tokens = longitud(tokens)
+    n_tokens = __zen_list_len(tokens)
     printf("      ")
     printf(n_tokens)
     printf(" tokens generados\n")
     printf("[3/4] Parseando...\n")
     ast = parsear(tokens)
-    n_nodos = longitud(ast)
+    n_nodos = __zen_list_len(ast)
     printf("      ")
     printf(n_nodos)
     printf(" nodos en el AST\n")
