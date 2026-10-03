@@ -177,16 +177,11 @@ funcion codegen_expresion(estado, nodo)
     si tipo == 4
         retorna LLVMConstPointerNull(i8ptr_type())
     si tipo == 5
+        # NODO_IDENTIFIER: cargar variable global
         nombre = nodo_valor(nodo)
-        func = LLVMGetNamedFunction(estado_modulo(estado), nombre)
-        si func != 0
-            args = [0]
-            retorna LLVMBuildCall(estado_builder(estado), func, args, 0, "call")
-        # Variable global o local — buscar como global
-        gvar = LLVMGetNamedGlobal(estado_modulo(estado), "g_" + nombre)
+        gvar = LLVMGetNamedGlobal(estado_modulo(estado), nombre)
         si gvar != 0
-            b = estado_builder(estado)
-            retorna LLVMBuildLoad(b, gvar, nombre)
+            retorna zen_load(estado_builder(estado), gvar, nombre)
         retorna 0
     si tipo == 6
         op = nodo_op(nodo)
@@ -344,11 +339,14 @@ funcion codegen_statement(estado, nodo)
         retorna 0
     si tipo == 10
         # NODO_ASSIGN: x = valor
-        # Usar zen_alloca y zen_store (wrappers que no boxean)
+        # Crear global variable (no alloca local) para evitar tabla de variables
         hijos = nodo.hijos
         nombre = nodo_nombre(nodo)
-        alloca = zen_alloca(b, LLVMDoubleType(), nombre)
-        zen_store(b, codegen_expresion(estado, hijos[0]), alloca)
+        # Crear global como double*
+        dty = LLVMDoubleType()
+        gvar = LLVMAddGlobal(mod, dty, nombre)
+        LLVMSetInitializer(gvar, LLVMConstReal(dty, 0))
+        zen_store(b, codegen_expresion(estado, hijos[0]), gvar)
         retorna 0
     si tipo == 21
         # NODO_RETURN: retorna valor
