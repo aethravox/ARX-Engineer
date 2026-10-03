@@ -1,0 +1,67 @@
+extern "libc" printf(str) -> int
+extern "libc" strlen(str) -> int
+
+czl_archivos = 0
+czl_codigo = 0
+czl_comentarios = 0
+czl_vacias = 0
+czl_total = 0
+
+funcion contar_archivo(ruta)
+    codigo = leer_archivo(ruta)
+    si longitud(codigo) == 0
+        retorna 0
+    len = longitud(codigo)
+    pos = 0
+    en_com = falso
+    es_vacia = verdad
+    linicio = verdad
+    mientras pos < len
+        c = char_at(codigo, pos)
+        si linicio == verdad
+            si c == 35
+                en_com = verdad
+            sino
+                en_com = falso
+            si c == 10
+                es_vacia = verdad
+            sino
+                es_vacia = falso
+            linicio = falso
+        si c == 10
+            czl_total = czl_total + 1
+            si en_com == verdad
+                czl_comentarios = czl_comentarios + 1
+            sino
+                si es_vacia == verdad
+                    czl_vacias = czl_vacias + 1
+                sino
+                    czl_codigo = czl_codigo + 1
+            linicio = verdad
+            es_vacia = verdad
+        pos = pos + 1
+    czl_total = czl_total + 1
+    si en_com == verdad
+        czl_comentarios = czl_comentarios + 1
+    sino
+        si es_vacia == verdad
+            czl_vacias = czl_vacias + 1
+        sino
+            czl_codigo = czl_codigo + 1
+    czl_archivos = czl_archivos + 1
+
+muestra "=== CZL - Counting Zen Lines ==="
+muestra ""
+contar_archivo("src/ast.zen")
+contar_archivo("src/builtins.zen")
+contar_archivo("src/codegen.zen")
+contar_archivo("src/lexer.zen")
+contar_archivo("src/main.zen")
+contar_archivo("src/parser.zen")
+muestra "Archivos:      " + czl_archivos
+muestra "Codigo:        " + czl_codigo
+muestra "Comentarios:   " + czl_comentarios
+muestra "Vacias:        " + czl_vacias
+muestra "TOTAL:         " + czl_total
+muestra ""
+muestra "=== CZL OK ==="
