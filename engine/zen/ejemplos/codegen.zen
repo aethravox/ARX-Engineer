@@ -337,6 +337,35 @@ funcion codegen_statement(estado, nodo)
     si tipo == 19
         retorna 0
     retorna 0
+funcion codegen_list_lit(estado, nodo)
+    hijos = nodo.hijos
+    b = estado_builder(estado)
+    mod = estado_modulo(estado)
+    list_fn = LLVMGetNamedFunction(mod, "__zen_list_create")
+    si list_fn == 0
+        retorna 0
+    lista = LLVMBuildCall(b, list_fn, [0], 0, "newlist")
+    idx = 0
+    num = longitud(hijos)
+    mientras idx < num
+        elem = codegen_expresion(estado, hijos[idx])
+        push_fn = LLVMGetNamedFunction(mod, "__zen_list_push")
+        si push_fn != 0
+            args = [lista, elem]
+            LLVMBuildCall(b, push_fn, args, 2, "push")
+        idx = idx + 1
+    retorna lista
+funcion codegen_index_access(estado, nodo)
+    hijos = nodo.hijos
+    b = estado_builder(estado)
+    mod = estado_modulo(estado)
+    base = codegen_expresion(estado, hijos[0])
+    idx_val = codegen_expresion(estado, hijos[1])
+    get_fn = LLVMGetNamedFunction(mod, "__zen_list_get")
+    si get_fn == 0
+        retorna 0
+    args = [base, idx_val]
+    retorna LLVMBuildCall(b, get_fn, args, 2, "lget")
 funcion codegen_programa(estado, programa)
     codegen_declarar_externs(estado)
     i32 = LLVMInt32Type()
