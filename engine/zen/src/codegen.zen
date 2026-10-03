@@ -582,7 +582,11 @@ funcion codegen_index_access(estado, nodo)
 # ============================================================
 
 funcion codegen_programa(estado, programa)
-    codegen_declarar_externs(estado)
+    # NOTA: codegen_declarar_externs() esta desactivado porque genera
+    # LLVMFunctionType mal (la C API requiere 4 args: ret, paramTypes[],
+    # paramCount, isVarArg). El codegen C++ ya declara las externs
+    # automaticamente cuando las necesita via getOrDeclareFunction().
+    # codegen_declarar_externs(estado)
     i32 = LLVMInt32Type()
     main_type = LLVMFunctionType(i32, 0, 0)
     main_func = LLVMAddFunction(estado_modulo(estado), "main", main_type)
