@@ -86,6 +86,9 @@ extern "libc" strtod(ptr, ptr) -> double
 
 CodeGenState {modulo, builder}
 
+loop_end_bb = 0
+loop_cond_bb = 0
+
 funcion estado_modulo(e)
     retorna e.modulo
 funcion estado_builder(e)
@@ -301,6 +304,10 @@ funcion codegen_statement(estado, nodo)
         cond_bb = LLVMAppendBasicBlock(main_fn, "while.cond")
         body_bb = LLVMAppendBasicBlock(main_fn, "while.body")
         end_bb = LLVMAppendBasicBlock(main_fn, "while.end")
+        old_end = loop_end_bb
+        old_cond = loop_cond_bb
+        loop_end_bb = end_bb
+        loop_cond_bb = cond_bb
         LLVMBuildBr(b, cond_bb)
         LLVMPositionBuilderAtEnd(b, cond_bb)
         cond = codegen_expresion(estado, hijos[0])
@@ -313,6 +320,8 @@ funcion codegen_statement(estado, nodo)
             idx = idx + 1
         LLVMBuildBr(b, cond_bb)
         LLVMPositionBuilderAtEnd(b, end_bb)
+        loop_end_bb = old_end
+        loop_cond_bb = old_cond
         retorna 0
     si tipo == 14
         nombre = nodo_nombre(nodo)
@@ -325,6 +334,10 @@ funcion codegen_statement(estado, nodo)
         cond_bb = LLVMAppendBasicBlock(main_fn, "for.cond")
         body_bb = LLVMAppendBasicBlock(main_fn, "for.body")
         end_bb = LLVMAppendBasicBlock(main_fn, "for.end")
+        old_end = loop_end_bb
+        old_cond = loop_cond_bb
+        loop_end_bb = end_bb
+        loop_cond_bb = cond_bb
         LLVMBuildBr(b, cond_bb)
         LLVMPositionBuilderAtEnd(b, cond_bb)
         cur_val = LLVMBuildLoad(b, loop_var, nombre)
@@ -340,10 +353,16 @@ funcion codegen_statement(estado, nodo)
         LLVMBuildStore(b, next_val, loop_var)
         LLVMBuildBr(b, cond_bb)
         LLVMPositionBuilderAtEnd(b, end_bb)
+        loop_end_bb = old_end
+        loop_cond_bb = old_cond
         retorna 0
     si tipo == 18
+        si loop_end_bb != 0
+            LLVMBuildBr(b, loop_end_bb)
         retorna 0
     si tipo == 19
+        si loop_cond_bb != 0
+            LLVMBuildBr(b, loop_cond_bb)
         retorna 0
     retorna 0
 funcion codegen_struct_lit(estado, nodo)
