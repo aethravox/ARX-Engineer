@@ -12,7 +12,7 @@ extern "libLLVM" LLVMInt32Type() -> ptr
 extern "libLLVM" LLVMInt64Type() -> ptr
 extern "libLLVM" LLVMFloatType() -> ptr
 extern "libLLVM" LLVMDoubleType() -> ptr
-extern "libLLVM" LLVMInt8PtrType() -> ptr
+extern "libLLVM" LLVMPointerType(ptr, uint) -> ptr
 extern "libLLVM" LLVMVoidType() -> ptr
 extern "libLLVM" LLVMFunctionType(ptr, ptr, int) -> ptr
 
@@ -56,6 +56,9 @@ extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
 
 extern "libc" printf(str) -> int
 extern "libc" malloc(int) -> ptr
+
+funcion i8ptr_type()
+    retorna i8ptr_type()
 extern "libc" strlen(str) -> int
 
 CodeGenState {modulo, builder, tipos, funciones, variables}
@@ -108,7 +111,7 @@ funcion codegen_init()
     estado.builder = LLVMCreateBuilder()
     retorna estado
 funcion codegen_declarar_externs(estado)
-    i8ptr = LLVMInt8PtrType()
+    i8ptr = i8ptr_type()
     i32 = LLVMInt32Type()
     printf_type = LLVMFunctionType(i32, i8ptr, 1)
     LLVMAddFunction(estado_modulo(estado), "printf", printf_type)
@@ -120,9 +123,7 @@ funcion codegen_declarar_externs(estado)
 funcion codegen_expresion(estado, nodo)
     tipo = nodo_tipo(nodo)
     si tipo == NODO_NUMBER
-        double_ty = LLVMDoubleType()
-        val = numero(nodo_valor(nodo))
-        retorna LLVMConstReal(double_ty, val)
+        retorna LLVMConstReal(LLVMDoubleType(), numero(nodo_valor(nodo)))
     si tipo == NODO_STRING
         retorna LLVMConstString(nodo_valor(nodo), 0, 0)
     si tipo == NODO_IDENTIFIER
