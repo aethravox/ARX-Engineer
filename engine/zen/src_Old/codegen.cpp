@@ -2465,19 +2465,34 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateExternCall(ExternCall* node) {
             auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
             converted = builder.CreateFPToSI(d, llvm::Type::getInt8Ty(context), "toi8");
         } else if (paramInfo.type == CType::Ptr) {
-            // SPECIAL CASE: si el arg es un ListLit, generar C array de i8*
-            // Necesario para LLVMBuildCall(b, func, [a,b,c], n, name) y similares
+            // SPECIAL CASE: si el arg es un ListLit, generar C array
+            // SIN boxear los elementos (usar el valor LLVM directo)
             if (node->args[i]->kind == NodeType::ListLit) {
                 auto* listLit = static_cast<ListLit*>(node->args[i].get());
                 size_t n = listLit->elements.size();
+                // Usar i8* como tipo del array (todos los LLVMValueRef son punteros)
                 auto* i8PtrTy = llvm::Type::getInt8PtrTy(context);
                 auto* arrType = llvm::ArrayType::get(i8PtrTy, n);
                 auto* arr = builder.CreateAlloca(arrType, nullptr, "cargs");
                 for (size_t j = 0; j < n; j++) {
                     auto [elemVal, elemType] = generateExpr(listLit->elements[j].get());
-                    auto* boxed = boxValue(elemVal, elemType);
+                    // NO boxear - usar el valor LLVM directamente
+                    // Si es double, bitcast a i8* (para que el array sea homogeneo)
+                    // Si ya es i8*, usarlo directo
+                    llvm::Value* elemPtr;
+                    if (elemVal->getType() == llvm::Type::getDoubleTy(context)) {
+                        // Es un double - crear alloca temporal y guardar
+                        auto* tmp = builder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, "tmp");
+                        builder.CreateStore(elemVal, tmp);
+                        elemPtr = builder.CreateBitCast(tmp, i8PtrTy, "eptr");
+                    } else if (elemVal->getType() == i8PtrTy) {
+                        elemPtr = elemVal;
+                    } else {
+                        // Bitcast generico a i8*
+                        elemPtr = builder.CreateBitCast(elemVal, i8PtrTy, "eptr");
+                    }
                     auto* slot = builder.CreateConstInBoundsGEP2_32(arrType, arr, 0, j, "slot");
-                    builder.CreateStore(boxed, slot);
+                    builder.CreateStore(elemPtr, slot);
                 }
                 converted = arr;
             } else {

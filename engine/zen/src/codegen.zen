@@ -314,39 +314,25 @@ funcion codegen_statement(estado, nodo)
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     si tipo == 12
-        # NODO_PRINT: generar printf("%g\n", arg) para numeros
-        # o printf("%s\n", arg) para strings
+        # NODO_PRINT: generar printf("%g\n", arg)
         hijos = nodo.hijos
-        arg = codegen_expresion(estado, hijos[0])
-        # Determinar si arg es string o numero:
-        # Si viene de LLVMConstString, es i8* (string)
-        # Si viene de LLVMConstReal/FAdd/etc, es double
-        # Por simplicidad, siempre usamos %g\n (printf maneja double)
-        # y convertimos string a double con strtod si es necesario
-        # Mezclando: usamos %s\n para strings y %g\n para numeros
-        # Pero como no sabemos el tipo en runtime, usamos un enfoque:
-        # siempre convertir a string con __zen_num_to_str si es double,
-        # y usar %s\n
-        arg_str = arg
-        # Si arg es double (Number), convertir a string
-        # Esto es tricky porque no sabemos el tipo en compile time
-        # Por ahora, asumimos que arg es i8* (string boxed)
-        # y lo imprimimos con %s\n
-        fmt = LLVMConstString("%s\n", 0, 0)
+        hijo0 = hijos[0]
+        arg = codegen_expresion(estado, hijo0)
+        # Declarar printf (LLVMAddFunction es idempotente si ya existe)
+        i32 = LLVMInt32Type()
+        i8p = i8ptr_type()
+        printf_type = LLVMFunctionType(i32, i8p, 0, 1)
+        printf_fn = LLVMAddFunction(mod, "printf", printf_type)
+        # Crear formato "%g\n"
+        fmt = LLVMConstString("%g\n", 0, 0)
         gvar = LLVMAddGlobal(mod, LLVMInt8Type(), ".fmt")
         LLVMSetInitializer(gvar, fmt)
         LLVMSetGlobalConstant(gvar, 1)
         LLVMSetLinkage(gvar, 0)
         fmt_ptr = LLVMBuildBitCast(b, gvar, i8ptr_type(), "fmtptr")
-        printf_fn = LLVMGetNamedFunction(mod, "printf")
-        si printf_fn == 0
-            # printf no declarado, declararlo
-            i32 = LLVMInt32Type()
-            i8p = i8ptr_type()
-            printf_type = LLVMFunctionType(i32, i8p, 0, 1)
-            printf_fn = LLVMAddFunction(mod, "printf", printf_type)
-        args = [fmt_ptr, arg_str]
-        LLVMBuildCall(b, printf_fn, args, 2, "print")
+        # Pasar el array directamente (sin variable intermedia)
+        # para que el codegen C++ lo convierta a C array de LLVMValueRef
+        LLVMBuildCall(b, printf_fn, [fmt_ptr, arg], 2, "print")
         retorna 0
     si tipo == 10
         hijos = nodo.hijos
