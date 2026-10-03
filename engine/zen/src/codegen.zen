@@ -79,6 +79,19 @@ extern "libLLVM" LLVMTypeOf(ptr) -> ptr
 extern "libLLVM" LLVMBuildAnd(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildOr(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildSelect(ptr, ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_call1(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_call2(ptr, ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_call3(ptr, ptr, ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_call4(ptr, ptr, ptr, ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_alloca(ptr, ptr, str) -> ptr
+extern "libLLVM" zen_store(ptr, ptr, ptr) -> ptr
+extern "libLLVM" zen_load(ptr, ptr, str) -> ptr
+extern "libLLVM" zen_ret(ptr, ptr) -> ptr
+extern "libLLVM" zen_fadd(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_fsub(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_fmul(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_fdiv(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" zen_constreal(ptr, double) -> ptr
 extern "libLLVM" LLVMInitializeX86Target() -> void
 extern "libLLVM" LLVMInitializeX86AsmPrinter() -> void
 extern "libLLVM" LLVMInitializeX86TargetInfo() -> void
@@ -146,7 +159,8 @@ funcion codegen_finalize(estado)
 funcion codegen_expresion(estado, nodo)
     tipo = nodo_tipo(nodo)
     si tipo == 1
-        retorna LLVMConstReal(LLVMDoubleType(), numero(nodo_valor(nodo)))
+        # NODO_NUMBER: usar zen_constreal en vez de LLVMConstReal
+        retorna zen_constreal(LLVMDoubleType(), numero(nodo_valor(nodo)))
     si tipo == 2
         str_val = nodo_valor(nodo)
         ret = LLVMConstString(str_val, 0, 0)
@@ -181,18 +195,13 @@ funcion codegen_expresion(estado, nodo)
         right = codegen_expresion(estado, hijos[1])
         b = estado_builder(estado)
         si op == "+"
-            # String concat si ambos son strings: usar zen_concat
-            concat_fn = LLVMGetNamedFunction(estado_modulo(estado), "zen_concat")
-            si concat_fn != 0
-                args = [left, right]
-                retorna LLVMBuildCall(b, concat_fn, args, 2, "concat")
-            retorna LLVMBuildFAdd(b, left, right, "add")
+            retorna zen_fadd(b, left, right, "add")
         si op == "-"
-            retorna LLVMBuildFSub(b, left, right, "sub")
+            retorna zen_fsub(b, left, right, "sub")
         si op == "*"
-            retorna LLVMBuildFMul(b, left, right, "mul")
+            retorna zen_fmul(b, left, right, "mul")
         si op == "/"
-            retorna LLVMBuildFDiv(b, left, right, "div")
+            retorna zen_fdiv(b, left, right, "div")
         si op == "%"
             retorna LLVMBuildFRem(b, left, right, "mod")
         si op == "=="
@@ -330,21 +339,21 @@ funcion codegen_statement(estado, nodo)
         LLVMSetGlobalConstant(gvar, 1)
         LLVMSetLinkage(gvar, 0)
         fmt_ptr = LLVMBuildBitCast(b, gvar, i8ptr_type(), "fmtptr")
-        # Pasar el array directamente (sin variable intermedia)
-        # para que el codegen C++ lo convierta a C array de LLVMValueRef
-        LLVMBuildCall(b, printf_fn, [fmt_ptr, arg], 2, "print")
+        # Usar zen_call2 en vez de LLVMBuildCall (evita el problema de arrays C)
+        zen_call2(b, printf_fn, fmt_ptr, arg, "print")
         retorna 0
     si tipo == 10
+        # NODO_ASSIGN: x = valor
+        # Usar zen_alloca y zen_store (wrappers que no boxean)
         hijos = nodo.hijos
-        val = codegen_expresion(estado, hijos[0])
         nombre = nodo_nombre(nodo)
-        alloca = LLVMBuildAlloca(b, LLVMDoubleType(), nombre)
-        LLVMBuildStore(b, val, alloca)
+        alloca = zen_alloca(b, LLVMDoubleType(), nombre)
+        zen_store(b, codegen_expresion(estado, hijos[0]), alloca)
         retorna 0
     si tipo == 21
+        # NODO_RETURN: retorna valor
         hijos = nodo.hijos
-        val = codegen_expresion(estado, hijos[0])
-        LLVMBuildRet(b, val)
+        zen_ret(b, codegen_expresion(estado, hijos[0]))
         retorna 0
     si tipo == 20
         nombre = nodo_nombre(nodo)

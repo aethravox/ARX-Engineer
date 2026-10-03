@@ -56,6 +56,44 @@ LLVMValueRef zen_call4(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMV
     return LLVMBuildCall(B, Fn, args, 4, Name);
 }
 
+// Wrappers adicionales para operaciones LLVM que necesitan LLVMValueRef nativo
+// (sin boxing a string)
+LLVMValueRef zen_alloca(LLVMBuilderRef B, LLVMTypeRef Ty, const char* Name) {
+    return LLVMBuildAlloca(B, Ty, Name);
+}
+
+LLVMValueRef zen_store(LLVMBuilderRef B, LLVMValueRef Val, LLVMValueRef Ptr) {
+    return LLVMBuildStore(B, Val, Ptr);
+}
+
+LLVMValueRef zen_load(LLVMBuilderRef B, LLVMValueRef Ptr, const char* Name) {
+    return LLVMBuildLoad(B, Ptr, Name);
+}
+
+LLVMValueRef zen_ret(LLVMBuilderRef B, LLVMValueRef Val) {
+    return LLVMBuildRet(B, Val);
+}
+
+LLVMValueRef zen_fadd(LLVMBuilderRef B, LLVMValueRef L, LLVMValueRef R, const char* Name) {
+    return LLVMBuildFAdd(B, L, R, Name);
+}
+
+LLVMValueRef zen_fsub(LLVMBuilderRef B, LLVMValueRef L, LLVMValueRef R, const char* Name) {
+    return LLVMBuildFSub(B, L, R, Name);
+}
+
+LLVMValueRef zen_fmul(LLVMBuilderRef B, LLVMValueRef L, LLVMValueRef R, const char* Name) {
+    return LLVMBuildFMul(B, L, R, Name);
+}
+
+LLVMValueRef zen_fdiv(LLVMBuilderRef B, LLVMValueRef L, LLVMValueRef R, const char* Name) {
+    return LLVMBuildFDiv(B, L, R, Name);
+}
+
+LLVMValueRef zen_constreal(LLVMTypeRef Ty, double Val) {
+    return LLVMConstReal(Ty, Val);
+}
+
 } // extern "C"
 
 // ============================================================
@@ -2498,8 +2536,20 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateExternCall(ExternCall* node) {
             auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
             converted = builder.CreateFPToSI(d, llvm::Type::getInt8Ty(context), "toi8");
         } else if (paramInfo.type == CType::Ptr) {
-            // Aceptamos string como void*
-            converted = toString(val, type);
+            // Para externs LLVM: NO boxear si el valor ya es LLVMValueRef
+            // (double, pointer, etc). Pasar directo via bitcast.
+            if (val->getType() == llvm::Type::getDoubleTy(context)) {
+                // Es un double (ej: LLVMConstReal). En Zen los doubles
+                // son LLVMValueRef. Pasar como i8* via inttoptr.
+                // Pero LLVMValueRef ya es un puntero C, no un valor LLVM.
+                // El codegen ya genera el valor LLVM correcto.
+                // Solo necesitamos pasarlo sin boxear.
+                converted = val;
+            } else if (val->getType() == llvm::Type::getInt8PtrTy(context)) {
+                converted = val;
+            } else {
+                converted = toString(val, type);
+            }
         }
         args.push_back(converted);
     }
