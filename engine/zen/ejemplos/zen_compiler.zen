@@ -69,6 +69,15 @@ extern "libLLVM" LLVMBuildCast(ptr, int, ptr, str) -> ptr
 extern "libLLVM" LLVMConstBitCast(ptr, ptr) -> ptr
 extern "libLLVM" LLVMBuildGEP(ptr, ptr, ptr, int, str) -> ptr
 extern "libLLVM" LLVMTypeOf(ptr) -> ptr
+extern "libLLVM" LLVMInitializeX86Target() -> void
+extern "libLLVM" LLVMInitializeX86AsmPrinter() -> void
+extern "libLLVM" LLVMInitializeX86TargetInfo() -> void
+extern "libLLVM" LLVMInitializeX86TargetMC() -> void
+extern "libLLVM" LLVMGetDefaultTargetTriple() -> str
+extern "libLLVM" LLVMGetTargetFromTriple(str, ptr, ptr) -> int
+extern "libLLVM" LLVMCreateTargetMachine(ptr, str, str, ptr, int, int, int) -> ptr
+extern "libLLVM" LLVMTargetMachineEmitToFile(ptr, ptr, str, int, ptr) -> int
+extern "libLLVM" LLVMDisposeTargetMachine(ptr) -> void
 extern "libc" sprintf(ptr, str, double) -> int
 extern "libc" strtod(ptr, ptr) -> double
 extern "libc" printf(str) -> int
@@ -986,6 +995,38 @@ funcion codegen_statement(estado, nodo)
     si tipo == 19
         retorna 0
     retorna 0
+funcion codegen_struct_lit(estado, nodo)
+    hijos = nodo.hijos
+    b = estado_builder(estado)
+    mod = estado_modulo(estado)
+    num = longitud(hijos)
+    num_campos = num / 2
+    create_fn = LLVMGetNamedFunction(mod, "__zen_struct_create")
+    si create_fn == 0
+        retorna 0
+    args = [LLVMConstReal(LLVMDoubleType(), num_campos)]
+    Struct = LLVMBuildCall(b, create_fn, args, 1, "newstruct")
+    idx = 0
+    mientras idx < num
+        val = codegen_expresion(estado, hijos[idx])
+        field_idx = LLVMConstReal(LLVMDoubleType(), idx / 2)
+        set_fn = LLVMGetNamedFunction(mod, "__zen_struct_set")
+        si set_fn != 0
+            args2 = [Struct, field_idx, val]
+            LLVMBuildCall(b, set_fn, args2, 3, "sset")
+        idx = idx + 2
+    retorna Struct
+funcion codegen_member_access(estado, nodo)
+    hijos = nodo.hijos
+    b = estado_builder(estado)
+    mod = estado_modulo(estado)
+    base = codegen_expresion(estado, hijos[0])
+    field_idx = LLVMConstReal(LLVMDoubleType(), 0)
+    get_fn = LLVMGetNamedFunction(mod, "__zen_struct_get")
+    si get_fn == 0
+        retorna 0
+    args = [base, field_idx]
+    retorna LLVMBuildCall(b, get_fn, args, 2, "mget")
 funcion codegen_list_lit(estado, nodo)
     hijos = nodo.hijos
     b = estado_builder(estado)
@@ -1027,6 +1068,18 @@ funcion codegen_programa(estado, programa)
     LLVMBuildRet(estado_builder(estado), LLVMConstInt(i32, 0, 0))
 funcion codegen_compilar(estado, ruta_salida)
     LLVMPrintModuleToFile(estado_modulo(estado), ruta_salida, nada)
+funcion codegen_compilar_nativo(estado, ruta_obj)
+    LLVMInitializeX86TargetInfo()
+    LLVMInitializeX86Target()
+    LLVMInitializeX86TargetMC()
+    LLVMInitializeX86AsmPrinter()
+    triple = LLVMGetDefaultTargetTriple()
+    target_ptr = 0
+    error_ptr = 0
+    LLVMGetTargetFromTriple(triple, 0, 0)
+    tm = LLVMCreateTargetMachine(0, triple, "", 0, 0, 0, 0)
+    LLVMTargetMachineEmitToFile(tm, estado_modulo(estado), ruta_obj, 0, 0)
+    LLVMDisposeTargetMachine(tm)
 funcion codegen_finalize(estado)
     LLVMDisposeBuilder(estado_builder(estado))
     LLVMDisposeModule(estado_modulo(estado))

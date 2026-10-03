@@ -7,8 +7,18 @@ czl_comentarios = 0
 czl_vacias = 0
 czl_total = 0
 czl_dir = "src"
+czl_excluir = ""
+
+funcion contiene_barra(s, sub)
+    si longitud(sub) == 0
+        retorna falso
+    si sub == s
+        retorna verdad
+    retorna falso
 
 funcion contar_archivo(ruta)
+    si contiene_barra(ruta, czl_excluir) == verdad
+        retorna 0
     codigo = leer_archivo(ruta)
     si longitud(codigo) == 0
         retorna 0
@@ -74,8 +84,16 @@ muestra title
 muestra header
 muestra ""
 n = num_argumentos()
-si n > 1
-    czl_dir = argumentos(1)
+idx = 1
+mientras idx < n
+    arg = argumentos(idx)
+    si arg == "-e"
+        idx = idx + 1
+        si idx < n
+            czl_excluir = argumentos(idx)
+    sino
+        czl_dir = arg
+    idx = idx + 1
 contar_dir(czl_dir)
 muestra lang_hdr
 muestra sep
