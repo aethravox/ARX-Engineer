@@ -2031,9 +2031,14 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateMemberAccess(MemberAccess* nod
     auto [baseVal, baseType] = generateExpr(node->base.get());
 
     if (baseType != ZenType::Struct) {
-        throw std::runtime_error(
-            "No se puede acceder a miembro de un valor que no es struct en linea " +
-            std::to_string(node->line));
+        // FASE 3: Si es un i8* (puntero), intentar acceder como struct de todos modos.
+        // Esto permite member access desde function returns y list iteration.
+        if (baseVal->getType() != llvm::Type::getInt8PtrTy(context)) {
+            throw std::runtime_error(
+                "No se puede acceder a miembro de un valor que no es struct en linea " +
+                std::to_string(node->line));
+        }
+        // Continuar: tratar como struct
     }
 
     // Necesitamos saber el tipo del struct para buscar el indice del campo.
@@ -2080,9 +2085,12 @@ void CodeGen::generateMemberAssign(MemberAssign* node) {
     auto [baseVal, baseType] = generateExpr(node->base.get());
 
     if (baseType != ZenType::Struct) {
-        throw std::runtime_error(
-            "No se puede asignar miembro de un valor que no es struct en linea " +
-            std::to_string(node->line));
+        if (baseVal->getType() != llvm::Type::getInt8PtrTy(context)) {
+            throw std::runtime_error(
+                "No se puede asignar miembro de un valor que no es struct en linea " +
+                std::to_string(node->line));
+        }
+        // Continuar: tratar como struct
     }
 
     // Buscar indice del campo (mismo workaround que en generateMemberAccess)
