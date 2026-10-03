@@ -8,17 +8,38 @@
 importar "ast"
 
 # ============================================================
+# FFI a libc (para debug)
+# ============================================================
+
+extern "libc" printf(str) -> int
+
+# ============================================================
 # Helpers de caracteres (ASCII)
 # ============================================================
 
 funcion es_digito(c)
-    retorna c >= 48 y c <= 57
+    si c >= 48
+        si c <= 57
+            retorna 1
+    retorna 0
 
 funcion es_letra(c)
-    retorna (c >= 97 y c <= 122) o (c >= 65 y c <= 90) o c == 95
+    si c >= 97
+        si c <= 122
+            retorna 1
+    si c >= 65
+        si c <= 90
+            retorna 1
+    si c == 95
+        retorna 1
+    retorna 0
 
 funcion es_alfa_num(c)
-    retorna es_letra(c) o es_digito(c)
+    si es_letra(c) == 1
+        retorna 1
+    si es_digito(c) == 1
+        retorna 1
+    retorna 0
 
 # ============================================================
 # Token accessors (FIX: antes habia recursion infinita)
@@ -116,11 +137,11 @@ funcion tokenizar(codigo)
             agregar(tokens, Token {tipo: 1, valor: valor, linea: linea, col: pos})
             continuar
         # Identificador / keyword
-        si es_letra(c)
+        si es_letra(c) == 1
             valor = ""
             mientras pos < len
                 ch = char_at(codigo, pos)
-                si es_alfa_num(ch)
+                si es_alfa_num(ch) == 1
                     valor = valor + char_to_str(ch)
                     pos = pos + 1
                 sino
