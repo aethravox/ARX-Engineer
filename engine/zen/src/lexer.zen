@@ -95,8 +95,12 @@ funcion tokenizar(codigo)
     linea = 1
     mientras pos < len
         c = char_at(codigo, pos)
-        # Espacio y tab
-        si c == 32 o c == 9
+        # Espacio
+        si c == 32
+            pos = pos + 1
+            continuar
+        # Tab
+        si c == 9
             pos = pos + 1
             continuar
         # Newline
@@ -107,17 +111,31 @@ funcion tokenizar(codigo)
             continuar
         # Comentario (#...)
         si c == 35
-            mientras pos < len y char_at(codigo, pos) != 10
+            mientras pos < len
+                si char_at(codigo, pos) == 10
+                    romper
                 pos = pos + 1
             continuar
-        # String literal (" o ')
-        si c == 34 o c == 39
-            comilla = c
+        # String literal comilla doble
+        si c == 34
             pos = pos + 1
             valor = ""
             mientras pos < len
                 ch = char_at(codigo, pos)
-                si ch == comilla
+                si ch == 34
+                    pos = pos + 1
+                    romper
+                valor = valor + char_to_str(ch)
+                pos = pos + 1
+            agregar(tokens, Token {tipo: 2, valor: valor, linea: linea, col: pos})
+            continuar
+        # String literal comilla simple
+        si c == 39
+            pos = pos + 1
+            valor = ""
+            mientras pos < len
+                ch = char_at(codigo, pos)
+                si ch == 39
                     pos = pos + 1
                     romper
                 valor = valor + char_to_str(ch)
@@ -125,15 +143,19 @@ funcion tokenizar(codigo)
             agregar(tokens, Token {tipo: 2, valor: valor, linea: linea, col: pos})
             continuar
         # Numero
-        si es_digito(c)
+        si es_digito(c) == 1
             valor = ""
             mientras pos < len
                 ch = char_at(codigo, pos)
-                si es_digito(ch) o ch == 46
+                si es_digito(ch) == 1
                     valor = valor + char_to_str(ch)
                     pos = pos + 1
                 sino
-                    romper
+                    si ch == 46
+                        valor = valor + char_to_str(ch)
+                        pos = pos + 1
+                    sino
+                        romper
             agregar(tokens, Token {tipo: 1, valor: valor, linea: linea, col: pos})
             continuar
         # Identificador / keyword
@@ -152,26 +174,36 @@ funcion tokenizar(codigo)
         # Operadores de 2 caracteres
         si pos + 1 < len
             c2 = char_at(codigo, pos + 1)
-            si c == 61 y c2 == 61
-                agregar(tokens, Token {tipo: 43, valor: "==", linea: linea, col: pos})
-                pos = pos + 2
-                continuar
-            si c == 33 y c2 == 61
-                agregar(tokens, Token {tipo: 44, valor: "!=", linea: linea, col: pos})
-                pos = pos + 2
-                continuar
-            si c == 60 y c2 == 61
-                agregar(tokens, Token {tipo: 47, valor: "<=", linea: linea, col: pos})
-                pos = pos + 2
-                continuar
-            si c == 62 y c2 == 61
-                agregar(tokens, Token {tipo: 48, valor: ">=", linea: linea, col: pos})
-                pos = pos + 2
-                continuar
-            si c == 45 y c2 == 62
-                agregar(tokens, Token {tipo: 56, valor: "->", linea: linea, col: pos})
-                pos = pos + 2
-                continuar
+            # == (61 61)
+            si c == 61
+                si c2 == 61
+                    agregar(tokens, Token {tipo: 43, valor: "==", linea: linea, col: pos})
+                    pos = pos + 2
+                    continuar
+            # != (33 61)
+            si c == 33
+                si c2 == 61
+                    agregar(tokens, Token {tipo: 44, valor: "!=", linea: linea, col: pos})
+                    pos = pos + 2
+                    continuar
+            # <= (60 61)
+            si c == 60
+                si c2 == 61
+                    agregar(tokens, Token {tipo: 47, valor: "<=", linea: linea, col: pos})
+                    pos = pos + 2
+                    continuar
+            # >= (62 61)
+            si c == 62
+                si c2 == 61
+                    agregar(tokens, Token {tipo: 48, valor: ">=", linea: linea, col: pos})
+                    pos = pos + 2
+                    continuar
+            # -> (45 62)
+            si c == 45
+                si c2 == 62
+                    agregar(tokens, Token {tipo: 56, valor: "->", linea: linea, col: pos})
+                    pos = pos + 2
+                    continuar
         # Operadores de 1 caracter
         si c == 43
             agregar(tokens, Token {tipo: 37, valor: "+", linea: linea, col: pos})
