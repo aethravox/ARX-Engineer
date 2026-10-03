@@ -1,78 +1,24 @@
 # parser.zen — Parser de Zen escrito EN Zen
 #
-# Etapa 3 de Zen sobre Zen: el parser toma los tokens del lexer
-# y construye un AST (Arbol de Sintaxis Abstracta).
+# Modulo: funcion parsear(tokens) -> lista[Nodo]
+#         construye el AST a partir de la lista de tokens producida por lexer.
 #
-# Parser recursivo descendente con bloques por indentacion.
-#
-# Tipos de nodo del AST (numeros):
-#   1  = NumberLit
-#   2  = StringLit
-#   3  = BoolLit
-#   4  = NullLit
-#   5  = Identifier
-#   6  = BinaryOp
-#   7  = UnaryOp
-#   8  = TernaryOp
-#   9  = FuncCall
-#   10 = AssignStmt
-#   11 = AugAssignStmt
-#   12 = PrintStmt
-#   13 = IfStmt
-#   14 = ForRangeStmt
-#   15 = ForEachStmt
-#   16 = WhileStmt
-#   17 = RepeatStmt
-#   18 = BreakStmt
-#   19 = ContinueStmt
-#   20 = FuncDecl
-#   21 = ReturnStmt
-#   22 = ExprStmt
-#   23 = ListLit
-#   24 = IndexAccess
-#   25 = IndexAssign
-#   26 = StructDecl
-#   27 = StructLit
-#   28 = MemberAccess
-#   29 = MemberAssign
-#   30 = MatchStmt
+# Importa: ast (structs Nodo + constantes), lexer (token accessors + tokenizar)
 
-# Struct: Nodo AST
-Nodo {tipo, valor, linea, hijos, nombre, op}
-Token {tipo, valor, linea, col}
+importar "ast"
+importar "lexer"
 
+# ============================================================
+# Estado del parser (modulo-level)
+# ============================================================
 
-# === Helpers para acceder a miembros de tokens ===
-funcion token_tipo(t)
-    retorna token_tipo(t)
-
-funcion token_valor(t)
-    retorna token_valor(t)
-
-funcion token_linea(t)
-    retorna token_linea(t)
-
-# === Helpers para acceder a miembros de nodos ===
-funcion nodo_tipo(n)
-    retorna n.tipo
-
-funcion nodo_valor(n)
-    retorna n.valor
-
-funcion nodo_nombre(n)
-    retorna n.nombre
-
-funcion nodo_op(n)
-    retorna n.op
-
-funcion nodo_linea(n)
-    retorna n.linea
-
-# Variables del parser (estado global)
 tokens_parser = [0]
 pos_parser = 0
 
-# === Helpers del parser ===
+# ============================================================
+# Helpers del parser
+# ============================================================
+
 funcion peek()
     retorna tokens_parser[pos_parser]
 
@@ -96,16 +42,10 @@ funcion consumir(tipo, msg)
     muestra "ERROR: " + msg + " en linea " + token_linea(peek())
     retorna peek()
 
-# === Crear nodo AST ===
-funcion crear_nodo(tipo, valor, linea)
-    n = Nodo {tipo: tipo, valor: valor, linea: linea, hijos: [], nombre: "", op: ""}
-    retorna n
+# ============================================================
+# Bloques y statements
+# ============================================================
 
-funcion crear_nodo_op(tipo, op, linea)
-    n = Nodo {tipo: tipo, valor: "", linea: linea, hijos: [], nombre: "", op: op}
-    retorna n
-
-# === Es fin de bloque? ===
 funcion es_fin_bloque(tipo)
     si tipo == 69
         retorna verdad
@@ -121,7 +61,6 @@ funcion es_fin_bloque(tipo)
         retorna verdad
     retorna falso
 
-# === Parsear bloque (lista de statements) ===
 funcion parsear_bloque()
     stmts = [0]
     mientras no es_fin_bloque(token_tipo(peek()))
@@ -134,7 +73,6 @@ funcion parsear_bloque()
         avanzar()
     retorna stmts
 
-# === Parsear statement ===
 funcion parsear_statement()
     t = peek()
     si token_tipo(t) == 19
@@ -161,7 +99,6 @@ funcion parsear_statement()
         return crear_nodo(19, "", token_linea(t))
     return parsear_expr_stmt()
 
-# === Parsear muestra ===
 funcion parsear_print()
     t = avanzar()
     expr = parsear_expresion()
@@ -169,7 +106,6 @@ funcion parsear_print()
     agregar(n.hijos, expr)
     retorna n
 
-# === Parsear si/if ===
 funcion parsear_si()
     t = avanzar()
     cond = parsear_expresion()
@@ -199,7 +135,6 @@ funcion parsear_si()
         agregar(n.hijos, s)
     retorna n
 
-# === Parsear mientras/while ===
 funcion parsear_mientras()
     t = avanzar()
     cond = parsear_expresion()
@@ -214,7 +149,6 @@ funcion parsear_mientras()
         agregar(n.hijos, s)
     retorna n
 
-# === Parsear repetir ===
 funcion parsear_repetir()
     t = avanzar()
     cuenta = parsear_expresion()
@@ -231,7 +165,6 @@ funcion parsear_repetir()
         agregar(n.hijos, s)
     retorna n
 
-# === Parsear funcion ===
 funcion parsear_funcion()
     t = avanzar()
     nombre_tok = avanzar()
@@ -256,7 +189,6 @@ funcion parsear_funcion()
         agregar(n.hijos, s)
     retorna n
 
-# === Parsear para/for (simplificado) ===
 funcion parsear_para()
     t = avanzar()
     var_tok = avanzar()
@@ -280,7 +212,6 @@ funcion parsear_para()
         retorna n
     retorna crear_nodo(22, "", token_linea(t))
 
-# === Parsear expresion como statement ===
 funcion parsear_expr_stmt()
     expr = parsear_expresion()
     si nodo_tipo(expr) == 5 y (token_tipo(peek()) == 49 o token_tipo(peek()) == 50)
@@ -297,7 +228,10 @@ funcion parsear_expr_stmt()
     agregar(n.hijos, expr)
     retorna n
 
-# === Parsear expresion (ternario) ===
+# ============================================================
+# Expresiones (precedencia descendente)
+# ============================================================
+
 funcion parsear_expresion()
     expr = parsear_or()
     si token_tipo(peek()) == 66
@@ -312,7 +246,6 @@ funcion parsear_expresion()
         retorna n
     retorna expr
 
-# === Parsear or/o ===
 funcion parsear_or()
     left = parsear_and()
     mientras token_tipo(peek()) == 21
@@ -324,7 +257,6 @@ funcion parsear_or()
         left = n
     retorna left
 
-# === Parsear and/y ===
 funcion parsear_and()
     left = parsear_comparacion()
     mientras token_tipo(peek()) == 20
@@ -336,7 +268,6 @@ funcion parsear_and()
         left = n
     retorna left
 
-# === Parsear comparacion ===
 funcion parsear_comparacion()
     left = parsear_suma_resta()
     mientras token_tipo(peek()) >= 43 y token_tipo(peek()) <= 48
@@ -348,7 +279,6 @@ funcion parsear_comparacion()
         left = n
     retorna left
 
-# === Parsear suma/resta ===
 funcion parsear_suma_resta()
     left = parsear_mul_div()
     mientras token_tipo(peek()) == 37 o token_tipo(peek()) == 38
@@ -360,7 +290,6 @@ funcion parsear_suma_resta()
         left = n
     retorna left
 
-# === Parsear multiplicacion/division ===
 funcion parsear_mul_div()
     left = parsear_potencia()
     mientras token_tipo(peek()) == 39 o token_tipo(peek()) == 40 o token_tipo(peek()) == 41
@@ -372,7 +301,6 @@ funcion parsear_mul_div()
         left = n
     retorna left
 
-# === Parsear potencia ===
 funcion parsear_potencia()
     left = parsear_unario()
     si token_tipo(peek()) == 42
@@ -384,7 +312,6 @@ funcion parsear_potencia()
         retorna n
     retorna left
 
-# === Parsear unario (-x, no x) ===
 funcion parsear_unario()
     si token_tipo(peek()) == 38
         t = avanzar()
@@ -394,15 +321,11 @@ funcion parsear_unario()
         retorna n
     retorna parsear_primario()
 
-# === Parsear primario (numeros, strings, identificadores, llamadas) ===
 funcion parsear_primario()
     t = peek()
-    si token_tipo(t) == 34 o token_tipo(t) == 34
+    si token_tipo(t) == 34 o token_tipo(t) == 35
         avanzar()
-        return crear_nodo(3, "verdad", token_linea(t))
-    si token_tipo(t) == 35
-        avanzar()
-        return crear_nodo(3, "falso", token_linea(t))
+        return crear_nodo(3, token_valor(t), token_linea(t))
     si token_tipo(t) == 36
         avanzar()
         return crear_nodo(4, "nada", token_linea(t))
@@ -449,7 +372,10 @@ funcion parsear_primario()
         return crear_nodo(5, token_valor(t), token_linea(t))
     return crear_nodo(4, "nada", token_linea(t))
 
-# === Funcion principal: parsear ===
+# ============================================================
+# Entry point del parser
+# ============================================================
+
 funcion parsear(lista_tokens)
     tokens_parser = lista_tokens
     pos_parser = 0
@@ -461,11 +387,3 @@ funcion parsear(lista_tokens)
         mientras token_tipo(peek()) == 67 o token_tipo(peek()) == 69
             avanzar()
     retorna programa
-
-# === Test ===
-muestra "=== Parser de Zen escrito en Zen ==="
-muestra "Etapa 3: Zen sobre Zen"
-muestra ""
-muestra "Parser cargado OK!"
-muestra "Nodos AST soportados: 30 tipos"
-muestra "Funciones: parsear(), parsear_expresion(), parsear_si(), etc."

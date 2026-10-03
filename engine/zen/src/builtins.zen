@@ -1,84 +1,38 @@
-# builtins.zen — Builtins de Zen escritos EN Zen
+# builtins.zen — Builtins de Zen (stubs para futura migracion a Zen)
 #
-# Etapa 1 de "Zen sobre Zen": los builtins del lenguaje
-# estan escritos en el propio lenguaje Zen.
+# NOTA IMPORTANTE:
+#   Los builtins (muestra, longitud, numero, texto, leer_archivo, argv, etc.)
+#   estan implementados NATIVAMENTE en el codegen C++ (codegen.cpp).
+#   NO se pueden redefinir aqui porque el codegen los maneja por nombre.
 #
-# Cada builtin llama a funciones de libc via FFI (extern).
+#   Este archivo existe para que, conforme Zen sobre Zen madure, los builtins
+#   se vayan migrando a Zen puro usando FFI a libc/libm.
+#
+#   Por ahora solo declaramos los FFI externs que otros modulos puedan necesitar.
 
-# === FFI a libc ===
+# ============================================================
+# FFI a libc (algunos modulos pueden necesitar estos externs)
+# ============================================================
+
 extern "libc" printf(str) -> int
 extern "libc" strlen(str) -> int
 extern "libc" puts(str) -> int
 extern "libc" exit(int) -> void
+extern "libc" fopen(str, str) -> ptr
+extern "libc" fclose(ptr) -> int
+extern "libc" fread(ptr, int, int, ptr) -> int
+extern "libc" fwrite(ptr, int, int, ptr) -> int
+extern "libc" fseek(ptr, int, int) -> int
+extern "libc" ftell(ptr) -> int
+extern "libc" time(ptr) -> int
+extern "libc" rand() -> int
+extern "libc" srand(int) -> void
+extern "libc" system(str) -> int
 
-# === Imprimir ===
-funcion muestra(x)
-    s = texto(x)
-    printf(s + "\n")
+# ============================================================
+# FFI a libm
+# ============================================================
 
-funcion show(x)
-    muestra(x)
-
-funcion mostrar(x)
-    muestra(x)
-
-funcion imprime(x)
-    muestra(x)
-
-# === Longitud ===
-funcion longitud(s)
-    retorna strlen(s)
-
-funcion length(s)
-    retorna longitud(s)
-
-funcion len(s)
-    retorna longitud(s)
-
-# === Conversion numero -> string ===
-funcion texto(n)
-    retorna texto_c(n)
-
-funcion texto_c(n)
-    retorna n
-
-funcion text(n)
-    retorna texto(n)
-
-funcion str(n)
-    retorna texto(n)
-
-funcion tostr(n)
-    retorna texto(n)
-
-# === Conversion string -> numero ===
-funcion numero(s)
-    retorna numero_c(s)
-
-funcion numero_c(s)
-    retorna s
-
-funcion number(s)
-    retorna numero(s)
-
-funcion num(s)
-    retorna numero(s)
-
-funcion tonum(s)
-    retorna numero(s)
-
-# === Salir ===
-funcion salir(codigo)
-    exit(codigo)
-
-# === Caracteres ===
-# char_at y char_to_str estan implementados en C++ (codegen)
-# porque necesitan acceso directo a memoria.
-
-# === Operaciones de lista ===
-# agregar, quitar, contiene estan en C++ (codegen)
-
-# === Matematicas (via FFI a libm) ===
 extern "libm" sqrt(double) -> double
 extern "libm" sin(double) -> double
 extern "libm" cos(double) -> double
@@ -87,90 +41,20 @@ extern "libm" floor(double) -> double
 extern "libm" ceil(double) -> double
 extern "libm" fabs(double) -> double
 
-funcion raiz(n)
-    retorna sqrt(n)
-
-funcion seno(n)
-    retorna sin(n)
-
-funcion coseno(n)
-    retorna cos(n)
-
-funcion potencia(base, exp)
-    retorna pow(base, exp)
-
-funcion piso(n)
-    retorna floor(n)
-
-funcion techo(n)
-    retorna ceil(n)
-
-funcion valor_absoluto(n)
-    retorna fabs(n)
-
-# === Archivos (via FFI a libc) ===
-extern "libc" fopen(str, str) -> ptr
-extern "libc" fclose(ptr) -> int
-extern "libc" fread(ptr, int, int, ptr) -> int
-extern "libc" fwrite(ptr, int, int, ptr) -> int
-extern "libc" fseek(ptr, int, int) -> int
-extern "libc" ftell(ptr) -> int
-
-funcion leer_archivo(ruta)
-    retorna leer_archivo_c(ruta)
-
-funcion leer_archivo_c(ruta)
-    retorna ruta
-
-funcion escribir_archivo(ruta, contenido)
-    retorna 1
-
-# === Tiempo (via FFI a libc) ===
-extern "libc" time(ptr) -> int
-
-funcion reloj()
-    retorna time(nada)
-
-# === Azar (via FFI a libc) ===
-extern "libc" rand() -> int
-extern "libc" srand(int) -> void
-
-funcion azar(maximo)
-    retorna rand() % maximo
-
-# === String operations ===
-funcion subtexto(s, desde, hasta)
-    retorna subtexto_c(s, desde, hasta)
-
-funcion subtexto_c(s, desde, hasta)
-    retorna s
-
-funcion buscar(s, sub)
-    retorna buscar_c(s, sub)
-
-funcion buscar_c(s, sub)
-    retorna -1
-
-funcion reemplazar(s, viejo, nuevo)
-    retorna reemplazar_c(s, viejo, nuevo)
-
-funcion reemplazar_c(s, viejo, nuevo)
-    retorna s
-
-funcion mayusculas(s)
-    retorna mayusculas_c(s)
-
-funcion mayusculas_c(s)
-    retorna s
-
-funcion minusculas(s)
-    retorna minusculas_c(s)
-
-funcion minusculas_c(s)
-    retorna s
-
-funcion recortar(s)
-    retorna recortar_c(s)
-
-funcion recortar_c(s)
-    retorna s
+# Builtins nativos del codegen (NO redefinir aqui):
+#   muestra(x), show(x), mostrar(x), imprime(x)
+#   longitud(s), length(s), len(s)
+#   numero(s), number(s), num(s), tonum(s)
+#   texto(n), text(n), str(n), tostr(n)
+#   char_at(s, i), char_to_str(c)
+#   subtexto(s, ini, fin), buscar(s, sub), reemplazar(s, viejo, nuevo)
+#   mayusculas(s), minusculas(s), recortar(s)
+#   leer_archivo(ruta), escribir_archivo(ruta, contenido)
+#   argumentos(i), num_argumentos()
+#   salir(codigo), reloj(), dormir(ms), limpiar()
+#   azar(max), rand(max)
+#   agregar(lista, elem), contiene(lista, elem), quitar(lista)
+#   raiz(n), seno(n), coseno(n), potencia(base, exp)
+#   piso(n), techo(n), abs(n), valor_absoluto(n)
+#   min(a, b), max(a, b), redondear(n)
+#   leer_linea(), input(prompt)

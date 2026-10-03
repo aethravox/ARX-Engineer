@@ -1,15 +1,45 @@
+# lexer.zen — Tokenizador de Zen escrito EN Zen
+#
+# Modulo: funcion tokenizar(codigo) -> lista[Token]
+#
+# Importa: ast (para el struct Token)
+# No contiene statements de nivel superior.
 
-Token {tipo, valor, linea, col}
+importar "ast"
 
-extern "libc" printf(str) -> int
-extern "libc" strlen(str) -> int
+# ============================================================
+# Helpers de caracteres (ASCII)
+# ============================================================
 
 funcion es_digito(c)
     retorna c >= 48 y c <= 57
+
 funcion es_letra(c)
     retorna (c >= 97 y c <= 122) o (c >= 65 y c <= 90) o c == 95
+
 funcion es_alfa_num(c)
     retorna es_letra(c) o es_digito(c)
+
+# ============================================================
+# Token accessors (FIX: antes habia recursion infinita)
+# ============================================================
+
+funcion token_tipo(t)
+    retorna t.tipo
+
+funcion token_valor(t)
+    retorna t.valor
+
+funcion token_linea(t)
+    retorna t.linea
+
+funcion token_col(t)
+    retorna t.col
+
+# ============================================================
+# Mapa keyword -> tipo de token
+# ============================================================
+
 funcion tipo_keyword(palabra)
     si palabra == "si" o palabra == "if"
         retorna 4
@@ -27,11 +57,16 @@ funcion tipo_keyword(palabra)
         retorna 19
     si palabra == "verdad" o palabra == "yes"
         retorna 34
-    si palabra == "falso"
+    si palabra == "falso" o palabra == "no"
         retorna 35
     si palabra == "nada" o palabra == "nothing"
         retorna 36
     retorna 3
+
+# ============================================================
+# Tokenizador principal
+# ============================================================
+
 funcion tokenizar(codigo)
     tokens = []
     len = longitud(codigo)
@@ -39,18 +74,22 @@ funcion tokenizar(codigo)
     linea = 1
     mientras pos < len
         c = char_at(codigo, pos)
+        # Espacio y tab
         si c == 32 o c == 9
             pos = pos + 1
             continuar
+        # Newline
         si c == 10
             agregar(tokens, Token {tipo: 67, valor: "NEWLINE", linea: linea, col: pos})
             pos = pos + 1
             linea = linea + 1
             continuar
+        # Comentario (#...)
         si c == 35
             mientras pos < len y char_at(codigo, pos) != 10
                 pos = pos + 1
             continuar
+        # String literal (" o ')
         si c == 34 o c == 39
             comilla = c
             pos = pos + 1
@@ -64,6 +103,7 @@ funcion tokenizar(codigo)
                 pos = pos + 1
             agregar(tokens, Token {tipo: 2, valor: valor, linea: linea, col: pos})
             continuar
+        # Numero
         si es_digito(c)
             valor = ""
             mientras pos < len
@@ -75,6 +115,7 @@ funcion tokenizar(codigo)
                     romper
             agregar(tokens, Token {tipo: 1, valor: valor, linea: linea, col: pos})
             continuar
+        # Identificador / keyword
         si es_letra(c)
             valor = ""
             mientras pos < len
@@ -87,6 +128,7 @@ funcion tokenizar(codigo)
             tipo = tipo_keyword(valor)
             agregar(tokens, Token {tipo: tipo, valor: valor, linea: linea, col: pos})
             continuar
+        # Operadores de 2 caracteres
         si pos + 1 < len
             c2 = char_at(codigo, pos + 1)
             si c == 61 y c2 == 61
@@ -109,6 +151,7 @@ funcion tokenizar(codigo)
                 agregar(tokens, Token {tipo: 56, valor: "->", linea: linea, col: pos})
                 pos = pos + 2
                 continuar
+        # Operadores de 1 caracter
         si c == 43
             agregar(tokens, Token {tipo: 37, valor: "+", linea: linea, col: pos})
         sino
@@ -159,10 +202,3 @@ funcion tokenizar(codigo)
         pos = pos + 1
     agregar(tokens, Token {tipo: 0, valor: "EOF", linea: linea, col: pos})
     retorna tokens
-muestra "=== Lexer de Zen escrito en Zen ==="
-
-codigo = "muestra 42"
-muestra "Tokenizando: " + codigo
-tokens = tokenizar(codigo)
-muestra "Tokens generados: " + longitud(tokens)
-muestra "Lexer en Zen funcionando!"

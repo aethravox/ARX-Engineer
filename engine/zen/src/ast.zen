@@ -1,76 +1,66 @@
-# ast.zen — AST de Zen escrito EN Zen
+# ast.zen — Definiciones del AST de Zen escrito EN Zen
 #
-# Define los tipos de nodo del Arbol de Sintaxis Abstracta.
-# Cada tipo es un numero que identifica que clase de nodo es.
+# Modulo: estructuras de datos (Nodo, Token, CodeGenState),
+# constantes (NODO_*, TIPO_*, TOKEN_*), constructores y accessors.
 #
-# El parser construye estos nodos y el codegen los recorre
-# para generar codigo LLVM IR.
+# Este modulo es importable por lexer.zen, parser.zen, codegen.zen y main.zen.
+# No contiene statements de nivel superior (solo definiciones).
 
-# === Tipos de nodo del AST ===
-# Estos numeros deben coincidir con los del parser.zen
+# ============================================================
+# Structs
+# ============================================================
 
-# Literales
-NODO_NUMBER = 1
-NODO_STRING = 2
-NODO_BOOL = 3
-NODO_NULL = 4
+Nodo {tipo, valor, linea, hijos, nombre, op}
+Token {tipo, valor, linea, col}
+CodeGenState {modulo, builder}
 
-# Expresiones
-NODO_IDENTIFIER = 5
-NODO_BINARY_OP = 6
-NODO_UNARY_OP = 7
-NODO_TERNARY = 8
-NODO_FUNC_CALL = 9
+# ============================================================
+# Constantes — Tipos de Nodos del AST
+# ============================================================
 
-# Statements
-NODO_ASSIGN = 10
-NODO_AUG_ASSIGN = 11
-NODO_PRINT = 12
-NODO_IF = 13
-NODO_FOR_RANGE = 14
-NODO_FOR_EACH = 15
-NODO_WHILE = 16
-NODO_REPEAT = 17
-NODO_BREAK = 18
-NODO_CONTINUE = 19
-NODO_FUNC_DECL = 20
-NODO_RETURN = 21
-NODO_EXPR_STMT = 22
-
-# Listas
-NODO_LIST_LIT = 23
+NODO_NUMBER      = 1
+NODO_STRING      = 2
+NODO_BOOL        = 3
+NODO_NULL        = 4
+NODO_IDENTIFIER  = 5
+NODO_BINARY_OP   = 6
+NODO_UNARY_OP    = 7
+NODO_TERNARY     = 8
+NODO_FUNC_CALL   = 9
+NODO_ASSIGN      = 10
+NODO_AUG_ASSIGN  = 11
+NODO_PRINT       = 12
+NODO_IF          = 13
+NODO_FOR_RANGE   = 14
+NODO_FOR_EACH    = 15
+NODO_WHILE       = 16
+NODO_REPEAT      = 17
+NODO_BREAK       = 18
+NODO_CONTINUE    = 19
+NODO_FUNC_DECL   = 20
+NODO_RETURN      = 21
+NODO_EXPR_STMT   = 22
+NODO_LIST_LIT    = 23
 NODO_INDEX_ACCESS = 24
 NODO_INDEX_ASSIGN = 25
-
-# Structs
 NODO_STRUCT_DECL = 26
-NODO_STRUCT_LIT = 27
+NODO_STRUCT_LIT  = 27
 NODO_MEMBER_ACCESS = 28
 NODO_MEMBER_ASSIGN = 29
+NODO_MATCH       = 30
 
-# Match
-NODO_MATCH = 30
-
-# Tipos de valor (para el codegen)
+# Tipos de valores (no de nodos)
 TIPO_NUMBER = 1
 TIPO_STRING = 2
-TIPO_BOOL = 3
-TIPO_VOID = 4
-TIPO_NULL = 5
-TIPO_LIST = 6
+TIPO_BOOL   = 3
+TIPO_VOID   = 4
+TIPO_NULL   = 5
+TIPO_LIST   = 6
 TIPO_STRUCT = 7
 
-# === Struct: Nodo AST ===
-# Un nodo generico que puede representar cualquier tipo de AST.
-# tipo: que clase de nodo es (ver constantes arriba)
-# valor: para literales (el numero, el string, etc.)
-# linea: numero de linea del codigo fuente
-# hijos: lista de nodos hijos (sub-expresiones, cuerpo de bloques, etc.)
-# nombre: para identifiers, nombres de funcion, nombres de variable
-# op: para operadores binarios y unarios (+, -, *, ==, etc.)
-Nodo {tipo, valor, linea, hijos, nombre, op}
-
-# === Constructores de nodos especificos ===
+# ============================================================
+# Constructores especificos por tipo de nodo
+# ============================================================
 
 funcion nodo_number(valor, linea)
     retorna Nodo {tipo: NODO_NUMBER, valor: valor, linea: linea, hijos: [0], nombre: "", op: ""}
@@ -88,28 +78,22 @@ funcion nodo_identifier(nombre, linea)
     retorna Nodo {tipo: NODO_IDENTIFIER, valor: nombre, linea: linea, hijos: [0], nombre: nombre, op: ""}
 
 funcion nodo_binary_op(op, left, right, linea)
-    n = Nodo {tipo: NODO_BINARY_OP, valor: "", linea: linea, hijos: [left, right], nombre: "", op: op}
-    retorna n
+    retorna Nodo {tipo: NODO_BINARY_OP, valor: "", linea: linea, hijos: [left, right], nombre: "", op: op}
 
 funcion nodo_unary_op(op, operand, linea)
-    n = Nodo {tipo: NODO_UNARY_OP, valor: "", linea: linea, hijos: [operand], nombre: "", op: op}
-    retorna n
+    retorna Nodo {tipo: NODO_UNARY_OP, valor: "", linea: linea, hijos: [operand], nombre: "", op: op}
 
 funcion nodo_ternary(cond, then_expr, else_expr, linea)
-    n = Nodo {tipo: NODO_TERNARY, valor: "", linea: linea, hijos: [cond, then_expr, else_expr], nombre: "", op: ""}
-    retorna n
+    retorna Nodo {tipo: NODO_TERNARY, valor: "", linea: linea, hijos: [cond, then_expr, else_expr], nombre: "", op: ""}
 
 funcion nodo_func_call(nombre, args, linea)
-    n = Nodo {tipo: NODO_FUNC_CALL, valor: "", linea: linea, hijos: args, nombre: nombre, op: ""}
-    retorna n
+    retorna Nodo {tipo: NODO_FUNC_CALL, valor: "", linea: linea, hijos: args, nombre: nombre, op: ""}
 
 funcion nodo_assign(var_name, value, linea)
-    n = Nodo {tipo: NODO_ASSIGN, valor: "", linea: linea, hijos: [value], nombre: var_name, op: ""}
-    retorna n
+    retorna Nodo {tipo: NODO_ASSIGN, valor: "", linea: linea, hijos: [value], nombre: var_name, op: ""}
 
 funcion nodo_print(expr, linea)
-    n = Nodo {tipo: NODO_PRINT, valor: "", linea: linea, hijos: [expr], nombre: "", op: ""}
-    retorna n
+    retorna Nodo {tipo: NODO_PRINT, valor: "", linea: linea, hijos: [expr], nombre: "", op: ""}
 
 funcion nodo_if(cond, then_body, else_body, linea)
     hijos = [cond]
@@ -157,7 +141,20 @@ funcion nodo_struct_lit(nombre, campos, valores, linea)
 funcion nodo_match(subject, cases, linea)
     retorna Nodo {tipo: NODO_MATCH, valor: "", linea: linea, hijos: [subject], nombre: "", op: ""}
 
-# === Helpers para acceder a miembros del nodo ===
+# ============================================================
+# Constructores genericos
+# ============================================================
+
+funcion crear_nodo(tipo, valor, linea)
+    retorna Nodo {tipo: tipo, valor: valor, linea: linea, hijos: [], nombre: "", op: ""}
+
+funcion crear_nodo_op(tipo, op, linea)
+    retorna Nodo {tipo: tipo, valor: "", linea: linea, hijos: [], nombre: "", op: op}
+
+# ============================================================
+# Accessors
+# ============================================================
+
 funcion nodo_tipo(n)
     retorna n.tipo
 
@@ -176,7 +173,10 @@ funcion nodo_linea(n)
 funcion nodo_hijos(n)
     retorna n.hijos
 
-# === Helper: convertir tipo de nodo a string (para debug) ===
+# ============================================================
+# Helpers
+# ============================================================
+
 funcion tipo_nodo_string(tipo)
     si tipo == NODO_NUMBER
         retorna "NumberLit"
@@ -221,20 +221,3 @@ funcion tipo_nodo_string(tipo)
     si tipo == NODO_MATCH
         retorna "Match"
     retorna "Tipo_" + tipo
-
-# === Test ===
-muestra "=== AST de Zen escrito en Zen ==="
-muestra ""
-muestra "Tipos de nodo definidos: 30"
-muestra "Constructores: nodo_number, nodo_string, nodo_if, etc."
-muestra ""
-
-n = nodo_number(42, 1)
-muestra "Test nodo_number: tipo=" + nodo_tipo(n) + " valor=" + nodo_valor(n) + " linea=" + nodo_linea(n)
-muestra "Tipo string: " + tipo_nodo_string(nodo_tipo(n))
-
-m = nodo_binary_op("+", nodo_number(1, 1), nodo_number(2, 1), 1)
-muestra "Test nodo_binary_op: tipo=" + nodo_tipo(m) + " op=" + nodo_op(m)
-muestra "Tipo string: " + tipo_nodo_string(nodo_tipo(m))
-muestra ""
-muestra "AST en Zen cargado OK!"
