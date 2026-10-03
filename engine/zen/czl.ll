@@ -18,76 +18,46 @@ source_filename = "zen"
 @g_reset = internal global i8* null
 @g_green = internal global i8* null
 @g_cyan = internal global i8* null
-@3 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@4 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@5 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@6 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@7 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@8 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@9 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@10 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@11 = private unnamed_addr constant [3 x i8] c"rb\00", align 1
-@12 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@13 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@14 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@15 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@16 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@17 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@18 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@19 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@20 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@21 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@22 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@23 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@24 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@25 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@26 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@27 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@28 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@29 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@30 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@31 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@32 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@33 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@34 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@35 = private unnamed_addr constant [47 x i8] c"[1;36m========================================\00", align 1
-@36 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@37 = private unnamed_addr constant [32 x i8] c"[1;36m CZL - Counting Zen Lines\00", align 1
-@38 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@39 = private unnamed_addr constant [47 x i8] c"[0;37m----------------------------------------\00", align 1
-@40 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@41 = private unnamed_addr constant [68 x i8] c"[1;33m Lang        Files      Lines       Code   Comments    Blanks\00", align 1
-@42 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@43 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@44 = private unnamed_addr constant [7 x i8] c"[1;32m\00", align 1
-@45 = private unnamed_addr constant [7 x i8] c"[1;36m\00", align 1
-@46 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@47 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@48 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@49 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@50 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@51 = private unnamed_addr constant [12 x i8] c"src/ast.zen\00", align 1
-@52 = private unnamed_addr constant [17 x i8] c"src/builtins.zen\00", align 1
-@53 = private unnamed_addr constant [16 x i8] c"src/codegen.zen\00", align 1
-@54 = private unnamed_addr constant [14 x i8] c"src/lexer.zen\00", align 1
-@55 = private unnamed_addr constant [13 x i8] c"src/main.zen\00", align 1
-@56 = private unnamed_addr constant [15 x i8] c"src/parser.zen\00", align 1
-@57 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@58 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@59 = private unnamed_addr constant [17 x i8] c" Zen            \00", align 1
-@60 = private unnamed_addr constant [9 x i8] c"        \00", align 1
-@61 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@62 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@63 = private unnamed_addr constant [9 x i8] c"        \00", align 1
-@64 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@65 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@66 = private unnamed_addr constant [17 x i8] c" Total          \00", align 1
-@67 = private unnamed_addr constant [9 x i8] c"        \00", align 1
-@68 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@69 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@70 = private unnamed_addr constant [9 x i8] c"        \00", align 1
-@71 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@72 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@3 = private unnamed_addr constant [3 x i8] c"rb\00", align 1
+@4 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@5 = private unnamed_addr constant [47 x i8] c"[1;36m========================================\00", align 1
+@6 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@7 = private unnamed_addr constant [32 x i8] c"[1;36m CZL - Counting Zen Lines\00", align 1
+@8 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@9 = private unnamed_addr constant [47 x i8] c"[0;37m----------------------------------------\00", align 1
+@10 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@11 = private unnamed_addr constant [68 x i8] c"[1;33m Lang        Files      Lines       Code   Comments    Blanks\00", align 1
+@12 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@13 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@14 = private unnamed_addr constant [7 x i8] c"[1;32m\00", align 1
+@15 = private unnamed_addr constant [7 x i8] c"[1;36m\00", align 1
+@16 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@17 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@18 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@19 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@20 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@21 = private unnamed_addr constant [12 x i8] c"src/ast.zen\00", align 1
+@22 = private unnamed_addr constant [17 x i8] c"src/builtins.zen\00", align 1
+@23 = private unnamed_addr constant [16 x i8] c"src/codegen.zen\00", align 1
+@24 = private unnamed_addr constant [14 x i8] c"src/lexer.zen\00", align 1
+@25 = private unnamed_addr constant [13 x i8] c"src/main.zen\00", align 1
+@26 = private unnamed_addr constant [15 x i8] c"src/parser.zen\00", align 1
+@27 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@28 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@29 = private unnamed_addr constant [17 x i8] c" Zen            \00", align 1
+@30 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@31 = private unnamed_addr constant [8 x i8] c"       \00", align 1
+@32 = private unnamed_addr constant [8 x i8] c"       \00", align 1
+@33 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@34 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@35 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@36 = private unnamed_addr constant [17 x i8] c" Total          \00", align 1
+@37 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@38 = private unnamed_addr constant [8 x i8] c"       \00", align 1
+@39 = private unnamed_addr constant [8 x i8] c"       \00", align 1
+@40 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@41 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@42 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -419,63 +389,19 @@ entry:
   ret i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0)
 }
 
-define i8* @es_comentario(i8* %c) {
-entry:
-  %c1 = alloca i8*, align 8
-  store i8* %c, i8** %c1, align 8
-  %c2 = load i8*, i8** %c1, align 8
-  %s2d = call double @strtod(i8* %c2, i8** null)
-  %cmp = fcmp oeq double %s2d, 3.500000e+01
-  %boolstr = select i1 %cmp, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @4, i32 0, i32 0)
-  ret i8* %boolstr
-}
-
-define i8* @es_newline(i8* %c) {
-entry:
-  %c1 = alloca i8*, align 8
-  store i8* %c, i8** %c1, align 8
-  %c2 = load i8*, i8** %c1, align 8
-  %s2d = call double @strtod(i8* %c2, i8** null)
-  %cmp = fcmp oeq double %s2d, 1.000000e+01
-  %boolstr = select i1 %cmp, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @5, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @6, i32 0, i32 0)
-  ret i8* %boolstr
-}
-
-define i8* @es_espacio(i8* %c) {
-entry:
-  %c1 = alloca i8*, align 8
-  store i8* %c, i8** %c1, align 8
-  %c2 = load i8*, i8** %c1, align 8
-  %s2d = call double @strtod(i8* %c2, i8** null)
-  %cmp = fcmp oeq double %s2d, 3.200000e+01
-  %boolstr = select i1 %cmp, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @7, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @8, i32 0, i32 0)
-  ret i8* %boolstr
-}
-
-define i8* @es_tab(i8* %c) {
-entry:
-  %c1 = alloca i8*, align 8
-  store i8* %c, i8** %c1, align 8
-  %c2 = load i8*, i8** %c1, align 8
-  %s2d = call double @strtod(i8* %c2, i8** null)
-  %cmp = fcmp oeq double %s2d, 9.000000e+00
-  %boolstr = select i1 %cmp, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @9, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @10, i32 0, i32 0)
-  ret i8* %boolstr
-}
-
 define i8* @contar_archivo(i8* %ruta) {
 entry:
-  %c = alloca i8*, align 8
-  %tiene_cod = alloca i8*, align 8
-  %es_com = alloca i8*, align 8
-  %linicio = alloca i8*, align 8
-  %pos = alloca i8*, align 8
-  %len7 = alloca i8*, align 8
+  %c = alloca double, align 8
+  %tiene_cod = alloca i1, align 1
+  %es_com = alloca i1, align 1
+  %linicio = alloca i1, align 1
+  %pos = alloca double, align 8
+  %len7 = alloca double, align 8
   %codigo = alloca i8*, align 8
   %ruta1 = alloca i8*, align 8
   store i8* %ruta, i8** %ruta1, align 8
   %ruta2 = load i8*, i8** %ruta1, align 8
-  %file = call i8* @fopen(i8* %ruta2, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @11, i32 0, i32 0))
+  %file = call i8* @fopen(i8* %ruta2, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @3, i32 0, i32 0))
   %isnull = icmp eq i8* %file, null
   br i1 %isnull, label %rf.end, label %rf.open
 
@@ -492,7 +418,7 @@ rf.open:                                          ; preds = %entry
   br label %rf.end
 
 rf.end:                                           ; preds = %rf.open, %entry
-  %rf_result = phi i8* [ getelementptr inbounds ([1 x i8], [1 x i8]* @12, i32 0, i32 0), %entry ], [ %buf, %rf.open ]
+  %rf_result = phi i8* [ getelementptr inbounds ([1 x i8], [1 x i8]* @4, i32 0, i32 0), %entry ], [ %buf, %rf.open ]
   store i8* %rf_result, i8** %codigo, align 8
   %codigo3 = load i8*, i8** %codigo, align 8
   %len = call i64 @strlen(i8* %codigo3)
@@ -508,204 +434,188 @@ endif:                                            ; preds = %rf.end
   %codigo4 = load i8*, i8** %codigo, align 8
   %len5 = call i64 @strlen(i8* %codigo4)
   %lend6 = uitofp i64 %len5 to double
-  %numstr8 = call i8* @__zen_num_to_str(double %lend6)
-  store i8* %numstr8, i8** %len7, align 8
-  %numstr9 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  store i8* %numstr9, i8** %pos, align 8
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @13, i32 0, i32 0), i8** %linicio, align 8
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @16, i32 0, i32 0), i8** %es_com, align 8
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @18, i32 0, i32 0), i8** %tiene_cod, align 8
+  store double %lend6, double* %len7, align 8
+  store double 0.000000e+00, double* %pos, align 8
+  store i1 true, i1* %linicio, align 1
+  store i1 false, i1* %es_com, align 1
+  store i1 false, i1* %tiene_cod, align 1
   br label %while.cond
 
-while.cond:                                       ; preds = %endif33, %endif
-  %pos10 = load i8*, i8** %pos, align 8
-  %len11 = load i8*, i8** %len7, align 8
-  %s2d = call double @strtod(i8* %pos10, i8** null)
-  %s2d12 = call double @strtod(i8* %len11, i8** null)
-  %cmp13 = fcmp olt double %s2d, %s2d12
-  br i1 %cmp13, label %while.body, label %while.end
+while.cond:                                       ; preds = %endif24, %endif
+  %pos8 = load double, double* %pos, align 8
+  %len9 = load double, double* %len7, align 8
+  %cmp10 = fcmp olt double %pos8, %len9
+  br i1 %cmp10, label %while.body, label %while.end
 
 while.body:                                       ; preds = %while.cond
-  %codigo14 = load i8*, i8** %codigo, align 8
-  %pos15 = load i8*, i8** %pos, align 8
-  %s2d16 = call double @strtod(i8* %pos15, i8** null)
-  %idx = fptosi double %s2d16 to i64
-  %charptr = getelementptr i8, i8* %codigo14, i64 %idx
+  %codigo11 = load i8*, i8** %codigo, align 8
+  %pos12 = load double, double* %pos, align 8
+  %idx = fptosi double %pos12 to i64
+  %charptr = getelementptr i8, i8* %codigo11, i64 %idx
   %ch = load i8, i8* %charptr, align 1
   %chd = sitofp i8 %ch to double
-  %numstr17 = call i8* @__zen_num_to_str(double %chd)
-  store i8* %numstr17, i8** %c, align 8
-  %linicio18 = load i8*, i8** %linicio, align 8
-  %s2d19 = call double @strtod(i8* %linicio18, i8** null)
-  %cmp20 = fcmp oeq double %s2d19, 1.000000e+00
-  br i1 %cmp20, label %then21, label %endif22
+  store double %chd, double* %c, align 8
+  %linicio13 = load i1, i1* %linicio, align 1
+  %tof = uitofp i1 %linicio13 to double
+  %cmp14 = fcmp oeq double %tof, 1.000000e+00
+  br i1 %cmp14, label %then15, label %endif16
 
 while.end:                                        ; preds = %while.cond
-  %czl_total78 = load i8*, i8** @g_czl_total, align 8
-  %s2d79 = call double @strtod(i8* %czl_total78, i8** null)
-  %add80 = fadd double %s2d79, 1.000000e+00
-  %numstr81 = call i8* @__zen_num_to_str(double %add80)
-  store i8* %numstr81, i8** @g_czl_total, align 8
-  %es_com82 = load i8*, i8** %es_com, align 8
-  %s2d83 = call double @strtod(i8* %es_com82, i8** null)
-  %cmp84 = fcmp oeq double %s2d83, 1.000000e+00
-  br i1 %cmp84, label %then85, label %else86
+  %czl_total62 = load i8*, i8** @g_czl_total, align 8
+  %s2d63 = call double @strtod(i8* %czl_total62, i8** null)
+  %add64 = fadd double %s2d63, 1.000000e+00
+  %numstr65 = call i8* @__zen_num_to_str(double %add64)
+  store i8* %numstr65, i8** @g_czl_total, align 8
+  %es_com66 = load i1, i1* %es_com, align 1
+  %tof67 = uitofp i1 %es_com66 to double
+  %cmp68 = fcmp oeq double %tof67, 1.000000e+00
+  br i1 %cmp68, label %then69, label %else70
 
-then21:                                           ; preds = %while.body
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @20, i32 0, i32 0), i8** %es_com, align 8
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @22, i32 0, i32 0), i8** %tiene_cod, align 8
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @24, i32 0, i32 0), i8** %linicio, align 8
-  br label %endif22
+then15:                                           ; preds = %while.body
+  store i1 false, i1* %es_com, align 1
+  store i1 false, i1* %tiene_cod, align 1
+  store i1 false, i1* %linicio, align 1
+  br label %endif16
 
-endif22:                                          ; preds = %then21, %while.body
-  %c23 = load i8*, i8** %c, align 8
-  %call = call i8* @es_comentario(i8* %c23)
-  %s2d24 = call double @strtod(i8* %call, i8** null)
-  %cmp25 = fcmp oeq double %s2d24, 1.000000e+00
-  br i1 %cmp25, label %then26, label %endif27
+endif16:                                          ; preds = %then15, %while.body
+  %c17 = load double, double* %c, align 8
+  %cmp18 = fcmp oeq double %c17, 3.500000e+01
+  br i1 %cmp18, label %then19, label %endif20
 
-then26:                                           ; preds = %endif22
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @25, i32 0, i32 0), i8** %es_com, align 8
-  br label %endif27
+then19:                                           ; preds = %endif16
+  store i1 true, i1* %es_com, align 1
+  br label %endif20
 
-endif27:                                          ; preds = %then26, %endif22
-  %c28 = load i8*, i8** %c, align 8
-  %call29 = call i8* @es_newline(i8* %c28)
-  %s2d30 = call double @strtod(i8* %call29, i8** null)
-  %cmp31 = fcmp oeq double %s2d30, 1.000000e+00
-  br i1 %cmp31, label %then32, label %else
+endif20:                                          ; preds = %then19, %endif16
+  %c21 = load double, double* %c, align 8
+  %cmp22 = fcmp oeq double %c21, 1.000000e+01
+  br i1 %cmp22, label %then23, label %else
 
-then32:                                           ; preds = %endif27
+then23:                                           ; preds = %endif20
   %czl_total = load i8*, i8** @g_czl_total, align 8
-  %s2d34 = call double @strtod(i8* %czl_total, i8** null)
-  %add = fadd double %s2d34, 1.000000e+00
-  %numstr35 = call i8* @__zen_num_to_str(double %add)
-  store i8* %numstr35, i8** @g_czl_total, align 8
-  %es_com36 = load i8*, i8** %es_com, align 8
-  %s2d37 = call double @strtod(i8* %es_com36, i8** null)
-  %cmp38 = fcmp oeq double %s2d37, 1.000000e+00
-  br i1 %cmp38, label %then39, label %else40
+  %s2d = call double @strtod(i8* %czl_total, i8** null)
+  %add = fadd double %s2d, 1.000000e+00
+  %numstr25 = call i8* @__zen_num_to_str(double %add)
+  store i8* %numstr25, i8** @g_czl_total, align 8
+  %es_com26 = load i1, i1* %es_com, align 1
+  %tof27 = uitofp i1 %es_com26 to double
+  %cmp28 = fcmp oeq double %tof27, 1.000000e+00
+  br i1 %cmp28, label %then29, label %else30
 
-else:                                             ; preds = %endif27
-  %es_com57 = load i8*, i8** %es_com, align 8
-  %s2d58 = call double @strtod(i8* %es_com57, i8** null)
-  %cmp59 = fcmp oeq double %s2d58, 0.000000e+00
-  br i1 %cmp59, label %then60, label %endif61
+else:                                             ; preds = %endif20
+  %c47 = load double, double* %c, align 8
+  %cmp48 = fcmp one double %c47, 3.200000e+01
+  br i1 %cmp48, label %then49, label %endif50
 
-endif33:                                          ; preds = %endif61, %endif41
-  %pos74 = load i8*, i8** %pos, align 8
-  %s2d75 = call double @strtod(i8* %pos74, i8** null)
-  %add76 = fadd double %s2d75, 1.000000e+00
-  %numstr77 = call i8* @__zen_num_to_str(double %add76)
-  store i8* %numstr77, i8** %pos, align 8
+endif24:                                          ; preds = %endif50, %endif31
+  %pos60 = load double, double* %pos, align 8
+  %add61 = fadd double %pos60, 1.000000e+00
+  store double %add61, double* %pos, align 8
   br label %while.cond
 
-then39:                                           ; preds = %then32
+then29:                                           ; preds = %then23
   %czl_comentarios = load i8*, i8** @g_czl_comentarios, align 8
-  %s2d42 = call double @strtod(i8* %czl_comentarios, i8** null)
-  %add43 = fadd double %s2d42, 1.000000e+00
-  %numstr44 = call i8* @__zen_num_to_str(double %add43)
-  store i8* %numstr44, i8** @g_czl_comentarios, align 8
-  br label %endif41
+  %s2d32 = call double @strtod(i8* %czl_comentarios, i8** null)
+  %add33 = fadd double %s2d32, 1.000000e+00
+  %numstr34 = call i8* @__zen_num_to_str(double %add33)
+  store i8* %numstr34, i8** @g_czl_comentarios, align 8
+  br label %endif31
 
-else40:                                           ; preds = %then32
-  %tiene_cod45 = load i8*, i8** %tiene_cod, align 8
-  %s2d46 = call double @strtod(i8* %tiene_cod45, i8** null)
-  %cmp47 = fcmp oeq double %s2d46, 0.000000e+00
-  br i1 %cmp47, label %then48, label %else49
+else30:                                           ; preds = %then23
+  %tiene_cod35 = load i1, i1* %tiene_cod, align 1
+  %tof36 = uitofp i1 %tiene_cod35 to double
+  %cmp37 = fcmp oeq double %tof36, 0.000000e+00
+  br i1 %cmp37, label %then38, label %else39
 
-endif41:                                          ; preds = %endif50, %then39
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @27, i32 0, i32 0), i8** %linicio, align 8
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @30, i32 0, i32 0), i8** %es_com, align 8
-  store i8* getelementptr inbounds ([3 x i8], [3 x i8]* @32, i32 0, i32 0), i8** %tiene_cod, align 8
-  br label %endif33
+endif31:                                          ; preds = %endif40, %then29
+  store i1 true, i1* %linicio, align 1
+  store i1 false, i1* %es_com, align 1
+  store i1 false, i1* %tiene_cod, align 1
+  br label %endif24
 
-then48:                                           ; preds = %else40
+then38:                                           ; preds = %else30
   %czl_vacias = load i8*, i8** @g_czl_vacias, align 8
-  %s2d51 = call double @strtod(i8* %czl_vacias, i8** null)
-  %add52 = fadd double %s2d51, 1.000000e+00
-  %numstr53 = call i8* @__zen_num_to_str(double %add52)
-  store i8* %numstr53, i8** @g_czl_vacias, align 8
-  br label %endif50
+  %s2d41 = call double @strtod(i8* %czl_vacias, i8** null)
+  %add42 = fadd double %s2d41, 1.000000e+00
+  %numstr43 = call i8* @__zen_num_to_str(double %add42)
+  store i8* %numstr43, i8** @g_czl_vacias, align 8
+  br label %endif40
 
-else49:                                           ; preds = %else40
+else39:                                           ; preds = %else30
   %czl_codigo = load i8*, i8** @g_czl_codigo, align 8
-  %s2d54 = call double @strtod(i8* %czl_codigo, i8** null)
-  %add55 = fadd double %s2d54, 1.000000e+00
-  %numstr56 = call i8* @__zen_num_to_str(double %add55)
-  store i8* %numstr56, i8** @g_czl_codigo, align 8
+  %s2d44 = call double @strtod(i8* %czl_codigo, i8** null)
+  %add45 = fadd double %s2d44, 1.000000e+00
+  %numstr46 = call i8* @__zen_num_to_str(double %add45)
+  store i8* %numstr46, i8** @g_czl_codigo, align 8
+  br label %endif40
+
+endif40:                                          ; preds = %else39, %then38
+  br label %endif31
+
+then49:                                           ; preds = %else
+  %c51 = load double, double* %c, align 8
+  %cmp52 = fcmp one double %c51, 9.000000e+00
+  br i1 %cmp52, label %then53, label %endif54
+
+endif50:                                          ; preds = %endif54, %else
+  br label %endif24
+
+then53:                                           ; preds = %then49
+  %es_com55 = load i1, i1* %es_com, align 1
+  %tof56 = uitofp i1 %es_com55 to double
+  %cmp57 = fcmp oeq double %tof56, 0.000000e+00
+  br i1 %cmp57, label %then58, label %endif59
+
+endif54:                                          ; preds = %endif59, %then49
   br label %endif50
 
-endif50:                                          ; preds = %else49, %then48
-  br label %endif41
+then58:                                           ; preds = %then53
+  store i1 true, i1* %tiene_cod, align 1
+  br label %endif59
 
-then60:                                           ; preds = %else
-  %c62 = load i8*, i8** %c, align 8
-  %call63 = call i8* @es_espacio(i8* %c62)
-  %s2d64 = call double @strtod(i8* %call63, i8** null)
-  %cmp65 = fcmp oeq double %s2d64, 0.000000e+00
-  br i1 %cmp65, label %then66, label %endif67
+endif59:                                          ; preds = %then58, %then53
+  br label %endif54
 
-endif61:                                          ; preds = %endif67, %else
-  br label %endif33
+then69:                                           ; preds = %while.end
+  %czl_comentarios72 = load i8*, i8** @g_czl_comentarios, align 8
+  %s2d73 = call double @strtod(i8* %czl_comentarios72, i8** null)
+  %add74 = fadd double %s2d73, 1.000000e+00
+  %numstr75 = call i8* @__zen_num_to_str(double %add74)
+  store i8* %numstr75, i8** @g_czl_comentarios, align 8
+  br label %endif71
 
-then66:                                           ; preds = %then60
-  %c68 = load i8*, i8** %c, align 8
-  %call69 = call i8* @es_tab(i8* %c68)
-  %s2d70 = call double @strtod(i8* %call69, i8** null)
-  %cmp71 = fcmp oeq double %s2d70, 0.000000e+00
-  br i1 %cmp71, label %then72, label %endif73
+else70:                                           ; preds = %while.end
+  %tiene_cod76 = load i1, i1* %tiene_cod, align 1
+  %tof77 = uitofp i1 %tiene_cod76 to double
+  %cmp78 = fcmp oeq double %tof77, 0.000000e+00
+  br i1 %cmp78, label %then79, label %else80
 
-endif67:                                          ; preds = %endif73, %then60
-  br label %endif61
-
-then72:                                           ; preds = %then66
-  store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @33, i32 0, i32 0), i8** %tiene_cod, align 8
-  br label %endif73
-
-endif73:                                          ; preds = %then72, %then66
-  br label %endif67
-
-then85:                                           ; preds = %while.end
-  %czl_comentarios88 = load i8*, i8** @g_czl_comentarios, align 8
-  %s2d89 = call double @strtod(i8* %czl_comentarios88, i8** null)
-  %add90 = fadd double %s2d89, 1.000000e+00
-  %numstr91 = call i8* @__zen_num_to_str(double %add90)
-  store i8* %numstr91, i8** @g_czl_comentarios, align 8
-  br label %endif87
-
-else86:                                           ; preds = %while.end
-  %tiene_cod92 = load i8*, i8** %tiene_cod, align 8
-  %s2d93 = call double @strtod(i8* %tiene_cod92, i8** null)
-  %cmp94 = fcmp oeq double %s2d93, 0.000000e+00
-  br i1 %cmp94, label %then95, label %else96
-
-endif87:                                          ; preds = %endif97, %then85
+endif71:                                          ; preds = %endif81, %then69
   %czl_archivos = load i8*, i8** @g_czl_archivos, align 8
-  %s2d106 = call double @strtod(i8* %czl_archivos, i8** null)
-  %add107 = fadd double %s2d106, 1.000000e+00
-  %numstr108 = call i8* @__zen_num_to_str(double %add107)
-  store i8* %numstr108, i8** @g_czl_archivos, align 8
+  %s2d90 = call double @strtod(i8* %czl_archivos, i8** null)
+  %add91 = fadd double %s2d90, 1.000000e+00
+  %numstr92 = call i8* @__zen_num_to_str(double %add91)
+  store i8* %numstr92, i8** @g_czl_archivos, align 8
   ret i8* null
 
-then95:                                           ; preds = %else86
-  %czl_vacias98 = load i8*, i8** @g_czl_vacias, align 8
-  %s2d99 = call double @strtod(i8* %czl_vacias98, i8** null)
-  %add100 = fadd double %s2d99, 1.000000e+00
-  %numstr101 = call i8* @__zen_num_to_str(double %add100)
-  store i8* %numstr101, i8** @g_czl_vacias, align 8
-  br label %endif97
+then79:                                           ; preds = %else70
+  %czl_vacias82 = load i8*, i8** @g_czl_vacias, align 8
+  %s2d83 = call double @strtod(i8* %czl_vacias82, i8** null)
+  %add84 = fadd double %s2d83, 1.000000e+00
+  %numstr85 = call i8* @__zen_num_to_str(double %add84)
+  store i8* %numstr85, i8** @g_czl_vacias, align 8
+  br label %endif81
 
-else96:                                           ; preds = %else86
-  %czl_codigo102 = load i8*, i8** @g_czl_codigo, align 8
-  %s2d103 = call double @strtod(i8* %czl_codigo102, i8** null)
-  %add104 = fadd double %s2d103, 1.000000e+00
-  %numstr105 = call i8* @__zen_num_to_str(double %add104)
-  store i8* %numstr105, i8** @g_czl_codigo, align 8
-  br label %endif97
+else80:                                           ; preds = %else70
+  %czl_codigo86 = load i8*, i8** @g_czl_codigo, align 8
+  %s2d87 = call double @strtod(i8* %czl_codigo86, i8** null)
+  %add88 = fadd double %s2d87, 1.000000e+00
+  %numstr89 = call i8* @__zen_num_to_str(double %add88)
+  store i8* %numstr89, i8** @g_czl_codigo, align 8
+  br label %endif81
 
-endif97:                                          ; preds = %else96, %then95
-  br label %endif87
+endif81:                                          ; preds = %else80, %then79
+  br label %endif71
 }
 
 define i32 @main() {
@@ -726,96 +636,96 @@ entry:
   %numstr4 = call i8* @__zen_num_to_str(double 0.000000e+00)
   store i8* %numstr4, i8** @g_czl_total, align 8
   %ESC = load i8*, i8** @g_ESC, align 8
-  %concat = call i8* @zen_concat(i8* %ESC, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @35, i32 0, i32 0))
+  %concat = call i8* @zen_concat(i8* %ESC, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @5, i32 0, i32 0))
   %ESC5 = load i8*, i8** @g_ESC, align 8
   %concat6 = call i8* @zen_concat(i8* %concat, i8* %ESC5)
-  %concat7 = call i8* @zen_concat(i8* %concat6, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @36, i32 0, i32 0))
+  %concat7 = call i8* @zen_concat(i8* %concat6, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @6, i32 0, i32 0))
   store i8* %concat7, i8** @g_header, align 8
   %ESC8 = load i8*, i8** @g_ESC, align 8
-  %concat9 = call i8* @zen_concat(i8* %ESC8, i8* getelementptr inbounds ([32 x i8], [32 x i8]* @37, i32 0, i32 0))
+  %concat9 = call i8* @zen_concat(i8* %ESC8, i8* getelementptr inbounds ([32 x i8], [32 x i8]* @7, i32 0, i32 0))
   %ESC10 = load i8*, i8** @g_ESC, align 8
   %concat11 = call i8* @zen_concat(i8* %concat9, i8* %ESC10)
-  %concat12 = call i8* @zen_concat(i8* %concat11, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @38, i32 0, i32 0))
+  %concat12 = call i8* @zen_concat(i8* %concat11, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @8, i32 0, i32 0))
   store i8* %concat12, i8** @g_title, align 8
   %ESC13 = load i8*, i8** @g_ESC, align 8
-  %concat14 = call i8* @zen_concat(i8* %ESC13, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @39, i32 0, i32 0))
+  %concat14 = call i8* @zen_concat(i8* %ESC13, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @9, i32 0, i32 0))
   %ESC15 = load i8*, i8** @g_ESC, align 8
   %concat16 = call i8* @zen_concat(i8* %concat14, i8* %ESC15)
-  %concat17 = call i8* @zen_concat(i8* %concat16, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @40, i32 0, i32 0))
+  %concat17 = call i8* @zen_concat(i8* %concat16, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @10, i32 0, i32 0))
   store i8* %concat17, i8** @g_sep, align 8
   %ESC18 = load i8*, i8** @g_ESC, align 8
-  %concat19 = call i8* @zen_concat(i8* %ESC18, i8* getelementptr inbounds ([68 x i8], [68 x i8]* @41, i32 0, i32 0))
+  %concat19 = call i8* @zen_concat(i8* %ESC18, i8* getelementptr inbounds ([68 x i8], [68 x i8]* @11, i32 0, i32 0))
   %ESC20 = load i8*, i8** @g_ESC, align 8
   %concat21 = call i8* @zen_concat(i8* %concat19, i8* %ESC20)
-  %concat22 = call i8* @zen_concat(i8* %concat21, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @42, i32 0, i32 0))
+  %concat22 = call i8* @zen_concat(i8* %concat21, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @12, i32 0, i32 0))
   store i8* %concat22, i8** @g_lang_hdr, align 8
   %ESC23 = load i8*, i8** @g_ESC, align 8
-  %concat24 = call i8* @zen_concat(i8* %ESC23, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @43, i32 0, i32 0))
+  %concat24 = call i8* @zen_concat(i8* %ESC23, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @13, i32 0, i32 0))
   store i8* %concat24, i8** @g_reset, align 8
   %ESC25 = load i8*, i8** @g_ESC, align 8
-  %concat26 = call i8* @zen_concat(i8* %ESC25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @44, i32 0, i32 0))
+  %concat26 = call i8* @zen_concat(i8* %ESC25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @14, i32 0, i32 0))
   store i8* %concat26, i8** @g_green, align 8
   %ESC27 = load i8*, i8** @g_ESC, align 8
-  %concat28 = call i8* @zen_concat(i8* %ESC27, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @45, i32 0, i32 0))
+  %concat28 = call i8* @zen_concat(i8* %ESC27, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @15, i32 0, i32 0))
   store i8* %concat28, i8** @g_cyan, align 8
   %header = load i8*, i8** @g_header, align 8
-  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @46, i32 0, i32 0), i8* %header)
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @16, i32 0, i32 0), i8* %header)
   %title = load i8*, i8** @g_title, align 8
-  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @47, i32 0, i32 0), i8* %title)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @17, i32 0, i32 0), i8* %title)
   %header29 = load i8*, i8** @g_header, align 8
-  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @48, i32 0, i32 0), i8* %header29)
-  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @50, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @49, i32 0, i32 0))
-  %call = call i8* @contar_archivo(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @51, i32 0, i32 0))
-  %call30 = call i8* @contar_archivo(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @52, i32 0, i32 0))
-  %call31 = call i8* @contar_archivo(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @53, i32 0, i32 0))
-  %call32 = call i8* @contar_archivo(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @54, i32 0, i32 0))
-  %call33 = call i8* @contar_archivo(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @55, i32 0, i32 0))
-  %call34 = call i8* @contar_archivo(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @56, i32 0, i32 0))
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @18, i32 0, i32 0), i8* %header29)
+  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @20, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @19, i32 0, i32 0))
+  %call = call i8* @contar_archivo(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @21, i32 0, i32 0))
+  %call30 = call i8* @contar_archivo(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @22, i32 0, i32 0))
+  %call31 = call i8* @contar_archivo(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @23, i32 0, i32 0))
+  %call32 = call i8* @contar_archivo(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @24, i32 0, i32 0))
+  %call33 = call i8* @contar_archivo(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @25, i32 0, i32 0))
+  %call34 = call i8* @contar_archivo(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @26, i32 0, i32 0))
   %lang_hdr = load i8*, i8** @g_lang_hdr, align 8
-  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @57, i32 0, i32 0), i8* %lang_hdr)
+  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @27, i32 0, i32 0), i8* %lang_hdr)
   %sep = load i8*, i8** @g_sep, align 8
-  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @58, i32 0, i32 0), i8* %sep)
+  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @28, i32 0, i32 0), i8* %sep)
   %green = load i8*, i8** @g_green, align 8
-  %concat35 = call i8* @zen_concat(i8* %green, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @59, i32 0, i32 0))
+  %concat35 = call i8* @zen_concat(i8* %green, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @29, i32 0, i32 0))
   %czl_archivos = load i8*, i8** @g_czl_archivos, align 8
   %concat36 = call i8* @zen_concat(i8* %concat35, i8* %czl_archivos)
-  %concat37 = call i8* @zen_concat(i8* %concat36, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @60, i32 0, i32 0))
+  %concat37 = call i8* @zen_concat(i8* %concat36, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @30, i32 0, i32 0))
   %czl_total = load i8*, i8** @g_czl_total, align 8
   %concat38 = call i8* @zen_concat(i8* %concat37, i8* %czl_total)
-  %concat39 = call i8* @zen_concat(i8* %concat38, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @61, i32 0, i32 0))
+  %concat39 = call i8* @zen_concat(i8* %concat38, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @31, i32 0, i32 0))
   %czl_codigo = load i8*, i8** @g_czl_codigo, align 8
   %concat40 = call i8* @zen_concat(i8* %concat39, i8* %czl_codigo)
-  %concat41 = call i8* @zen_concat(i8* %concat40, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @62, i32 0, i32 0))
+  %concat41 = call i8* @zen_concat(i8* %concat40, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @32, i32 0, i32 0))
   %czl_comentarios = load i8*, i8** @g_czl_comentarios, align 8
   %concat42 = call i8* @zen_concat(i8* %concat41, i8* %czl_comentarios)
-  %concat43 = call i8* @zen_concat(i8* %concat42, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @63, i32 0, i32 0))
+  %concat43 = call i8* @zen_concat(i8* %concat42, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @33, i32 0, i32 0))
   %czl_vacias = load i8*, i8** @g_czl_vacias, align 8
   %concat44 = call i8* @zen_concat(i8* %concat43, i8* %czl_vacias)
   %reset = load i8*, i8** @g_reset, align 8
   %concat45 = call i8* @zen_concat(i8* %concat44, i8* %reset)
-  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @64, i32 0, i32 0), i8* %concat45)
+  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @34, i32 0, i32 0), i8* %concat45)
   %sep46 = load i8*, i8** @g_sep, align 8
-  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @65, i32 0, i32 0), i8* %sep46)
+  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @35, i32 0, i32 0), i8* %sep46)
   %cyan = load i8*, i8** @g_cyan, align 8
-  %concat47 = call i8* @zen_concat(i8* %cyan, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @66, i32 0, i32 0))
+  %concat47 = call i8* @zen_concat(i8* %cyan, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @36, i32 0, i32 0))
   %czl_archivos48 = load i8*, i8** @g_czl_archivos, align 8
   %concat49 = call i8* @zen_concat(i8* %concat47, i8* %czl_archivos48)
-  %concat50 = call i8* @zen_concat(i8* %concat49, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @67, i32 0, i32 0))
+  %concat50 = call i8* @zen_concat(i8* %concat49, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @37, i32 0, i32 0))
   %czl_total51 = load i8*, i8** @g_czl_total, align 8
   %concat52 = call i8* @zen_concat(i8* %concat50, i8* %czl_total51)
-  %concat53 = call i8* @zen_concat(i8* %concat52, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @68, i32 0, i32 0))
+  %concat53 = call i8* @zen_concat(i8* %concat52, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @38, i32 0, i32 0))
   %czl_codigo54 = load i8*, i8** @g_czl_codigo, align 8
   %concat55 = call i8* @zen_concat(i8* %concat53, i8* %czl_codigo54)
-  %concat56 = call i8* @zen_concat(i8* %concat55, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @69, i32 0, i32 0))
+  %concat56 = call i8* @zen_concat(i8* %concat55, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @39, i32 0, i32 0))
   %czl_comentarios57 = load i8*, i8** @g_czl_comentarios, align 8
   %concat58 = call i8* @zen_concat(i8* %concat56, i8* %czl_comentarios57)
-  %concat59 = call i8* @zen_concat(i8* %concat58, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @70, i32 0, i32 0))
+  %concat59 = call i8* @zen_concat(i8* %concat58, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @40, i32 0, i32 0))
   %czl_vacias60 = load i8*, i8** @g_czl_vacias, align 8
   %concat61 = call i8* @zen_concat(i8* %concat59, i8* %czl_vacias60)
   %reset62 = load i8*, i8** @g_reset, align 8
   %concat63 = call i8* @zen_concat(i8* %concat61, i8* %reset62)
-  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @71, i32 0, i32 0), i8* %concat63)
+  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @41, i32 0, i32 0), i8* %concat63)
   %header64 = load i8*, i8** @g_header, align 8
-  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @72, i32 0, i32 0), i8* %header64)
+  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @42, i32 0, i32 0), i8* %header64)
   ret i32 0
 }

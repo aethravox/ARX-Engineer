@@ -1100,13 +1100,27 @@ void CodeGen::generateAssign(AssignStmt* node) {
             builder.CreateStore(value, it->second.alloca);
         it->second.type = type;
     } else {
-        // SIEMPRE usar i8* (boxed) para todas las variables
-        // Esto simplifica todo: numeros se guardan como string, strings directo, etc.
+        // FASE 4 FIX: Si el valor es Number, usar double alloca (no boxing!)
+        // Esto arregla el bug donde numeros se guardaban como strings,
+        // rompiendo comparaciones numericas en bucles.
         auto* entryBB = &currentFunction->getEntryBlock();
         llvm::IRBuilder<> tmpBuilder(entryBB, entryBB->begin());
-        auto* alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr, node->name);
-        builder.CreateStore(boxValue(value, type), alloca);
-        variables[node->name] = {alloca, type};
+        if (type == ZenType::Number && value->getType() == llvm::Type::getDoubleTy(context)) {
+            // Variable numerica: guardar como double directamente
+            auto* alloca = tmpBuilder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, node->name);
+            builder.CreateStore(value, alloca);
+            variables[node->name] = {alloca, ZenType::Number};
+        } else if (type == ZenType::Bool && value->getType() == llvm::Type::getInt1Ty(context)) {
+            // Variable bool: guardar como i1 directamente
+            auto* alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr, node->name);
+            builder.CreateStore(value, alloca);
+            variables[node->name] = {alloca, ZenType::Bool};
+        } else {
+            // Variable string o mixta: usar i8* (boxed)
+            auto* alloca = tmpBuilder.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr, node->name);
+            builder.CreateStore(boxValue(value, type), alloca);
+            variables[node->name] = {alloca, type};
+        }
     }
 }
 

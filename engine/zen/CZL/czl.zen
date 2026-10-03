@@ -7,18 +7,6 @@ czl_comentarios = 0
 czl_vacias = 0
 czl_total = 0
 
-funcion es_comentario(c)
-    retorna c == 35
-
-funcion es_newline(c)
-    retorna c == 10
-
-funcion es_espacio(c)
-    retorna c == 32
-
-funcion es_tab(c)
-    retorna c == 9
-
 funcion contar_archivo(ruta)
     codigo = leer_archivo(ruta)
     si longitud(codigo) == 0
@@ -34,9 +22,9 @@ funcion contar_archivo(ruta)
             es_com = falso
             tiene_cod = falso
             linicio = falso
-        si es_comentario(c) == verdad
+        si c == 35
             es_com = verdad
-        si es_newline(c) == verdad
+        si c == 10
             czl_total = czl_total + 1
             si es_com == verdad
                 czl_comentarios = czl_comentarios + 1
@@ -49,9 +37,9 @@ funcion contar_archivo(ruta)
             es_com = falso
             tiene_cod = falso
         sino
-            si es_com == falso
-                si es_espacio(c) == falso
-                    si es_tab(c) == falso
+            si c != 32
+                si c != 9
+                    si es_com == falso
                         tiene_cod = verdad
         pos = pos + 1
     czl_total = czl_total + 1
