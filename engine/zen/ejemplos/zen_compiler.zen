@@ -1,10 +1,3 @@
-# zen_compiler.zen — Compilador Zen completo escrito EN Zen
-#
-# Este archivo combina todos los componentes del compilador Zen
-# escritos en Zen: AST, Lexer, Parser, Codegen y Main.
-#
-# Es el primer paso hacia el auto-hosting: cuando este archivo
-# pueda compilarse a si mismo, Zen sera self-hosting.
 
 extern "libLLVM" LLVMModuleCreateWithName(str) -> ptr
 extern "libLLVM" LLVMCreateBuilder() -> ptr
@@ -31,6 +24,7 @@ extern "libLLVM" LLVMBuildFAdd(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildFSub(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildFMul(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildFDiv(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFRem(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildAlloca(ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMBuildStore(ptr, ptr, ptr) -> ptr
 extern "libLLVM" LLVMBuildLoad(ptr, ptr, str) -> ptr
@@ -39,25 +33,47 @@ extern "libLLVM" LLVMConstReal(ptr, double) -> ptr
 extern "libLLVM" LLVMConstString(str, int, int) -> ptr
 extern "libLLVM" LLVMConstInt(ptr, int, int) -> ptr
 extern "libLLVM" LLVMGetNamedFunction(ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFCmp(ptr, int, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildBr(ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildCondBr(ptr, ptr, ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildNeg(ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildNot(ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildUIToFP(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFPToSI(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildIntToPtr(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildBitCast(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMConstPointerNull(ptr) -> ptr
+extern "libLLVM" LLVMConstArray(ptr, ptr, int) -> ptr
+extern "libLLVM" LLVMAddGlobal(ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMSetInitializer(ptr, ptr) -> void
+extern "libLLVM" LLVMSetGlobalConstant(ptr, int) -> void
+extern "libLLVM" LLVMSetLinkage(ptr, int) -> void
 extern "libc" printf(str) -> int
 extern "libc" malloc(int) -> ptr
 extern "libc" strlen(str) -> int
-extern "libc" fopen(str, str) -> ptr
-extern "libc" fclose(ptr) -> int
-extern "libc" fread(ptr, int, int, ptr) -> int
-extern "libc" fseek(ptr, int, int) -> int
-extern "libc" ftell(ptr) -> int
-extern "libc" printf(str) -> int
-extern "libc" exit(int) -> void
+extern "libc" strcpy(ptr, ptr) -> ptr
+extern "libc" strcat(ptr, ptr) -> ptr
+extern "libc" sprintf(ptr, str, double) -> int
+extern "libc" strtod(ptr, ptr) -> double
+extern "libLLVM" LLVMBuildPhi(ptr, str) -> ptr
+extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
+extern "libLLVM" LLVMGetInsertBlock(ptr) -> ptr
+extern "libLLVM" LLVMBuildCast(ptr, int, ptr, str) -> ptr
+extern "libLLVM" LLVMConstBitCast(ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildGEP(ptr, ptr, ptr, int, str) -> ptr
+extern "libLLVM" LLVMTypeOf(ptr) -> ptr
+extern "libc" sprintf(ptr, str, double) -> int
+extern "libc" strtod(ptr, ptr) -> double
 extern "libc" printf(str) -> int
 extern "libc" strlen(str) -> int
 
-# === Structs ===
 Nodo {tipo, valor, linea, hijos, nombre, op}
 Token {tipo, valor, linea, col}
 CodeGenState {modulo, builder}
 
-# === Constantes AST ===
+tokens_parser = [0]
+pos_parser = 0
+
 NODO_NUMBER = 1
 NODO_STRING = 2
 NODO_BOOL = 3
@@ -96,46 +112,34 @@ TIPO_NULL = 5
 TIPO_LIST = 6
 TIPO_STRUCT = 7
 
-# === Helpers ===
 funcion nodo_number(valor, linea)
     retorna Nodo {tipo: NODO_NUMBER, valor: valor, linea: linea, hijos: [0], nombre: "", op: ""}
-
 funcion nodo_string(valor, linea)
     retorna Nodo {tipo: NODO_STRING, valor: valor, linea: linea, hijos: [0], nombre: "", op: ""}
-
 funcion nodo_bool(valor, linea)
     retorna Nodo {tipo: NODO_BOOL, valor: valor, linea: linea, hijos: [0], nombre: "", op: ""}
-
 funcion nodo_null(linea)
     retorna Nodo {tipo: NODO_NULL, valor: "nada", linea: linea, hijos: [0], nombre: "", op: ""}
-
 funcion nodo_identifier(nombre, linea)
     retorna Nodo {tipo: NODO_IDENTIFIER, valor: nombre, linea: linea, hijos: [0], nombre: nombre, op: ""}
-
 funcion nodo_binary_op(op, left, right, linea)
     n = Nodo {tipo: NODO_BINARY_OP, valor: "", linea: linea, hijos: [left, right], nombre: "", op: op}
     retorna n
-
 funcion nodo_unary_op(op, operand, linea)
     n = Nodo {tipo: NODO_UNARY_OP, valor: "", linea: linea, hijos: [operand], nombre: "", op: op}
     retorna n
-
 funcion nodo_ternary(cond, then_expr, else_expr, linea)
     n = Nodo {tipo: NODO_TERNARY, valor: "", linea: linea, hijos: [cond, then_expr, else_expr], nombre: "", op: ""}
     retorna n
-
 funcion nodo_func_call(nombre, args, linea)
     n = Nodo {tipo: NODO_FUNC_CALL, valor: "", linea: linea, hijos: args, nombre: nombre, op: ""}
     retorna n
-
 funcion nodo_assign(var_name, value, linea)
     n = Nodo {tipo: NODO_ASSIGN, valor: "", linea: linea, hijos: [value], nombre: var_name, op: ""}
     retorna n
-
 funcion nodo_print(expr, linea)
     n = Nodo {tipo: NODO_PRINT, valor: "", linea: linea, hijos: [expr], nombre: "", op: ""}
     retorna n
-
 funcion nodo_if(cond, then_body, else_body, linea)
     hijos = [cond]
     para cada s en then_body
@@ -143,13 +147,11 @@ funcion nodo_if(cond, then_body, else_body, linea)
     para cada s en else_body
         agregar(hijos, s)
     retorna Nodo {tipo: NODO_IF, valor: "", linea: linea, hijos: hijos, nombre: "", op: ""}
-
 funcion nodo_while(cond, body, linea)
     hijos = [cond]
     para cada s en body
         agregar(hijos, s)
     retorna Nodo {tipo: NODO_WHILE, valor: "", linea: linea, hijos: hijos, nombre: "", op: ""}
-
 funcion nodo_func_decl(nombre, params, body, linea)
     hijos = []
     para cada p en params
@@ -157,49 +159,35 @@ funcion nodo_func_decl(nombre, params, body, linea)
     para cada s en body
         agregar(hijos, s)
     retorna Nodo {tipo: NODO_FUNC_DECL, valor: "", linea: linea, hijos: hijos, nombre: nombre, op: ""}
-
 funcion nodo_return(expr, linea)
     retorna Nodo {tipo: NODO_RETURN, valor: "", linea: linea, hijos: [expr], nombre: "", op: ""}
-
 funcion nodo_break(linea)
     retorna Nodo {tipo: NODO_BREAK, valor: "", linea: linea, hijos: [0], nombre: "", op: ""}
-
 funcion nodo_continue(linea)
     retorna Nodo {tipo: NODO_CONTINUE, valor: "", linea: linea, hijos: [0], nombre: "", op: ""}
-
 funcion nodo_list_lit(elementos, linea)
     retorna Nodo {tipo: NODO_LIST_LIT, valor: "", linea: linea, hijos: elementos, nombre: "", op: ""}
-
 funcion nodo_struct_decl(nombre, campos, linea)
     retorna Nodo {tipo: NODO_STRUCT_DECL, valor: "", linea: linea, hijos: campos, nombre: nombre, op: ""}
-
 funcion nodo_struct_lit(nombre, campos, valores, linea)
     hijos = campos
     para cada v en valores
         agregar(hijos, v)
     retorna Nodo {tipo: NODO_STRUCT_LIT, valor: "", linea: linea, hijos: hijos, nombre: nombre, op: ""}
-
 funcion nodo_match(subject, cases, linea)
     retorna Nodo {tipo: NODO_MATCH, valor: "", linea: linea, hijos: [subject], nombre: "", op: ""}
-
-funcion nd_tipo(n)
+funcion nodo_tipo(n)
     retorna n.tipo
-
-funcion nd_valor(n)
+funcion nodo_valor(n)
     retorna n.valor
-
-funcion nd_nombre(n)
+funcion nodo_nombre(n)
     retorna n.nombre
-
-funcion nd_op(n)
+funcion nodo_op(n)
     retorna n.op
-
-funcion nd_linea(n)
+funcion nodo_linea(n)
     retorna n.linea
-
 funcion nodo_hijos(n)
     retorna n.hijos
-
 funcion tipo_nodo_string(tipo)
     si tipo == NODO_NUMBER
         retorna "NumberLit"
@@ -244,20 +232,6 @@ funcion tipo_nodo_string(tipo)
     si tipo == NODO_MATCH
         retorna "Match"
     retorna "Tipo_" + tipo
-
-funcion estado_modulo(e)
-    retorna e.modulo
-
-funcion estado_builder(e)
-    retorna e.builder
-
-funcion i8ptr_type()
-    retorna LLVMPointerType(LLVMInt8Type(), 0)
-
-# === From lexer.zen ===
-
-
-
 funcion es_digito(c)
     retorna c >= 48 y c <= 57
 funcion es_letra(c)
@@ -413,104 +387,36 @@ funcion tokenizar(codigo)
         pos = pos + 1
     agregar(tokens, Token {tipo: 0, valor: "EOF", linea: linea, col: pos})
     retorna tokens
-
-# === From parser.zen ===
-# parser.zen — Parser de Zen escrito EN Zen
-#
-# Etapa 3 de Zen sobre Zen: el parser toma los tokens del lexer
-# y construye un AST (Arbol de Sintaxis Abstracta).
-#
-# Parser recursivo descendente con bloques por indentacion.
-#
-# Tipos de nodo del AST (numeros):
-#   1  = NumberLit
-#   2  = StringLit
-#   3  = BoolLit
-#   4  = NullLit
-#   5  = Identifier
-#   6  = BinaryOp
-#   7  = UnaryOp
-#   8  = TernaryOp
-#   9  = FuncCall
-#   10 = AssignStmt
-#   11 = AugAssignStmt
-#   12 = PrintStmt
-#   13 = IfStmt
-#   14 = ForRangeStmt
-#   15 = ForEachStmt
-#   16 = WhileStmt
-#   17 = RepeatStmt
-#   18 = BreakStmt
-#   19 = ContinueStmt
-#   20 = FuncDecl
-#   21 = ReturnStmt
-#   22 = ExprStmt
-#   23 = ListLit
-#   24 = IndexAccess
-#   25 = IndexAssign
-#   26 = StructDecl
-#   27 = StructLit
-#   28 = MemberAccess
-#   29 = MemberAssign
-#   30 = MatchStmt
-
-# Struct: Nodo AST
-
-
-# === Helpers para acceder a miembros de tokens ===
-funcion tk_tipo(t)
-    retorna t.tipo
-
-funcion tk_valor(t)
-    retorna t.valor
-
-funcion tk_linea(t)
-    retorna t.linea
-
-# === Helpers para acceder a miembros de nodos ===
-
-
-
-
-
-# Variables del parser (estado global)
-tokens_parser = [0]
-pos_parser = 0
-
-# === Helpers del parser ===
+funcion token_tipo(t)
+    retorna token_tipo(t)
+funcion token_valor(t)
+    retorna token_valor(t)
+funcion token_linea(t)
+    retorna token_linea(t)
 funcion peek()
     retorna tokens_parser[pos_parser]
-
 funcion avanzar()
     t = tokens_parser[pos_parser]
     pos_parser = pos_parser + 1
     retorna t
-
 funcion verificar(tipo)
-    retorna tk_tipo(peek()) == tipo
-
+    retorna token_tipo(peek()) == tipo
 funcion match_token(tipo)
-    si tk_tipo(peek()) == tipo
+    si token_tipo(peek()) == tipo
         avanzar()
         retorna verdad
     retorna falso
-
 funcion consumir(tipo, msg)
-    si tk_tipo(peek()) == tipo
+    si token_tipo(peek()) == tipo
         retorna avanzar()
-    muestra "ERROR: " + msg + " en linea " + tk_linea(peek())
+    muestra "ERROR: " + msg + " en linea " + token_linea(peek())
     retorna peek()
-
-# === Crear nodo AST ===
 funcion crear_nodo(tipo, valor, linea)
     n = Nodo {tipo: tipo, valor: valor, linea: linea, hijos: [], nombre: "", op: ""}
     retorna n
-
-funcion crear_nd_op(tipo, op, linea)
+funcion crear_nodo_op(tipo, op, linea)
     n = Nodo {tipo: tipo, valor: "", linea: linea, hijos: [], nombre: "", op: op}
     retorna n
-
-# === Es fin de bloque? ===
 funcion es_fin_bloque(tipo)
     si tipo == 69
         retorna verdad
@@ -525,77 +431,69 @@ funcion es_fin_bloque(tipo)
     si tipo == 26
         retorna verdad
     retorna falso
-
-# === Parsear bloque (lista de statements) ===
 funcion parsear_bloque()
     stmts = [0]
-    mientras no es_fin_bloque(tk_tipo(peek()))
+    mientras no es_fin_bloque(token_tipo(peek()))
         s = parsear_statement()
         si s != nada
             agregar(stmts, s)
-        mientras tk_tipo(peek()) == 67
+        mientras token_tipo(peek()) == 67
             avanzar()
-    si tk_tipo(peek()) == 69
+    si token_tipo(peek()) == 69
         avanzar()
     retorna stmts
-
-# === Parsear statement ===
 funcion parsear_statement()
     t = peek()
-    si tk_tipo(t) == 19
+    si token_tipo(t) == 19
         return parsear_print()
-    si tk_tipo(t) == 4
+    si token_tipo(t) == 4
         return parsear_si()
-    si tk_tipo(t) == 7
+    si token_tipo(t) == 7
         return parsear_para()
-    si tk_tipo(t) == 10
+    si token_tipo(t) == 10
         return parsear_mientras()
-    si tk_tipo(t) == 13
+    si token_tipo(t) == 13
         return parsear_repetir()
-    si tk_tipo(t) == 17
+    si token_tipo(t) == 17
         return parsear_funcion()
-    si tk_tipo(t) == 18
+    si token_tipo(t) == 18
         avanzar()
         expr = parsear_expresion()
-        return crear_nodo(21, "", tk_linea(t))
-    si tk_tipo(t) == 15
+        return crear_nodo(21, "", token_linea(t))
+    si token_tipo(t) == 15
         avanzar()
-        return crear_nodo(18, "", tk_linea(t))
-    si tk_tipo(t) == 16
+        return crear_nodo(18, "", token_linea(t))
+    si token_tipo(t) == 16
         avanzar()
-        return crear_nodo(19, "", tk_linea(t))
+        return crear_nodo(19, "", token_linea(t))
     return parsear_expr_stmt()
-
-# === Parsear muestra ===
 funcion parsear_print()
     t = avanzar()
     expr = parsear_expresion()
-    n = crear_nodo(12, "", tk_linea(t))
+    n = crear_nodo(12, "", token_linea(t))
     agregar(n.hijos, expr)
     retorna n
-
-# === Parsear si/if ===
 funcion parsear_si()
     t = avanzar()
     cond = parsear_expresion()
-    si tk_tipo(peek()) == 67
+    si token_tipo(peek()) == 67
         avanzar()
-    si tk_tipo(peek()) == 68
+    si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
     sino_cuerpo = [0]
-    si tk_tipo(peek()) == 5 o tk_tipo(peek()) == 6
+    si token_tipo(peek()) == 5 o token_tipo(peek()) == 6
         avanzar()
-        si tk_tipo(peek()) == 4 o tk_tipo(peek()) == 6
+        si token_tipo(peek()) == 4 o token_tipo(peek()) == 6
             elif_stmt = parsear_si()
             agregar(sino_cuerpo, elif_stmt)
         sino
-            si tk_tipo(peek()) == 67
+            si token_tipo(peek()) == 67
                 avanzar()
-            si tk_tipo(peek()) == 68
+            si token_tipo(peek()) == 68
                 avanzar()
             sino_cuerpo = parsear_bloque()
-    n = crear_nodo(13, "", tk_linea(t))
+    n = crear_nodo(13, "", token_linea(t))
     agregar(n.hijos, cond)
     para cada s en cuerpo
         agregar(n.hijos, s)
@@ -603,291 +501,250 @@ funcion parsear_si()
     para cada s in sino_cuerpo
         agregar(n.hijos, s)
     retorna n
-
-# === Parsear mientras/while ===
 funcion parsear_mientras()
     t = avanzar()
     cond = parsear_expresion()
-    si tk_tipo(peek()) == 67
+    si token_tipo(peek()) == 67
         avanzar()
-    si tk_tipo(peek()) == 68
+    si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
-    n = crear_nodo(16, "", tk_linea(t))
+    n = crear_nodo(16, "", token_linea(t))
     agregar(n.hijos, cond)
     para cada s en cuerpo
         agregar(n.hijos, s)
     retorna n
-
-# === Parsear repetir ===
 funcion parsear_repetir()
     t = avanzar()
     cuenta = parsear_expresion()
-    si tk_tipo(peek()) == 14
+    si token_tipo(peek()) == 14
         avanzar()
-    si tk_tipo(peek()) == 67
+    si token_tipo(peek()) == 67
         avanzar()
-    si tk_tipo(peek()) == 68
+    si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
-    n = crear_nodo(17, "", tk_linea(t))
+    n = crear_nodo(17, "", token_linea(t))
     agregar(n.hijos, cuenta)
     para cada s en cuerpo
         agregar(n.hijos, s)
     retorna n
-
-# === Parsear funcion ===
 funcion parsear_funcion()
     t = avanzar()
     nombre_tok = avanzar()
     consumir(57, "Se esperaba ( despues de funcion")
     params = [0]
-    si tk_tipo(peek()) != 58
-        agregar(params, tk_valor(avanzar()))
-        mientras tk_tipo(peek()) == 63
+    si token_tipo(peek()) != 58
+        agregar(params, token_valor(avanzar()))
+        mientras token_tipo(peek()) == 63
             avanzar()
-            agregar(params, tk_valor(avanzar()))
+            agregar(params, token_valor(avanzar()))
     consumir(58, "Se esperaba ) ")
-    si tk_tipo(peek()) == 67
+    si token_tipo(peek()) == 67
         avanzar()
-    si tk_tipo(peek()) == 68
+    si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
-    n = crear_nodo(20, "", tk_linea(t))
+    n = crear_nodo(20, "", token_linea(t))
     n.nombre = nombre_tok.valor
     para cada p en params
-        agregar(n.hijos, crear_nodo(5, p, tk_linea(t)))
+        agregar(n.hijos, crear_nodo(5, p, token_linea(t)))
     para cada s en cuerpo
         agregar(n.hijos, s)
     retorna n
-
-# === Parsear para/for (simplificado) ===
 funcion parsear_para()
     t = avanzar()
     var_tok = avanzar()
-    si tk_tipo(peek()) == 8
+    si token_tipo(peek()) == 8
         avanzar()
         desde_expr = parsear_expresion()
-        si tk_tipo(peek()) == 9
+        si token_tipo(peek()) == 9
             avanzar()
             hasta_expr = parsear_expresion()
-        si tk_tipo(peek()) == 67
+        si token_tipo(peek()) == 67
             avanzar()
-        si tk_tipo(peek()) == 68
+        si token_tipo(peek()) == 68
             avanzar()
         cuerpo = parsear_bloque()
-        n = crear_nodo(14, "", tk_linea(t))
+        n = crear_nodo(14, "", token_linea(t))
         n.nombre = var_tok.valor
         agregar(n.hijos, desde_expr)
         agregar(n.hijos, hasta_expr)
         para cada s en cuerpo
             agregar(n.hijos, s)
         retorna n
-    retorna crear_nodo(22, "", tk_linea(t))
-
-# === Parsear expresion como statement ===
+    retorna crear_nodo(22, "", token_linea(t))
 funcion parsear_expr_stmt()
     expr = parsear_expresion()
-    si nd_tipo(expr) == 5 y (tk_tipo(peek()) == 49 o tk_tipo(peek()) == 50)
+    si nodo_tipo(expr) == 5 y (token_tipo(peek()) == 49 o token_tipo(peek()) == 50)
         op = "="
-        si tk_tipo(peek()) == 50
+        si token_tipo(peek()) == 50
             op = "+"
         avanzar()
         valor = parsear_expresion()
-        n = crear_nodo(10, "", nd_linea(expr))
-        n.nombre = nd_valor(expr)
+        n = crear_nodo(10, "", nodo_linea(expr))
+        n.nombre = nodo_valor(expr)
         agregar(n.hijos, valor)
         retorna n
-    n = crear_nodo(22, "", nd_linea(expr))
+    n = crear_nodo(22, "", nodo_linea(expr))
     agregar(n.hijos, expr)
     retorna n
-
-# === Parsear expresion (ternario) ===
 funcion parsear_expresion()
     expr = parsear_or()
-    si tk_tipo(peek()) == 66
+    si token_tipo(peek()) == 66
         avanzar()
         then_expr = parsear_expresion()
         consumir(65, "Se esperaba :")
         else_expr = parsear_expresion()
-        n = crear_nodo(8, "", nd_linea(expr))
+        n = crear_nodo(8, "", nodo_linea(expr))
         agregar(n.hijos, expr)
         agregar(n.hijos, then_expr)
         agregar(n.hijos, else_expr)
         retorna n
     retorna expr
-
-# === Parsear or/o ===
 funcion parsear_or()
     left = parsear_and()
-    mientras tk_tipo(peek()) == 21
+    mientras token_tipo(peek()) == 21
         t = avanzar()
         right = parsear_and()
-        n = crear_nd_op(6, "or", tk_linea(t))
+        n = crear_nodo_op(6, "or", token_linea(t))
         agregar(n.hijos, left)
         agregar(n.hijos, right)
         left = n
     retorna left
-
-# === Parsear and/y ===
 funcion parsear_and()
     left = parsear_comparacion()
-    mientras tk_tipo(peek()) == 20
+    mientras token_tipo(peek()) == 20
         t = avanzar()
         right = parsear_comparacion()
-        n = crear_nd_op(6, "and", tk_linea(t))
+        n = crear_nodo_op(6, "and", token_linea(t))
         agregar(n.hijos, left)
         agregar(n.hijos, right)
         left = n
     retorna left
-
-# === Parsear comparacion ===
 funcion parsear_comparacion()
     left = parsear_suma_resta()
-    mientras tk_tipo(peek()) >= 43 y tk_tipo(peek()) <= 48
+    mientras token_tipo(peek()) >= 43 y token_tipo(peek()) <= 48
         t = avanzar()
         right = parsear_suma_resta()
-        n = crear_nd_op(6, tk_valor(t), tk_linea(t))
+        n = crear_nodo_op(6, token_valor(t), token_linea(t))
         agregar(n.hijos, left)
         agregar(n.hijos, right)
         left = n
     retorna left
-
-# === Parsear suma/resta ===
 funcion parsear_suma_resta()
     left = parsear_mul_div()
-    mientras tk_tipo(peek()) == 37 o tk_tipo(peek()) == 38
+    mientras token_tipo(peek()) == 37 o token_tipo(peek()) == 38
         t = avanzar()
         right = parsear_mul_div()
-        n = crear_nd_op(6, tk_valor(t), tk_linea(t))
+        n = crear_nodo_op(6, token_valor(t), token_linea(t))
         agregar(n.hijos, left)
         agregar(n.hijos, right)
         left = n
     retorna left
-
-# === Parsear multiplicacion/division ===
 funcion parsear_mul_div()
     left = parsear_potencia()
-    mientras tk_tipo(peek()) == 39 o tk_tipo(peek()) == 40 o tk_tipo(peek()) == 41
+    mientras token_tipo(peek()) == 39 o token_tipo(peek()) == 40 o token_tipo(peek()) == 41
         t = avanzar()
         right = parsear_potencia()
-        n = crear_nd_op(6, tk_valor(t), tk_linea(t))
+        n = crear_nodo_op(6, token_valor(t), token_linea(t))
         agregar(n.hijos, left)
         agregar(n.hijos, right)
         left = n
     retorna left
-
-# === Parsear potencia ===
 funcion parsear_potencia()
     left = parsear_unario()
-    si tk_tipo(peek()) == 42
+    si token_tipo(peek()) == 42
         t = avanzar()
         right = parsear_potencia()
-        n = crear_nd_op(6, "^", tk_linea(t))
+        n = crear_nodo_op(6, "^", token_linea(t))
         agregar(n.hijos, left)
         agregar(n.hijos, right)
         retorna n
     retorna left
-
-# === Parsear unario (-x, no x) ===
 funcion parsear_unario()
-    si tk_tipo(peek()) == 38
+    si token_tipo(peek()) == 38
         t = avanzar()
         operand = parsear_unario()
-        n = crear_nd_op(7, "-", tk_linea(t))
+        n = crear_nodo_op(7, "-", token_linea(t))
         agregar(n.hijos, operand)
         retorna n
     retorna parsear_primario()
-
-# === Parsear primario (numeros, strings, identificadores, llamadas) ===
 funcion parsear_primario()
     t = peek()
-    si tk_tipo(t) == 34 o tk_tipo(t) == 34
+    si token_tipo(t) == 34 o token_tipo(t) == 34
         avanzar()
-        return crear_nodo(3, "verdad", tk_linea(t))
-    si tk_tipo(t) == 35
+        return crear_nodo(3, "verdad", token_linea(t))
+    si token_tipo(t) == 35
         avanzar()
-        return crear_nodo(3, "falso", tk_linea(t))
-    si tk_tipo(t) == 36
+        return crear_nodo(3, "falso", token_linea(t))
+    si token_tipo(t) == 36
         avanzar()
-        return crear_nodo(4, "nada", tk_linea(t))
-    si tk_tipo(t) == 1
+        return crear_nodo(4, "nada", token_linea(t))
+    si token_tipo(t) == 1
         avanzar()
-        return crear_nodo(1, tk_valor(t), tk_linea(t))
-    si tk_tipo(t) == 2
+        return crear_nodo(1, token_valor(t), token_linea(t))
+    si token_tipo(t) == 2
         avanzar()
-        return crear_nodo(2, tk_valor(t), tk_linea(t))
-    si tk_tipo(t) == 59
+        return crear_nodo(2, token_valor(t), token_linea(t))
+    si token_tipo(t) == 59
         avanzar()
         elementos = [0]
-        si tk_tipo(peek()) != 60
+        si token_tipo(peek()) != 60
             agregar(elementos, parsear_expresion())
-            mientras tk_tipo(peek()) == 63
+            mientras token_tipo(peek()) == 63
                 avanzar()
                 agregar(elementos, parsear_expresion())
         consumir(60, "Se esperaba ]")
-        n = crear_nodo(23, "", tk_linea(t))
+        n = crear_nodo(23, "", token_linea(t))
         para cada e en elementos
             agregar(n.hijos, e)
         retorna n
-    si tk_tipo(t) == 57
+    si token_tipo(t) == 57
         avanzar()
         expr = parsear_expresion()
         consumir(58, "Se esperaba )")
         retorna expr
-    si tk_tipo(t) == 3 o tk_tipo(t) == 20 o tk_tipo(t) == 21 o tk_tipo(t) == 23 o tk_tipo(t) == 11
+    si token_tipo(t) == 3 o token_tipo(t) == 20 o token_tipo(t) == 21 o token_tipo(t) == 23 o token_tipo(t) == 11
         avanzar()
-        si tk_tipo(peek()) == 57
+        si token_tipo(peek()) == 57
             avanzar()
             args = [0]
-            si tk_tipo(peek()) != 58
+            si token_tipo(peek()) != 58
                 agregar(args, parsear_expresion())
-                mientras tk_tipo(peek()) == 63
+                mientras token_tipo(peek()) == 63
                     avanzar()
                     agregar(args, parsear_expresion())
             consumir(58, "Se esperaba )")
-            n = crear_nodo(9, "", tk_linea(t))
-            n.nombre = tk_valor(t)
+            n = crear_nodo(9, "", token_linea(t))
+            n.nombre = token_valor(t)
             para cada a en args
                 agregar(n.hijos, a)
             retorna n
-        return crear_nodo(5, tk_valor(t), tk_linea(t))
-    return crear_nodo(4, "nada", tk_linea(t))
-
-# === Funcion principal: parsear ===
+        return crear_nodo(5, token_valor(t), token_linea(t))
+    return crear_nodo(4, "nada", token_linea(t))
 funcion parsear(lista_tokens)
     tokens_parser = lista_tokens
     pos_parser = 0
     programa = [0]
-    mientras tk_tipo(peek()) != 0
+    mientras token_tipo(peek()) != 0
         s = parsear_statement()
         si s != nada
             agregar(programa, s)
-        mientras tk_tipo(peek()) == 67 o tk_tipo(peek()) == 69
+        mientras token_tipo(peek()) == 67 o token_tipo(peek()) == 69
             avanzar()
     retorna programa
-
-# === Test ===
-
-# === From codegen.zen ===
-# codegen.zen — Generador de codigo LLVM IR escrito EN Zen
-#
-# Etapa 4: el codegen recorre el AST y genera codigo LLVM IR.
-# Depende de ast.zen (struct Nodo, constantes NODO_*, helpers)
-#
-# FFI a LLVM-C API
-
-
-
-
-
-
+funcion estado_modulo(e)
+    retorna e.modulo
+funcion estado_builder(e)
+    retorna e.builder
+funcion i8ptr_type()
+    retorna LLVMPointerType(LLVMInt8Type(), 0)
 funcion codegen_init()
     estado = CodeGenState {modulo: 0, builder: 0}
     estado.modulo = LLVMModuleCreateWithName("zen")
     estado.builder = LLVMCreateBuilder()
     retorna estado
-
 funcion codegen_declarar_externs(estado)
     mod = estado_modulo(estado)
     i8p = i8ptr_type()
@@ -897,41 +754,112 @@ funcion codegen_declarar_externs(estado)
     LLVMAddFunction(mod, "printf", printf_type)
     malloc_type = LLVMFunctionType(i8p, i64, 0)
     LLVMAddFunction(mod, "malloc", malloc_type)
-
+    strlen_type = LLVMFunctionType(i64, i8p, 0)
+    LLVMAddFunction(mod, "strlen", strlen_type)
+    sprintf_type = LLVMFunctionType(i32, i8p, 0)
+    LLVMAddFunction(mod, "sprintf", sprintf_type)
+    strtod_type = LLVMFunctionType(LLVMDoubleType(), i8p, 0)
+    LLVMAddFunction(mod, "strtod", strtod_type)
+    strcpy_type = LLVMFunctionType(i8p, i8p, 0)
+    LLVMAddFunction(mod, "strcpy", strcpy_type)
+    strcat_type = LLVMFunctionType(i8p, i8p, 0)
+    LLVMAddFunction(mod, "strcat", strcat_type)
 funcion codegen_expresion(estado, nodo)
-    tipo = nd_tipo(nodo)
+    tipo = nodo_tipo(nodo)
     si tipo == 1
-        retorna LLVMConstReal(LLVMDoubleType(), numero(nd_valor(nodo)))
+        retorna LLVMConstReal(LLVMDoubleType(), numero(nodo_valor(nodo)))
     si tipo == 2
-        retorna LLVMConstString(nd_valor(nodo), 0, 0)
+        str_val = nodo_valor(nodo)
+        ret = LLVMConstString(str_val, 0, 0)
+        gvar = LLVMAddGlobal(estado_modulo(estado), LLVMInt8Type(), ".str")
+        LLVMSetInitializer(gvar, ret)
+        LLVMSetGlobalConstant(gvar, 1)
+        LLVMSetLinkage(gvar, 0)
+        retorna LLVMBuildBitCast(estado_builder(estado), gvar, i8ptr_type(), "strptr")
+    si tipo == 3
+        val = numero(nodo_valor(nodo))
+        si val == 0
+            retorna LLVMConstInt(LLVMInt1Type(), 0, 0)
+        retorna LLVMConstInt(LLVMInt1Type(), 1, 0)
+    si tipo == 4
+        retorna LLVMConstPointerNull(i8ptr_type())
+    si tipo == 5
+        nombre = nodo_valor(nodo)
+        func = LLVMGetNamedFunction(estado_modulo(estado), nombre)
+        si func != 0
+            args = [0]
+            retorna LLVMBuildCall(estado_builder(estado), func, args, 0, "call")
+        retorna 0
     si tipo == 6
-        op = nd_op(nodo)
+        op = nodo_op(nodo)
         hijos = nodo.hijos
         left = codegen_expresion(estado, hijos[0])
         right = codegen_expresion(estado, hijos[1])
+        b = estado_builder(estado)
         si op == "+"
-            retorna LLVMBuildFAdd(estado_builder(estado), left, right, "add")
+            retorna LLVMBuildFAdd(b, left, right, "add")
         si op == "-"
-            retorna LLVMBuildFSub(estado_builder(estado), left, right, "sub")
+            retorna LLVMBuildFSub(b, left, right, "sub")
         si op == "*"
-            retorna LLVMBuildFMul(estado_builder(estado), left, right, "mul")
+            retorna LLVMBuildFMul(b, left, right, "mul")
         si op == "/"
-            retorna LLVMBuildFDiv(estado_builder(estado), left, right, "div")
+            retorna LLVMBuildFDiv(b, left, right, "div")
+        si op == "%"
+            retorna LLVMBuildFRem(b, left, right, "mod")
+        si op == "=="
+            retorna LLVMBuildFCmp(b, 1, left, right, "eq")
+        si op == "!="
+            retorna LLVMBuildFCmp(b, 4, left, right, "ne")
+        si op == "<"
+            retorna LLVMBuildFCmp(b, 2, left, right, "lt")
+        si op == ">"
+            retorna LLVMBuildFCmp(b, 3, left, right, "gt")
+        si op == "<="
+            retorna LLVMBuildFCmp(b, 6, left, right, "le")
+        si op == ">="
+            retorna LLVMBuildFCmp(b, 5, left, right, "ge")
         retorna 0
+    si tipo == 7
+        op = nodo_op(nodo)
+        hijos = nodo.hijos
+        operand = codegen_expresion(estado, hijos[0])
+        b = estado_builder(estado)
+        si op == "-"
+            retorna LLVMBuildNeg(b, operand, "neg")
+        retorna operand
     si tipo == 9
-        nombre = nd_nombre(nodo)
-        si nombre == "muestra"
-            hijos = nodo.hijos
+        nombre = nodo_nombre(nodo)
+        hijos = nodo.hijos
+        b = estado_builder(estado)
+        si nombre == "muestra" o nombre == "show" o nombre == "mostrar" o nombre == "imprime"
             arg = codegen_expresion(estado, hijos[0])
             fmt = LLVMConstString("%g\n", 0, 0)
+            gvar = LLVMAddGlobal(estado_modulo(estado), LLVMInt8Type(), ".fmt")
+            LLVMSetInitializer(gvar, fmt)
+            LLVMSetGlobalConstant(gvar, 1)
+            LLVMSetLinkage(gvar, 0)
+            fmt_ptr = LLVMBuildBitCast(b, gvar, i8ptr_type(), "fmtptr")
             printf_fn = LLVMGetNamedFunction(estado_modulo(estado), "printf")
-            args = [fmt, arg]
-            retorna LLVMBuildCall(estado_builder(estado), printf_fn, args, 2, "print")
+            args = [fmt_ptr, arg]
+            retorna LLVMBuildCall(b, printf_fn, args, 2, "print")
+        si nombre == "longitud" o nombre == "length" o nombre == "len"
+            arg = codegen_expresion(estado, hijos[0])
+            strlen_fn = LLVMGetNamedFunction(estado_modulo(estado), "strlen")
+            args = [arg]
+            ret = LLVMBuildCall(b, strlen_fn, args, 1, "len")
+            retorna LLVMBuildUIToFP(b, ret, LLVMDoubleType(), "lend")
+        si nombre == "numero" o nombre == "number" o nombre == "num"
+            arg = codegen_expresion(estado, hijos[0])
+            strtod_fn = LLVMGetNamedFunction(estado_modulo(estado), "strtod")
+            nullp = LLVMConstPointerNull(LLVMPointerType(i8ptr_type(), 0))
+            args = [arg, nullp]
+            retorna LLVMBuildCall(b, strtod_fn, args, 2, "num")
         retorna 0
     retorna 0
-
 funcion codegen_statement(estado, nodo)
-    tipo = nd_tipo(nodo)
+    tipo = nodo_tipo(nodo)
+    b = estado_builder(estado)
+    mod = estado_modulo(estado)
     si tipo == 12
         hijos = nodo.hijos
         codegen_expresion(estado, hijos[0])
@@ -939,38 +867,93 @@ funcion codegen_statement(estado, nodo)
     si tipo == 10
         hijos = nodo.hijos
         val = codegen_expresion(estado, hijos[0])
-        nombre = nd_nombre(nodo)
-        alloca = LLVMBuildAlloca(estado_builder(estado), LLVMDoubleType(), nombre)
-        LLVMBuildStore(estado_builder(estado), val, alloca)
+        nombre = nodo_nombre(nodo)
+        alloca = LLVMBuildAlloca(b, LLVMDoubleType(), nombre)
+        LLVMBuildStore(b, val, alloca)
         retorna 0
     si tipo == 21
         hijos = nodo.hijos
         val = codegen_expresion(estado, hijos[0])
-        LLVMBuildRet(estado_builder(estado), val)
+        LLVMBuildRet(b, val)
         retorna 0
     si tipo == 20
-        retorna 0
-    si tipo == 13
+        nombre = nodo_nombre(nodo)
         hijos = nodo.hijos
-        cond = codegen_expresion(estado, hijos[0])
-        retorna 0
-    si tipo == 16
-        hijos = nodo.hijos
-        cond = codegen_expresion(estado, hijos[0])
-        retorna 0
-    si tipo == 14
-        hijos = nodo.hijos
-        retorna 0
-    si tipo == 18
-        retorna 0
-    si tipo == 19
+        num_hijos = longitud(hijos)
+        num_params = 0
+        idx = 0
+        mientras idx < num_hijos
+            si nodo_tipo(hijos[idx]) == 5
+                num_params = num_params + 1
+                idx = idx + 1
+            sino
+                romper
+        double_ty = LLVMDoubleType()
+        func_type = LLVMFunctionType(double_ty, 0, 0)
+        func = LLVMAddFunction(mod, nombre, func_type)
+        entry_bb = LLVMAppendBasicBlock(func, "entry")
+        LLVMPositionBuilderAtEnd(b, entry_bb)
+        body_idx = num_params
+        mientras body_idx < num_hijos
+            codegen_statement(estado, hijos[body_idx])
+            body_idx = body_idx + 1
+        LLVMPositionBuilderAtEnd(b, LLVMAppendBasicBlock(LLVMGetNamedFunction(mod, "main"), "resume"))
         retorna 0
     si tipo == 22
         hijos = nodo.hijos
         codegen_expresion(estado, hijos[0])
         retorna 0
+    si tipo == 13
+        hijos = nodo.hijos
+        cond = codegen_expresion(estado, hijos[0])
+        main_fn = LLVMGetNamedFunction(mod, "main")
+        then_bb = LLVMAppendBasicBlock(main_fn, "then")
+        else_bb = LLVMAppendBasicBlock(main_fn, "else")
+        merge_bb = LLVMAppendBasicBlock(main_fn, "merge")
+        LLVMBuildCondBr(b, cond, then_bb, else_bb)
+        LLVMPositionBuilderAtEnd(b, then_bb)
+        idx = 1
+        num_hijos = longitud(hijos)
+        mientras idx < num_hijos
+            stmt = hijos[idx]
+            si nodo_tipo(stmt) == 13
+                romper
+            codegen_statement(estado, stmt)
+            idx = idx + 1
+        LLVMBuildBr(b, merge_bb)
+        LLVMPositionBuilderAtEnd(b, else_bb)
+        mientras idx < num_hijos
+            codegen_statement(estado, hijos[idx])
+            idx = idx + 1
+        LLVMBuildBr(b, merge_bb)
+        LLVMPositionBuilderAtEnd(b, merge_bb)
+        retorna 0
+    si tipo == 16
+        hijos = nodo.hijos
+        main_fn = LLVMGetNamedFunction(mod, "main")
+        cond_bb = LLVMAppendBasicBlock(main_fn, "while.cond")
+        body_bb = LLVMAppendBasicBlock(main_fn, "while.body")
+        end_bb = LLVMAppendBasicBlock(main_fn, "while.end")
+        LLVMBuildBr(b, cond_bb)
+        LLVMPositionBuilderAtEnd(b, cond_bb)
+        cond = codegen_expresion(estado, hijos[0])
+        LLVMBuildCondBr(b, cond, body_bb, end_bb)
+        LLVMPositionBuilderAtEnd(b, body_bb)
+        idx = 1
+        num_hijos = longitud(hijos)
+        mientras idx < num_hijos
+            codegen_statement(estado, hijos[idx])
+            idx = idx + 1
+        LLVMBuildBr(b, cond_bb)
+        LLVMPositionBuilderAtEnd(b, end_bb)
+        retorna 0
+    si tipo == 14
+        retorna 0
+    si tipo == 18
+        retorna 0
+    si tipo == 19
+        retorna 0
     retorna 0
-
 funcion codegen_programa(estado, programa)
     codegen_declarar_externs(estado)
     i32 = LLVMInt32Type()
@@ -981,43 +964,10 @@ funcion codegen_programa(estado, programa)
     para cada stmt en programa
         codegen_statement(estado, stmt)
     LLVMBuildRet(estado_builder(estado), LLVMConstInt(i32, 0, 0))
-
 funcion codegen_compilar(estado, ruta_salida)
     LLVMPrintModuleToFile(estado_modulo(estado), ruta_salida, nada)
-
 funcion codegen_finalize(estado)
     LLVMDisposeBuilder(estado_builder(estado))
     LLVMDisposeModule(estado_modulo(estado))
-
-
-# === Test ===
-funcion leer_archivo_codigo(ruta)
-    retorna leer_archivo(ruta)
-
-funcion compilar(ruta)
-    printf("=== Zen sobre Zen - Compilador ===\n")
-    codigo = leer_archivo_codigo(ruta)
-    printf("Leido: ")
-    printf(longitud(codigo))
-    printf(" bytes\n")
-    tokens = tokenizar(codigo)
-    printf("Tokens: ")
-    printf(longitud(tokens))
-    printf("\n")
-    ast = parsear(tokens)
-    printf("AST: ")
-    printf(longitud(ast))
-    printf(" nodos\n")
-    estado = codegen_init()
-    codegen_programa(estado, ast)
-    codegen_compilar(estado, "salida.ll")
-    codegen_finalize(estado)
-    printf("salida.ll generado\n")
-    printf("Compilacion exitosa!\n")
-
 muestra "=== Compilador Zen escrito en Zen ==="
-muestra "Componentes: AST + Lexer + Parser + Codegen + Main"
-muestra "Zen sobre Zen: todos los componentes en un archivo"
-muestra ""
 muestra "Compilador Zen cargado OK!"
-muestra "Componentes: AST + Lexer + Parser + Codegen + Main"

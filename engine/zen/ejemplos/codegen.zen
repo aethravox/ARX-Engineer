@@ -57,6 +57,16 @@ extern "libc" strcat(ptr, ptr) -> ptr
 extern "libc" sprintf(ptr, str, double) -> int
 extern "libc" strtod(ptr, ptr) -> double
 
+extern "libLLVM" LLVMBuildPhi(ptr, str) -> ptr
+extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
+extern "libLLVM" LLVMGetInsertBlock(ptr) -> ptr
+extern "libLLVM" LLVMBuildCast(ptr, int, ptr, str) -> ptr
+extern "libLLVM" LLVMConstBitCast(ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildGEP(ptr, ptr, ptr, int, str) -> ptr
+extern "libLLVM" LLVMTypeOf(ptr) -> ptr
+extern "libc" sprintf(ptr, str, double) -> int
+extern "libc" strtod(ptr, ptr) -> double
+
 CodeGenState {modulo, builder}
 
 funcion estado_modulo(e)
@@ -124,6 +134,11 @@ funcion codegen_expresion(estado, nodo)
     si tipo == 4
         retorna LLVMConstPointerNull(i8ptr_type())
     si tipo == 5
+        nombre = nodo_valor(nodo)
+        func = LLVMGetNamedFunction(estado_modulo(estado), nombre)
+        si func != 0
+            args = [0]
+            retorna LLVMBuildCall(estado_builder(estado), func, args, 0, "call")
         retorna 0
     si tipo == 6
         op = nodo_op(nodo)
