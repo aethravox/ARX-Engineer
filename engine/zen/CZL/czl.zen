@@ -1,5 +1,4 @@
 extern "libc" printf(str) -> int
-extern "libc" strlen(str) -> int
 
 ESC = char_to_str(27)
 czl_archivos = 0
@@ -8,44 +7,58 @@ czl_comentarios = 0
 czl_vacias = 0
 czl_total = 0
 
+funcion es_comentario(c)
+    retorna c == 35
+
+funcion es_newline(c)
+    retorna c == 10
+
+funcion es_espacio(c)
+    retorna c == 32
+
+funcion es_tab(c)
+    retorna c == 9
+
 funcion contar_archivo(ruta)
     codigo = leer_archivo(ruta)
     si longitud(codigo) == 0
         retorna 0
     len = longitud(codigo)
     pos = 0
-    en_com = falso
-    es_vacia = verdad
     linicio = verdad
+    es_com = falso
+    tiene_cod = falso
     mientras pos < len
         c = char_at(codigo, pos)
         si linicio == verdad
-            si c == 35
-                en_com = verdad
-            sino
-                en_com = falso
-            si c == 10
-                es_vacia = verdad
-            sino
-                es_vacia = falso
+            es_com = falso
+            tiene_cod = falso
             linicio = falso
-        si c == 10
+        si es_comentario(c) == verdad
+            es_com = verdad
+        si es_newline(c) == verdad
             czl_total = czl_total + 1
-            si en_com == verdad
+            si es_com == verdad
                 czl_comentarios = czl_comentarios + 1
             sino
-                si es_vacia == verdad
+                si tiene_cod == falso
                     czl_vacias = czl_vacias + 1
                 sino
                     czl_codigo = czl_codigo + 1
             linicio = verdad
-            es_vacia = verdad
+            es_com = falso
+            tiene_cod = falso
+        sino
+            si es_com == falso
+                si es_espacio(c) == falso
+                    si es_tab(c) == falso
+                        tiene_cod = verdad
         pos = pos + 1
     czl_total = czl_total + 1
-    si en_com == verdad
+    si es_com == verdad
         czl_comentarios = czl_comentarios + 1
     sino
-        si es_vacia == verdad
+        si tiene_cod == falso
             czl_vacias = czl_vacias + 1
         sino
             czl_codigo = czl_codigo + 1
@@ -54,11 +67,10 @@ funcion contar_archivo(ruta)
 header = ESC + "[1;36m========================================" + ESC + "[0m"
 title = ESC + "[1;36m CZL - Counting Zen Lines" + ESC + "[0m"
 sep = ESC + "[0;37m----------------------------------------" + ESC + "[0m"
-lang_hdr = ESC + "[1;33m Language         Files        Lines         Code     Comments       Blanks" + ESC + "[0m"
+lang_hdr = ESC + "[1;33m Lang        Files      Lines       Code   Comments    Blanks" + ESC + "[0m"
 reset = ESC + "[0m"
 green = ESC + "[1;32m"
 cyan = ESC + "[1;36m"
-
 muestra header
 muestra title
 muestra header
@@ -71,7 +83,7 @@ contar_archivo("src/main.zen")
 contar_archivo("src/parser.zen")
 muestra lang_hdr
 muestra sep
-muestra green + " Zen                  " + czl_archivos + "          " + czl_total + "          " + czl_codigo + "            " + czl_comentarios + "           " + czl_vacias + reset
+muestra green + " Zen            " + czl_archivos + "        " + czl_total + "       " + czl_codigo + "       " + czl_comentarios + "        " + czl_vacias + reset
 muestra sep
-muestra cyan + " Total               " + czl_archivos + "          " + czl_total + "          " + czl_codigo + "            " + czl_comentarios + "           " + czl_vacias + reset
+muestra cyan + " Total          " + czl_archivos + "        " + czl_total + "       " + czl_codigo + "       " + czl_comentarios + "        " + czl_vacias + reset
 muestra header
