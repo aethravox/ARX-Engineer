@@ -20,10 +20,12 @@ pos_parser = 0
 # ============================================================
 
 funcion peek()
-    retorna tokens_parser[pos_parser]
+    idx = pos_parser
+    retorna tokens_parser[idx]
 
 funcion avanzar()
-    t = tokens_parser[pos_parser]
+    idx = pos_parser
+    t = tokens_parser[idx]
     pos_parser = pos_parser + 1
     retorna t
 

@@ -1993,12 +1993,15 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateIndexAccess(IndexAccess* node)
 
     // Generar el indice (debe ser numero)
     auto [idxVal, idxType] = generateExpr(node->index.get());
-    if (idxType != ZenType::Number) {
+    // FORZAR conversion a double si es i8* (string boxed)
+    // Bug previo: cuando el idx viene de un load de global i8*, no se convertia
+    if (idxVal->getType() == llvm::Type::getInt8PtrTy(context)) {
+        idxVal = toDouble(idxVal, ZenType::String);
+    } else if (idxType != ZenType::Number) {
         idxVal = toDouble(idxVal, idxType);
     }
     auto* i64Ty = llvm::Type::getInt64Ty(context);
-    if (idxVal->getType() == llvm::Type::getInt8PtrTy(context)) idxVal = toDouble(idxVal, ZenType::String);
-        auto* idxI64 = builder.CreateFPToSI(idxVal, i64Ty, "idx");
+    auto* idxI64 = builder.CreateFPToSI(idxVal, i64Ty, "idx");
 
     // list_get(list, idx) -> i8*
     auto* elem = builder.CreateCall(
