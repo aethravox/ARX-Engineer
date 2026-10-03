@@ -196,6 +196,7 @@ class CodeGen {
 public:
     CodeGen(const std::string& targetPlatform = "");
     void generate(const std::vector<std::unique_ptr<ASTNode>>& ast);
+    void setArgv(int argc, char** argv);
     std::string getIR();
     bool verify();
 

@@ -828,6 +828,28 @@ bool CodeGen::emitObjectFile(const std::string& outputPath) {
 // Generacion principal
 // ============================================================
 
+void CodeGen::setArgv(int argc, char** argv) {
+    auto* i32Ty = llvm::Type::getInt32Ty(context);
+    auto* i8Ptr = llvm::Type::getInt8PtrTy(context);
+    new llvm::GlobalVariable(*module, i32Ty, false,
+        llvm::GlobalValue::InternalLinkage,
+        llvm::ConstantInt::get(i32Ty, argc), "__zen_argc");
+    std::vector<llvm::Constant*> elems;
+    for (int i = 0; i < argc; i++) {
+        auto* sc = llvm::ConstantDataArray::getString(context, argv[i], true);
+        auto* sg = new llvm::GlobalVariable(*module, sc->getType(), true,
+            llvm::GlobalValue::InternalLinkage, sc, "__zen_av" + std::to_string(i));
+        elems.push_back(llvm::ConstantExpr::getBitCast(sg, i8Ptr));
+    }
+    auto* at = llvm::ArrayType::get(i8Ptr, argc);
+    auto* aa = llvm::ConstantArray::get(at, elems);
+    auto* ag = new llvm::GlobalVariable(*module, at, true,
+        llvm::GlobalValue::InternalLinkage, aa, "__zen_argv_arr");
+    new llvm::GlobalVariable(*module, i8Ptr->getPointerTo(), false,
+        llvm::GlobalValue::InternalLinkage,
+        llvm::ConstantExpr::getBitCast(ag, i8Ptr->getPointerTo()), "__zen_argv");
+}
+
 void CodeGen::generate(const std::vector<std::unique_ptr<ASTNode>>& ast) {
     // PASS 0: Registrar todas las declaraciones de structs y externs
     for (auto& node : ast) {
@@ -2934,6 +2956,32 @@ std::pair<llvm::Value*, ZenType> CodeGen::tryBuiltinCall(FuncCall* node) {
     }
 
     // ---- Funciones del sistema ----
+
+    // ---- argumentos(n) -> string (argv[n]) ----
+    if (name == "argumentos" || name == "argv" || name == "args") {
+        if (node->args.size() != 1)
+            throw std::runtime_error("argumentos() espera 1 argumento (indice)");
+        auto* idx = getNumArg(0);
+        auto* idxI32 = builder.CreateFPToSI(idx, i32Ty, "argidx");
+        auto* argvVar = module->getGlobalVariable("__zen_argv");
+        if (!argvVar) return {llvm::ConstantPointerNull::get(i8Ptr), ZenType::String};
+        auto* argv = builder.CreateLoad(i8Ptr->getPointerTo(), argvVar, "argv");
+        auto* argPtr = builder.CreateGEP(i8Ptr, argv, {idxI32}, "arggep");
+        auto* arg = builder.CreateLoad(i8Ptr, argPtr, "argval");
+        return {arg, ZenType::String};
+    }
+
+    // ---- num_argumentos() -> number (argc) ----
+    if (name == "num_argumentos" || name == "argc" || name == "num_args") {
+        auto* argcVar = module->getGlobalVariable("__zen_argc", true);
+        if (!argcVar) {
+            argcVar = new llvm::GlobalVariable(*module, i32Ty, false,
+                llvm::GlobalValue::InternalLinkage,
+                llvm::ConstantInt::get(i32Ty, 0), "__zen_argc");
+        }
+        auto* argc = builder.CreateLoad(i32Ty, argcVar, "argc");
+        return {builder.CreateSIToFP(argc, doubleTy, "argcd"), ZenType::Number};
+    }
 
     // salir(codigo)  → termina el programa
     if (name == "salir" || name == "exit") {
