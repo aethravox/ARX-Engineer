@@ -27,6 +27,38 @@
 #endif
 
 // ============================================================
+// Wrappers para LLVMBuildCall desde Zen
+// Zen no puede pasar arrays C nativos, asi que usamos wrappers
+// que aceptan args individuales.
+// ============================================================
+
+#include <llvm-c/Core.h>
+
+extern "C" {
+
+LLVMValueRef zen_call1(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, const char* Name) {
+    LLVMValueRef args[1] = { a0 };
+    return LLVMBuildCall(B, Fn, args, 1, Name);
+}
+
+LLVMValueRef zen_call2(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMValueRef a1, const char* Name) {
+    LLVMValueRef args[2] = { a0, a1 };
+    return LLVMBuildCall(B, Fn, args, 2, Name);
+}
+
+LLVMValueRef zen_call3(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMValueRef a1, LLVMValueRef a2, const char* Name) {
+    LLVMValueRef args[3] = { a0, a1, a2 };
+    return LLVMBuildCall(B, Fn, args, 3, Name);
+}
+
+LLVMValueRef zen_call4(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMValueRef a1, LLVMValueRef a2, LLVMValueRef a3, const char* Name) {
+    LLVMValueRef args[4] = { a0, a1, a2, a3 };
+    return LLVMBuildCall(B, Fn, args, 4, Name);
+}
+
+} // extern "C"
+
+// ============================================================
 // Inicializacion de targets LLVM
 // ============================================================
 
@@ -1993,12 +2025,11 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateIndexAccess(IndexAccess* node)
 
     // Generar el indice (debe ser numero)
     auto [idxVal, idxType] = generateExpr(node->index.get());
-    // FORZAR conversion a double si es i8* (string boxed)
-    // Bug previo: cuando el idx viene de un load de global i8*, no se convertia
+    // FORZAR conversion a double SIEMPRE - todos los valores Zen son i8* boxed
     if (idxVal->getType() == llvm::Type::getInt8PtrTy(context)) {
-        idxVal = toDouble(idxVal, ZenType::String);
-    } else if (idxType != ZenType::Number) {
-        idxVal = toDouble(idxVal, idxType);
+        auto* nullPtr = llvm::ConstantPointerNull::get(
+            llvm::Type::getInt8PtrTy(context)->getPointerTo());
+        idxVal = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {idxVal, nullPtr}, "s2d");
     }
     auto* i64Ty = llvm::Type::getInt64Ty(context);
     auto* idxI64 = builder.CreateFPToSI(idxVal, i64Ty, "idx");
@@ -2019,12 +2050,14 @@ void CodeGen::generateIndexAssign(IndexAssign* node) {
     baseVal = builder.CreateBitCast(baseVal, llvm::Type::getInt8PtrTy(context), "idxbase");
 
     auto [idxVal, idxType] = generateExpr(node->index.get());
-    if (idxType != ZenType::Number) {
-        idxVal = toDouble(idxVal, idxType);
+    // FORZAR conversion a double SIEMPRE
+    if (idxVal->getType() == llvm::Type::getInt8PtrTy(context)) {
+        auto* nullPtr = llvm::ConstantPointerNull::get(
+            llvm::Type::getInt8PtrTy(context)->getPointerTo());
+        idxVal = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {idxVal, nullPtr}, "s2d");
     }
     auto* i64Ty = llvm::Type::getInt64Ty(context);
-    if (idxVal->getType() == llvm::Type::getInt8PtrTy(context)) idxVal = toDouble(idxVal, ZenType::String);
-        auto* idxI64 = builder.CreateFPToSI(idxVal, i64Ty, "idx");
+    auto* idxI64 = builder.CreateFPToSI(idxVal, i64Ty, "idx");
 
     auto [val, valType] = generateExpr(node->value.get());
     auto* boxed = boxValue(val, valType);
@@ -2465,39 +2498,8 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateExternCall(ExternCall* node) {
             auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
             converted = builder.CreateFPToSI(d, llvm::Type::getInt8Ty(context), "toi8");
         } else if (paramInfo.type == CType::Ptr) {
-            // SPECIAL CASE: si el arg es un ListLit, generar C array
-            // SIN boxear los elementos (usar el valor LLVM directo)
-            if (node->args[i]->kind == NodeType::ListLit) {
-                auto* listLit = static_cast<ListLit*>(node->args[i].get());
-                size_t n = listLit->elements.size();
-                // Usar i8* como tipo del array (todos los LLVMValueRef son punteros)
-                auto* i8PtrTy = llvm::Type::getInt8PtrTy(context);
-                auto* arrType = llvm::ArrayType::get(i8PtrTy, n);
-                auto* arr = builder.CreateAlloca(arrType, nullptr, "cargs");
-                for (size_t j = 0; j < n; j++) {
-                    auto [elemVal, elemType] = generateExpr(listLit->elements[j].get());
-                    // NO boxear - usar el valor LLVM directamente
-                    // Si es double, bitcast a i8* (para que el array sea homogeneo)
-                    // Si ya es i8*, usarlo directo
-                    llvm::Value* elemPtr;
-                    if (elemVal->getType() == llvm::Type::getDoubleTy(context)) {
-                        // Es un double - crear alloca temporal y guardar
-                        auto* tmp = builder.CreateAlloca(llvm::Type::getDoubleTy(context), nullptr, "tmp");
-                        builder.CreateStore(elemVal, tmp);
-                        elemPtr = builder.CreateBitCast(tmp, i8PtrTy, "eptr");
-                    } else if (elemVal->getType() == i8PtrTy) {
-                        elemPtr = elemVal;
-                    } else {
-                        // Bitcast generico a i8*
-                        elemPtr = builder.CreateBitCast(elemVal, i8PtrTy, "eptr");
-                    }
-                    auto* slot = builder.CreateConstInBoundsGEP2_32(arrType, arr, 0, j, "slot");
-                    builder.CreateStore(elemPtr, slot);
-                }
-                converted = arr;
-            } else {
-                converted = toString(val, type);
-            }
+            // Aceptamos string como void*
+            converted = toString(val, type);
         }
         args.push_back(converted);
     }
