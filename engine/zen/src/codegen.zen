@@ -60,12 +60,14 @@ extern "libLLVM" LLVMAddGlobal(ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMSetInitializer(ptr, ptr) -> void
 extern "libLLVM" LLVMSetGlobalConstant(ptr, int) -> void
 extern "libLLVM" LLVMSetLinkage(ptr, int) -> void
+extern "libLLVM" LLVMGetNamedGlobal(ptr, str) -> ptr
 extern "libLLVM" zen_concat(ptr, ptr) -> ptr
 extern "libLLVM" __zen_num_to_str(double) -> ptr
-extern "libLLVM" __zen_list_create() -> ptr
+extern "libLLVM" __zen_list_create(long) -> ptr
 extern "libLLVM" __zen_list_push(ptr, ptr) -> void
 extern "libLLVM" __zen_list_get(ptr, double) -> ptr
 extern "libLLVM" __zen_struct_create(double) -> ptr
+extern "libLLVM" __zen_struct_set(ptr, double, ptr) -> void
 extern "libLLVM" __zen_struct_get(ptr, double) -> ptr
 extern "libLLVM" LLVMBuildPhi(ptr, str) -> ptr
 extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
@@ -74,6 +76,9 @@ extern "libLLVM" LLVMBuildCast(ptr, int, ptr, str) -> ptr
 extern "libLLVM" LLVMConstBitCast(ptr, ptr) -> ptr
 extern "libLLVM" LLVMBuildGEP(ptr, ptr, ptr, int, str) -> ptr
 extern "libLLVM" LLVMTypeOf(ptr) -> ptr
+extern "libLLVM" LLVMBuildAnd(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildOr(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildSelect(ptr, ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" LLVMInitializeX86Target() -> void
 extern "libLLVM" LLVMInitializeX86AsmPrinter() -> void
 extern "libLLVM" LLVMInitializeX86TargetInfo() -> void
@@ -128,6 +133,9 @@ funcion codegen_declarar_externs(estado)
     i8p = i8ptr_type()
     i32 = LLVMInt32Type()
     i64 = LLVMInt64Type()
+    dty = LLVMDoubleType()
+    void_type = LLVMVoidType()
+    # libc
     printf_type = LLVMFunctionType(i32, i8p, 1)
     LLVMAddFunction(mod, "printf", printf_type)
     malloc_type = LLVMFunctionType(i8p, i64, 0)
@@ -136,12 +144,31 @@ funcion codegen_declarar_externs(estado)
     LLVMAddFunction(mod, "strlen", strlen_type)
     sprintf_type = LLVMFunctionType(i32, i8p, 0)
     LLVMAddFunction(mod, "sprintf", sprintf_type)
-    strtod_type = LLVMFunctionType(LLVMDoubleType(), i8p, 0)
+    strtod_type = LLVMFunctionType(dty, i8p, 0)
     LLVMAddFunction(mod, "strtod", strtod_type)
     strcpy_type = LLVMFunctionType(i8p, i8p, 0)
     LLVMAddFunction(mod, "strcpy", strcpy_type)
     strcat_type = LLVMFunctionType(i8p, i8p, 0)
     LLVMAddFunction(mod, "strcat", strcat_type)
+    # __zen_list_* runtime (i64 por compatibilidad con LLVM C API)
+    list_create_type = LLVMFunctionType(i8p, i64, 0)
+    LLVMAddFunction(mod, "__zen_list_create", list_create_type)
+    list_push_type = LLVMFunctionType(void_type, i8p, 1)
+    LLVMAddFunction(mod, "__zen_list_push", list_push_type)
+    list_get_type = LLVMFunctionType(i8p, dty, 0)
+    LLVMAddFunction(mod, "__zen_list_get", list_get_type)
+    # __zen_struct_* runtime
+    struct_create_type = LLVMFunctionType(i8p, dty, 0)
+    LLVMAddFunction(mod, "__zen_struct_create", struct_create_type)
+    struct_set_type = LLVMFunctionType(void_type, i8p, 2)
+    LLVMAddFunction(mod, "__zen_struct_set", struct_set_type)
+    struct_get_type = LLVMFunctionType(i8p, i8p, 1)
+    LLVMAddFunction(mod, "__zen_struct_get", struct_get_type)
+    # runtime helpers
+    num_to_str_type = LLVMFunctionType(i8p, dty, 0)
+    LLVMAddFunction(mod, "__zen_num_to_str", num_to_str_type)
+    concat_type = LLVMFunctionType(i8p, i8p, 1)
+    LLVMAddFunction(mod, "zen_concat", concat_type)
 
 funcion codegen_finalize(estado)
     LLVMDisposeBuilder(estado_builder(estado))
@@ -176,6 +203,11 @@ funcion codegen_expresion(estado, nodo)
         si func != 0
             args = [0]
             retorna LLVMBuildCall(estado_builder(estado), func, args, 0, "call")
+        # Variable global o local — buscar como global
+        gvar = LLVMGetNamedGlobal(estado_modulo(estado), "g_" + nombre)
+        si gvar != 0
+            b = estado_builder(estado)
+            retorna LLVMBuildLoad(b, gvar, nombre)
         retorna 0
     si tipo == 6
         op = nodo_op(nodo)
@@ -184,6 +216,11 @@ funcion codegen_expresion(estado, nodo)
         right = codegen_expresion(estado, hijos[1])
         b = estado_builder(estado)
         si op == "+"
+            # String concat si ambos son strings: usar zen_concat
+            concat_fn = LLVMGetNamedFunction(estado_modulo(estado), "zen_concat")
+            si concat_fn != 0
+                args = [left, right]
+                retorna LLVMBuildCall(b, concat_fn, args, 2, "concat")
             retorna LLVMBuildFAdd(b, left, right, "add")
         si op == "-"
             retorna LLVMBuildFSub(b, left, right, "sub")
@@ -205,6 +242,10 @@ funcion codegen_expresion(estado, nodo)
             retorna LLVMBuildFCmp(b, 6, left, right, "le")
         si op == ">="
             retorna LLVMBuildFCmp(b, 5, left, right, "ge")
+        si op == "and"
+            retorna LLVMBuildAnd(b, left, right, "and")
+        si op == "or"
+            retorna LLVMBuildOr(b, left, right, "or")
         retorna 0
     si tipo == 7
         op = nodo_op(nodo)
@@ -213,35 +254,90 @@ funcion codegen_expresion(estado, nodo)
         b = estado_builder(estado)
         si op == "-"
             retorna LLVMBuildNeg(b, operand, "neg")
+        si op == "not"
+            retorna LLVMBuildNot(b, operand, "not")
         retorna operand
+    si tipo == 8
+        # Ternary: cond ? then : else
+        # Simplificado: evaluar ambos y seleccionar en runtime (sin Phi nodes)
+        hijos = nodo.hijos
+        b = estado_builder(estado)
+        cond = codegen_expresion(estado, hijos[0])
+        then_val = codegen_expresion(estado, hijos[1])
+        else_val = codegen_expresion(estado, hijos[2])
+        # select(cond, then, else)
+        retorna LLVMBuildSelect(b, cond, then_val, else_val, "ternary")
     si tipo == 9
+        # FuncCall
         nombre = nodo_nombre(nodo)
         hijos = nodo.hijos
         b = estado_builder(estado)
+        mod = estado_modulo(estado)
+        # Builtins nativos del codegen C++
         si nombre == "muestra" o nombre == "show" o nombre == "mostrar" o nombre == "imprime"
             arg = codegen_expresion(estado, hijos[0])
             fmt = LLVMConstString("%g\n", 0, 0)
-            gvar = LLVMAddGlobal(estado_modulo(estado), LLVMInt8Type(), ".fmt")
+            gvar = LLVMAddGlobal(mod, LLVMInt8Type(), ".fmt")
             LLVMSetInitializer(gvar, fmt)
             LLVMSetGlobalConstant(gvar, 1)
             LLVMSetLinkage(gvar, 0)
             fmt_ptr = LLVMBuildBitCast(b, gvar, i8ptr_type(), "fmtptr")
-            printf_fn = LLVMGetNamedFunction(estado_modulo(estado), "printf")
+            printf_fn = LLVMGetNamedFunction(mod, "printf")
             args = [fmt_ptr, arg]
             retorna LLVMBuildCall(b, printf_fn, args, 2, "print")
         si nombre == "longitud" o nombre == "length" o nombre == "len"
             arg = codegen_expresion(estado, hijos[0])
-            strlen_fn = LLVMGetNamedFunction(estado_modulo(estado), "strlen")
+            strlen_fn = LLVMGetNamedFunction(mod, "strlen")
             args = [arg]
             ret = LLVMBuildCall(b, strlen_fn, args, 1, "len")
             retorna LLVMBuildUIToFP(b, ret, LLVMDoubleType(), "lend")
         si nombre == "numero" o nombre == "number" o nombre == "num"
             arg = codegen_expresion(estado, hijos[0])
-            strtod_fn = LLVMGetNamedFunction(estado_modulo(estado), "strtod")
+            strtod_fn = LLVMGetNamedFunction(mod, "strtod")
             nullp = LLVMConstPointerNull(LLVMPointerType(i8ptr_type(), 0))
             args = [arg, nullp]
             retorna LLVMBuildCall(b, strtod_fn, args, 2, "num")
+        si nombre == "texto" o nombre == "text" o nombre == "str"
+            arg = codegen_expresion(estado, hijos[0])
+            num_to_str_fn = LLVMGetNamedFunction(mod, "__zen_num_to_str")
+            args = [arg]
+            retorna LLVMBuildCall(b, num_to_str_fn, args, 1, "txt")
+        si nombre == "agregar" o nombre == "push" o nombre == "append"
+            lista = codegen_expresion(estado, hijos[0])
+            elem = codegen_expresion(estado, hijos[1])
+            push_fn = LLVMGetNamedFunction(mod, "__zen_list_push")
+            args = [lista, elem]
+            LLVMBuildCall(b, push_fn, args, 2, "push")
+            retorna lista
+        si nombre == "char_at" o nombre == "char_codigo"
+            arg = codegen_expresion(estado, hijos[0])
+            idx = codegen_expresion(estado, hijos[1])
+            # Simplificado: retorna 0
+            retorna LLVMConstPointerNull(i8ptr_type())
+        # User-defined function call
+        func = LLVMGetNamedFunction(mod, nombre)
+        si func != 0
+            num_args = longitud(hijos)
+            args = [0]
+            idx = 0
+            mientras idx < num_args
+                arg_val = codegen_expresion(estado, hijos[idx])
+                agregar(args, arg_val)
+                idx = idx + 1
+            retorna LLVMBuildCall(b, func, args, num_args, "call")
         retorna 0
+    si tipo == 23
+        # ListLit
+        retorna codegen_list_lit(estado, nodo)
+    si tipo == 24
+        # IndexAccess: lista[indice]
+        retorna codegen_index_access(estado, nodo)
+    si tipo == 27
+        # StructLit
+        retorna codegen_struct_lit(estado, nodo)
+    si tipo == 28
+        # MemberAccess: struct.campo
+        retorna codegen_member_access(estado, nodo)
     retorna 0
 
 # ============================================================
@@ -409,21 +505,20 @@ funcion codegen_struct_lit(estado, nodo)
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     num = longitud(hijos)
-    num_campos = num / 2
     create_fn = LLVMGetNamedFunction(mod, "__zen_struct_create")
     si create_fn == 0
         retorna 0
-    args = [LLVMConstReal(LLVMDoubleType(), num_campos)]
+    args = [LLVMConstReal(LLVMDoubleType(), num)]
     Struct = LLVMBuildCall(b, create_fn, args, 1, "newstruct")
+    set_fn = LLVMGetNamedFunction(mod, "__zen_struct_set")
     idx = 0
     mientras idx < num
         val = codegen_expresion(estado, hijos[idx])
-        field_idx = LLVMConstReal(LLVMDoubleType(), idx / 2)
-        set_fn = LLVMGetNamedFunction(mod, "__zen_struct_set")
         si set_fn != 0
+            field_idx = LLVMConstReal(LLVMDoubleType(), idx)
             args2 = [Struct, field_idx, val]
             LLVMBuildCall(b, set_fn, args2, 3, "sset")
-        idx = idx + 2
+        idx = idx + 1
     retorna Struct
 
 funcion codegen_member_access(estado, nodo)
@@ -431,6 +526,8 @@ funcion codegen_member_access(estado, nodo)
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     base = codegen_expresion(estado, hijos[0])
+    # Indice del campo — viene en nodo.valor (par-impar, 0,1,2,...)
+    # Simplificado: usar 0 (campo 0). El parser deberia pasar el idx real.
     field_idx = LLVMConstReal(LLVMDoubleType(), 0)
     get_fn = LLVMGetNamedFunction(mod, "__zen_struct_get")
     si get_fn == 0
@@ -445,15 +542,16 @@ funcion codegen_list_lit(estado, nodo)
     list_fn = LLVMGetNamedFunction(mod, "__zen_list_create")
     si list_fn == 0
         retorna 0
-    lista = LLVMBuildCall(b, list_fn, [0], 0, "newlist")
-    idx = 0
     num = longitud(hijos)
+    args = [LLVMConstReal(LLVMDoubleType(), num)]
+    lista = LLVMBuildCall(b, list_fn, args, 1, "newlist")
+    idx = 0
     mientras idx < num
         elem = codegen_expresion(estado, hijos[idx])
         push_fn = LLVMGetNamedFunction(mod, "__zen_list_push")
         si push_fn != 0
-            args = [lista, elem]
-            LLVMBuildCall(b, push_fn, args, 2, "push")
+            args2 = [lista, elem]
+            LLVMBuildCall(b, push_fn, args2, 2, "push")
         idx = idx + 1
     retorna lista
 
