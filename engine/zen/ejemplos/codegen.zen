@@ -218,8 +218,48 @@ funcion codegen_statement(estado, nodo)
         codegen_expresion(estado, hijos[0])
         retorna 0
     si tipo == 13
+        hijos = nodo.hijos
+        cond = codegen_expresion(estado, hijos[0])
+        main_fn = LLVMGetNamedFunction(mod, "main")
+        then_bb = LLVMAppendBasicBlock(main_fn, "then")
+        else_bb = LLVMAppendBasicBlock(main_fn, "else")
+        merge_bb = LLVMAppendBasicBlock(main_fn, "merge")
+        LLVMBuildCondBr(b, cond, then_bb, else_bb)
+        LLVMPositionBuilderAtEnd(b, then_bb)
+        idx = 1
+        num_hijos = longitud(hijos)
+        mientras idx < num_hijos
+            stmt = hijos[idx]
+            si nodo_tipo(stmt) == 13
+                romper
+            codegen_statement(estado, stmt)
+            idx = idx + 1
+        LLVMBuildBr(b, merge_bb)
+        LLVMPositionBuilderAtEnd(b, else_bb)
+        mientras idx < num_hijos
+            codegen_statement(estado, hijos[idx])
+            idx = idx + 1
+        LLVMBuildBr(b, merge_bb)
+        LLVMPositionBuilderAtEnd(b, merge_bb)
         retorna 0
     si tipo == 16
+        hijos = nodo.hijos
+        main_fn = LLVMGetNamedFunction(mod, "main")
+        cond_bb = LLVMAppendBasicBlock(main_fn, "while.cond")
+        body_bb = LLVMAppendBasicBlock(main_fn, "while.body")
+        end_bb = LLVMAppendBasicBlock(main_fn, "while.end")
+        LLVMBuildBr(b, cond_bb)
+        LLVMPositionBuilderAtEnd(b, cond_bb)
+        cond = codegen_expresion(estado, hijos[0])
+        LLVMBuildCondBr(b, cond, body_bb, end_bb)
+        LLVMPositionBuilderAtEnd(b, body_bb)
+        idx = 1
+        num_hijos = longitud(hijos)
+        mientras idx < num_hijos
+            codegen_statement(estado, hijos[idx])
+            idx = idx + 1
+        LLVMBuildBr(b, cond_bb)
+        LLVMPositionBuilderAtEnd(b, end_bb)
         retorna 0
     si tipo == 14
         retorna 0
@@ -246,5 +286,5 @@ funcion codegen_finalize(estado)
 muestra "=== Codegen de Zen escrito en Zen ==="
 muestra "Nodos: NumberLit, StringLit, BoolLit, NullLit, BinaryOp, UnaryOp"
 muestra "       FuncCall(muestra/longitud/numero), Print, Assign, Return"
-muestra "       FuncDecl, ExprStmt, IfStmt(stub), WhileStmt(stub)"
+muestra "       FuncDecl, ExprStmt, IfStmt(COND BR), WhileStmt(LOOP)"
 muestra "FFI: 50+ funciones LLVM-C"
