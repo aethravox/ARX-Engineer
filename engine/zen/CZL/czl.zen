@@ -7,7 +7,6 @@ czl_comentarios = 0
 czl_vacias = 0
 czl_total = 0
 czl_dir = "src"
-czl_excluir = ""
 
 funcion contar_archivo(ruta)
     codigo = leer_archivo(ruta)
@@ -54,14 +53,14 @@ funcion contar_archivo(ruta)
             czl_codigo = czl_codigo + 1
     czl_archivos = czl_archivos + 1
 
-funcion contar_dir(directorio)
-    contar_archivo(directorio + "/ast.zen")
-    contar_archivo(directorio + "/builtins.zen")
-    contar_archivo(directorio + "/codegen.zen")
-    contar_archivo(directorio + "/lexer.zen")
-    contar_archivo(directorio + "/main.zen")
-    contar_archivo(directorio + "/parser.zen")
-    contar_archivo(directorio + "/zen_compiler.zen")
+funcion contar_dir(d)
+    contar_archivo(d + "/ast.zen")
+    contar_archivo(d + "/builtins.zen")
+    contar_archivo(d + "/codegen.zen")
+    contar_archivo(d + "/lexer.zen")
+    contar_archivo(d + "/main.zen")
+    contar_archivo(d + "/parser.zen")
+    contar_archivo(d + "/zen_compiler.zen")
 
 header = ESC + "[1;36m========================================" + ESC + "[0m"
 title = ESC + "[1;36m CZL - Counting Zen Lines" + ESC + "[0m"

@@ -14,7 +14,6 @@ source_filename = "zen"
 @g_czl_vacias = internal global i8* null
 @g_czl_total = internal global i8* null
 @g_czl_dir = internal global i8* null
-@g_czl_excluir = internal global i8* null
 @g_header = internal global i8* null
 @g_title = internal global i8* null
 @g_sep = internal global i8* null
@@ -33,39 +32,38 @@ source_filename = "zen"
 @10 = private unnamed_addr constant [12 x i8] c"/parser.zen\00", align 1
 @11 = private unnamed_addr constant [18 x i8] c"/zen_compiler.zen\00", align 1
 @12 = private unnamed_addr constant [4 x i8] c"src\00", align 1
-@13 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@14 = private unnamed_addr constant [47 x i8] c"[1;36m========================================\00", align 1
-@15 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@16 = private unnamed_addr constant [32 x i8] c"[1;36m CZL - Counting Zen Lines\00", align 1
-@17 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@18 = private unnamed_addr constant [47 x i8] c"[0;37m----------------------------------------\00", align 1
-@19 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@20 = private unnamed_addr constant [68 x i8] c"[1;33m Lang        Files      Lines       Code   Comments    Blanks\00", align 1
+@13 = private unnamed_addr constant [47 x i8] c"[1;36m========================================\00", align 1
+@14 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@15 = private unnamed_addr constant [32 x i8] c"[1;36m CZL - Counting Zen Lines\00", align 1
+@16 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@17 = private unnamed_addr constant [47 x i8] c"[0;37m----------------------------------------\00", align 1
+@18 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@19 = private unnamed_addr constant [68 x i8] c"[1;33m Lang        Files      Lines       Code   Comments    Blanks\00", align 1
+@20 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
 @21 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@22 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
-@23 = private unnamed_addr constant [7 x i8] c"[1;32m\00", align 1
-@24 = private unnamed_addr constant [7 x i8] c"[1;36m\00", align 1
+@22 = private unnamed_addr constant [7 x i8] c"[1;32m\00", align 1
+@23 = private unnamed_addr constant [7 x i8] c"[1;36m\00", align 1
+@24 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @25 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @26 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@27 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@28 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@27 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@28 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @29 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @30 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@31 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@32 = private unnamed_addr constant [17 x i8] c" Zen            \00", align 1
-@33 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@31 = private unnamed_addr constant [17 x i8] c" Zen            \00", align 1
+@32 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@33 = private unnamed_addr constant [8 x i8] c"       \00", align 1
 @34 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@35 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@36 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@35 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@36 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @37 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@38 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@39 = private unnamed_addr constant [17 x i8] c" Total          \00", align 1
-@40 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@38 = private unnamed_addr constant [17 x i8] c" Total          \00", align 1
+@39 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@40 = private unnamed_addr constant [8 x i8] c"       \00", align 1
 @41 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@42 = private unnamed_addr constant [8 x i8] c"       \00", align 1
-@43 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@42 = private unnamed_addr constant [9 x i8] c"        \00", align 1
+@43 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @44 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@45 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -626,30 +624,30 @@ endif81:                                          ; preds = %else80, %then79
   br label %endif71
 }
 
-define i8* @contar_dir(i8* %directorio) {
+define i8* @contar_dir(i8* %d) {
 entry:
-  %directorio1 = alloca i8*, align 8
-  store i8* %directorio, i8** %directorio1, align 8
-  %directorio2 = load i8*, i8** %directorio1, align 8
-  %concat = call i8* @zen_concat(i8* %directorio2, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @5, i32 0, i32 0))
+  %d1 = alloca i8*, align 8
+  store i8* %d, i8** %d1, align 8
+  %d2 = load i8*, i8** %d1, align 8
+  %concat = call i8* @zen_concat(i8* %d2, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @5, i32 0, i32 0))
   %call = call i8* @contar_archivo(i8* %concat)
-  %directorio3 = load i8*, i8** %directorio1, align 8
-  %concat4 = call i8* @zen_concat(i8* %directorio3, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @6, i32 0, i32 0))
+  %d3 = load i8*, i8** %d1, align 8
+  %concat4 = call i8* @zen_concat(i8* %d3, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @6, i32 0, i32 0))
   %call5 = call i8* @contar_archivo(i8* %concat4)
-  %directorio6 = load i8*, i8** %directorio1, align 8
-  %concat7 = call i8* @zen_concat(i8* %directorio6, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @7, i32 0, i32 0))
+  %d6 = load i8*, i8** %d1, align 8
+  %concat7 = call i8* @zen_concat(i8* %d6, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @7, i32 0, i32 0))
   %call8 = call i8* @contar_archivo(i8* %concat7)
-  %directorio9 = load i8*, i8** %directorio1, align 8
-  %concat10 = call i8* @zen_concat(i8* %directorio9, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @8, i32 0, i32 0))
+  %d9 = load i8*, i8** %d1, align 8
+  %concat10 = call i8* @zen_concat(i8* %d9, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @8, i32 0, i32 0))
   %call11 = call i8* @contar_archivo(i8* %concat10)
-  %directorio12 = load i8*, i8** %directorio1, align 8
-  %concat13 = call i8* @zen_concat(i8* %directorio12, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @9, i32 0, i32 0))
+  %d12 = load i8*, i8** %d1, align 8
+  %concat13 = call i8* @zen_concat(i8* %d12, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @9, i32 0, i32 0))
   %call14 = call i8* @contar_archivo(i8* %concat13)
-  %directorio15 = load i8*, i8** %directorio1, align 8
-  %concat16 = call i8* @zen_concat(i8* %directorio15, i8* getelementptr inbounds ([12 x i8], [12 x i8]* @10, i32 0, i32 0))
+  %d15 = load i8*, i8** %d1, align 8
+  %concat16 = call i8* @zen_concat(i8* %d15, i8* getelementptr inbounds ([12 x i8], [12 x i8]* @10, i32 0, i32 0))
   %call17 = call i8* @contar_archivo(i8* %concat16)
-  %directorio18 = load i8*, i8** %directorio1, align 8
-  %concat19 = call i8* @zen_concat(i8* %directorio18, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @11, i32 0, i32 0))
+  %d18 = load i8*, i8** %d1, align 8
+  %concat19 = call i8* @zen_concat(i8* %d18, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @11, i32 0, i32 0))
   %call20 = call i8* @contar_archivo(i8* %concat19)
   ret i8* null
 }
@@ -674,47 +672,46 @@ entry:
   %numstr4 = call i8* @__zen_num_to_str(double 0.000000e+00)
   store i8* %numstr4, i8** @g_czl_total, align 8
   store i8* getelementptr inbounds ([4 x i8], [4 x i8]* @12, i32 0, i32 0), i8** @g_czl_dir, align 8
-  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @13, i32 0, i32 0), i8** @g_czl_excluir, align 8
   %ESC = load i8*, i8** @g_ESC, align 8
-  %concat = call i8* @zen_concat(i8* %ESC, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @14, i32 0, i32 0))
+  %concat = call i8* @zen_concat(i8* %ESC, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @13, i32 0, i32 0))
   %ESC5 = load i8*, i8** @g_ESC, align 8
   %concat6 = call i8* @zen_concat(i8* %concat, i8* %ESC5)
-  %concat7 = call i8* @zen_concat(i8* %concat6, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @15, i32 0, i32 0))
+  %concat7 = call i8* @zen_concat(i8* %concat6, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @14, i32 0, i32 0))
   store i8* %concat7, i8** @g_header, align 8
   %ESC8 = load i8*, i8** @g_ESC, align 8
-  %concat9 = call i8* @zen_concat(i8* %ESC8, i8* getelementptr inbounds ([32 x i8], [32 x i8]* @16, i32 0, i32 0))
+  %concat9 = call i8* @zen_concat(i8* %ESC8, i8* getelementptr inbounds ([32 x i8], [32 x i8]* @15, i32 0, i32 0))
   %ESC10 = load i8*, i8** @g_ESC, align 8
   %concat11 = call i8* @zen_concat(i8* %concat9, i8* %ESC10)
-  %concat12 = call i8* @zen_concat(i8* %concat11, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @17, i32 0, i32 0))
+  %concat12 = call i8* @zen_concat(i8* %concat11, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @16, i32 0, i32 0))
   store i8* %concat12, i8** @g_title, align 8
   %ESC13 = load i8*, i8** @g_ESC, align 8
-  %concat14 = call i8* @zen_concat(i8* %ESC13, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @18, i32 0, i32 0))
+  %concat14 = call i8* @zen_concat(i8* %ESC13, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @17, i32 0, i32 0))
   %ESC15 = load i8*, i8** @g_ESC, align 8
   %concat16 = call i8* @zen_concat(i8* %concat14, i8* %ESC15)
-  %concat17 = call i8* @zen_concat(i8* %concat16, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @19, i32 0, i32 0))
+  %concat17 = call i8* @zen_concat(i8* %concat16, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @18, i32 0, i32 0))
   store i8* %concat17, i8** @g_sep, align 8
   %ESC18 = load i8*, i8** @g_ESC, align 8
-  %concat19 = call i8* @zen_concat(i8* %ESC18, i8* getelementptr inbounds ([68 x i8], [68 x i8]* @20, i32 0, i32 0))
+  %concat19 = call i8* @zen_concat(i8* %ESC18, i8* getelementptr inbounds ([68 x i8], [68 x i8]* @19, i32 0, i32 0))
   %ESC20 = load i8*, i8** @g_ESC, align 8
   %concat21 = call i8* @zen_concat(i8* %concat19, i8* %ESC20)
-  %concat22 = call i8* @zen_concat(i8* %concat21, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @21, i32 0, i32 0))
+  %concat22 = call i8* @zen_concat(i8* %concat21, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @20, i32 0, i32 0))
   store i8* %concat22, i8** @g_lang_hdr, align 8
   %ESC23 = load i8*, i8** @g_ESC, align 8
-  %concat24 = call i8* @zen_concat(i8* %ESC23, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @22, i32 0, i32 0))
+  %concat24 = call i8* @zen_concat(i8* %ESC23, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @21, i32 0, i32 0))
   store i8* %concat24, i8** @g_reset, align 8
   %ESC25 = load i8*, i8** @g_ESC, align 8
-  %concat26 = call i8* @zen_concat(i8* %ESC25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @23, i32 0, i32 0))
+  %concat26 = call i8* @zen_concat(i8* %ESC25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @22, i32 0, i32 0))
   store i8* %concat26, i8** @g_green, align 8
   %ESC27 = load i8*, i8** @g_ESC, align 8
-  %concat28 = call i8* @zen_concat(i8* %ESC27, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @24, i32 0, i32 0))
+  %concat28 = call i8* @zen_concat(i8* %ESC27, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @23, i32 0, i32 0))
   store i8* %concat28, i8** @g_cyan, align 8
   %header = load i8*, i8** @g_header, align 8
-  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @25, i32 0, i32 0), i8* %header)
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @24, i32 0, i32 0), i8* %header)
   %title = load i8*, i8** @g_title, align 8
-  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @26, i32 0, i32 0), i8* %title)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @25, i32 0, i32 0), i8* %title)
   %header29 = load i8*, i8** @g_header, align 8
-  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @27, i32 0, i32 0), i8* %header29)
-  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @29, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @28, i32 0, i32 0))
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @26, i32 0, i32 0), i8* %header29)
+  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @28, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @27, i32 0, i32 0))
   %argc30 = load i32, i32* @__zen_argc, align 4
   %argcd = sitofp i32 %argc30 to double
   %numstr31 = call i8* @__zen_num_to_str(double %argcd)
@@ -735,50 +732,50 @@ endif:                                            ; preds = %then, %entry
   %czl_dir = load i8*, i8** @g_czl_dir, align 8
   %call = call i8* @contar_dir(i8* %czl_dir)
   %lang_hdr = load i8*, i8** @g_lang_hdr, align 8
-  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @30, i32 0, i32 0), i8* %lang_hdr)
+  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @29, i32 0, i32 0), i8* %lang_hdr)
   %sep = load i8*, i8** @g_sep, align 8
-  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @31, i32 0, i32 0), i8* %sep)
+  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @30, i32 0, i32 0), i8* %sep)
   %green = load i8*, i8** @g_green, align 8
-  %concat33 = call i8* @zen_concat(i8* %green, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @32, i32 0, i32 0))
+  %concat33 = call i8* @zen_concat(i8* %green, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @31, i32 0, i32 0))
   %czl_archivos = load i8*, i8** @g_czl_archivos, align 8
   %concat34 = call i8* @zen_concat(i8* %concat33, i8* %czl_archivos)
-  %concat35 = call i8* @zen_concat(i8* %concat34, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @33, i32 0, i32 0))
+  %concat35 = call i8* @zen_concat(i8* %concat34, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @32, i32 0, i32 0))
   %czl_total = load i8*, i8** @g_czl_total, align 8
   %concat36 = call i8* @zen_concat(i8* %concat35, i8* %czl_total)
-  %concat37 = call i8* @zen_concat(i8* %concat36, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @34, i32 0, i32 0))
+  %concat37 = call i8* @zen_concat(i8* %concat36, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @33, i32 0, i32 0))
   %czl_codigo = load i8*, i8** @g_czl_codigo, align 8
   %concat38 = call i8* @zen_concat(i8* %concat37, i8* %czl_codigo)
-  %concat39 = call i8* @zen_concat(i8* %concat38, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @35, i32 0, i32 0))
+  %concat39 = call i8* @zen_concat(i8* %concat38, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @34, i32 0, i32 0))
   %czl_comentarios = load i8*, i8** @g_czl_comentarios, align 8
   %concat40 = call i8* @zen_concat(i8* %concat39, i8* %czl_comentarios)
-  %concat41 = call i8* @zen_concat(i8* %concat40, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @36, i32 0, i32 0))
+  %concat41 = call i8* @zen_concat(i8* %concat40, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @35, i32 0, i32 0))
   %czl_vacias = load i8*, i8** @g_czl_vacias, align 8
   %concat42 = call i8* @zen_concat(i8* %concat41, i8* %czl_vacias)
   %reset = load i8*, i8** @g_reset, align 8
   %concat43 = call i8* @zen_concat(i8* %concat42, i8* %reset)
-  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @37, i32 0, i32 0), i8* %concat43)
+  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @36, i32 0, i32 0), i8* %concat43)
   %sep44 = load i8*, i8** @g_sep, align 8
-  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @38, i32 0, i32 0), i8* %sep44)
+  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @37, i32 0, i32 0), i8* %sep44)
   %cyan = load i8*, i8** @g_cyan, align 8
-  %concat45 = call i8* @zen_concat(i8* %cyan, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @39, i32 0, i32 0))
+  %concat45 = call i8* @zen_concat(i8* %cyan, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @38, i32 0, i32 0))
   %czl_archivos46 = load i8*, i8** @g_czl_archivos, align 8
   %concat47 = call i8* @zen_concat(i8* %concat45, i8* %czl_archivos46)
-  %concat48 = call i8* @zen_concat(i8* %concat47, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @40, i32 0, i32 0))
+  %concat48 = call i8* @zen_concat(i8* %concat47, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @39, i32 0, i32 0))
   %czl_total49 = load i8*, i8** @g_czl_total, align 8
   %concat50 = call i8* @zen_concat(i8* %concat48, i8* %czl_total49)
-  %concat51 = call i8* @zen_concat(i8* %concat50, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @41, i32 0, i32 0))
+  %concat51 = call i8* @zen_concat(i8* %concat50, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @40, i32 0, i32 0))
   %czl_codigo52 = load i8*, i8** @g_czl_codigo, align 8
   %concat53 = call i8* @zen_concat(i8* %concat51, i8* %czl_codigo52)
-  %concat54 = call i8* @zen_concat(i8* %concat53, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @42, i32 0, i32 0))
+  %concat54 = call i8* @zen_concat(i8* %concat53, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @41, i32 0, i32 0))
   %czl_comentarios55 = load i8*, i8** @g_czl_comentarios, align 8
   %concat56 = call i8* @zen_concat(i8* %concat54, i8* %czl_comentarios55)
-  %concat57 = call i8* @zen_concat(i8* %concat56, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @43, i32 0, i32 0))
+  %concat57 = call i8* @zen_concat(i8* %concat56, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @42, i32 0, i32 0))
   %czl_vacias58 = load i8*, i8** @g_czl_vacias, align 8
   %concat59 = call i8* @zen_concat(i8* %concat57, i8* %czl_vacias58)
   %reset60 = load i8*, i8** @g_reset, align 8
   %concat61 = call i8* @zen_concat(i8* %concat59, i8* %reset60)
-  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @44, i32 0, i32 0), i8* %concat61)
+  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @43, i32 0, i32 0), i8* %concat61)
   %header62 = load i8*, i8** @g_header, align 8
-  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @45, i32 0, i32 0), i8* %header62)
+  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @44, i32 0, i32 0), i8* %header62)
   ret i32 0
 }

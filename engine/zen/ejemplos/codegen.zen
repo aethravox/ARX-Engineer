@@ -57,6 +57,14 @@ extern "libc" strcat(ptr, ptr) -> ptr
 extern "libc" sprintf(ptr, str, double) -> int
 extern "libc" strtod(ptr, ptr) -> double
 
+extern "libLLVM" zen_concat(ptr, ptr) -> ptr
+extern "libLLVM" __zen_num_to_str(double) -> ptr
+extern "libLLVM" __zen_list_create() -> ptr
+extern "libLLVM" __zen_list_push(ptr, ptr) -> void
+extern "libLLVM" __zen_list_get(ptr, double) -> ptr
+extern "libLLVM" __zen_struct_create(double) -> ptr
+extern "libLLVM" __zen_struct_get(ptr, double) -> ptr
+
 extern "libLLVM" LLVMBuildPhi(ptr, str) -> ptr
 extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
 extern "libLLVM" LLVMGetInsertBlock(ptr) -> ptr
@@ -298,6 +306,31 @@ funcion codegen_statement(estado, nodo)
         LLVMPositionBuilderAtEnd(b, end_bb)
         retorna 0
     si tipo == 14
+        nombre = nodo_nombre(nodo)
+        hijos = nodo.hijos
+        desde_val = codegen_expresion(estado, hijos[0])
+        hasta_val = codegen_expresion(estado, hijos[1])
+        main_fn = LLVMGetNamedFunction(mod, "main")
+        loop_var = LLVMBuildAlloca(b, LLVMDoubleType(), nombre)
+        LLVMBuildStore(b, desde_val, loop_var)
+        cond_bb = LLVMAppendBasicBlock(main_fn, "for.cond")
+        body_bb = LLVMAppendBasicBlock(main_fn, "for.body")
+        end_bb = LLVMAppendBasicBlock(main_fn, "for.end")
+        LLVMBuildBr(b, cond_bb)
+        LLVMPositionBuilderAtEnd(b, cond_bb)
+        cur_val = LLVMBuildLoad(b, loop_var, nombre)
+        cmp = LLVMBuildFCmp(b, 4, cur_val, hasta_val, "forcmp")
+        LLVMBuildCondBr(b, cmp, body_bb, end_bb)
+        LLVMPositionBuilderAtEnd(b, body_bb)
+        idx = 2
+        num_hijos = longitud(hijos)
+        mientras idx < num_hijos
+            codegen_statement(estado, hijos[idx])
+            idx = idx + 1
+        next_val = LLVMBuildFAdd(b, cur_val, LLVMConstReal(LLVMDoubleType(), 1), "forinc")
+        LLVMBuildStore(b, next_val, loop_var)
+        LLVMBuildBr(b, cond_bb)
+        LLVMPositionBuilderAtEnd(b, end_bb)
         retorna 0
     si tipo == 18
         retorna 0
