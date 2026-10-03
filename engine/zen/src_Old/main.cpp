@@ -311,7 +311,7 @@ int main(int argc, char* argv[]) {
             auto reqLibs = codegen.getRequiredLibs();
             for (const auto& lib : reqLibs) {
                 // Saltar librerias del sistema que ya vienen con cc
-                if (lib == "libc" || lib == "libm" || lib == "c" || lib == "m") continue;
+                if (lib == "libc" || lib == "libm" || lib == "c" || lib == "m" || lib == "libLLVM") continue;
                 std::string libPath = "thirdparty/" + lib + "/lib";
                 linkCmd += " -L" + libPath + " -l" + lib;
             }
@@ -324,6 +324,12 @@ int main(int argc, char* argv[]) {
             }
             // -lm al final para que el linker resuelva dependencias de librerias externas
             linkCmd += " -lm";
+            // Si se uso libLLVM, agregar LLVM del sistema
+            for (const auto& lib : reqLibs) {
+                if (lib == "libLLVM") {
+                    linkCmd += " build/libzen.a -L/usr/lib/llvm-14/lib -lLLVM-14 -lstdc++ -lpthread";
+                }
+            }
 
             std::cout << "\033[90mLinkeando: \033[0m" << linkCmd << "\n";
 
