@@ -5,11 +5,19 @@ source_filename = "zen"
 @1 = private unnamed_addr constant [3 x i8] c"%g\00", align 1
 @empty = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @2 = private unnamed_addr constant [6 x i8] c"linux\00", align 1
+@g_ESC = internal global i8* null
 @g_czl_archivos = internal global i8* null
 @g_czl_codigo = internal global i8* null
 @g_czl_comentarios = internal global i8* null
 @g_czl_vacias = internal global i8* null
 @g_czl_total = internal global i8* null
+@g_header = internal global i8* null
+@g_title = internal global i8* null
+@g_sep = internal global i8* null
+@g_lang_hdr = internal global i8* null
+@g_reset = internal global i8* null
+@g_green = internal global i8* null
+@g_cyan = internal global i8* null
 @3 = private unnamed_addr constant [3 x i8] c"rb\00", align 1
 @4 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @5 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
@@ -32,30 +40,44 @@ source_filename = "zen"
 @22 = private unnamed_addr constant [3 x i8] c"no\00", align 1
 @23 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
 @24 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@25 = private unnamed_addr constant [33 x i8] c"=== CZL - Counting Zen Lines ===\00", align 1
-@26 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@27 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@28 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@29 = private unnamed_addr constant [12 x i8] c"src/ast.zen\00", align 1
-@30 = private unnamed_addr constant [17 x i8] c"src/builtins.zen\00", align 1
-@31 = private unnamed_addr constant [16 x i8] c"src/codegen.zen\00", align 1
-@32 = private unnamed_addr constant [14 x i8] c"src/lexer.zen\00", align 1
-@33 = private unnamed_addr constant [13 x i8] c"src/main.zen\00", align 1
-@34 = private unnamed_addr constant [15 x i8] c"src/parser.zen\00", align 1
-@35 = private unnamed_addr constant [16 x i8] c"Archivos:      \00", align 1
+@25 = private unnamed_addr constant [47 x i8] c"[1;36m========================================\00", align 1
+@26 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@27 = private unnamed_addr constant [32 x i8] c"[1;36m CZL - Counting Zen Lines\00", align 1
+@28 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@29 = private unnamed_addr constant [47 x i8] c"[0;37m----------------------------------------\00", align 1
+@30 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@31 = private unnamed_addr constant [82 x i8] c"[1;33m Language         Files        Lines         Code     Comments       Blanks\00", align 1
+@32 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@33 = private unnamed_addr constant [4 x i8] c"[0m\00", align 1
+@34 = private unnamed_addr constant [7 x i8] c"[1;32m\00", align 1
+@35 = private unnamed_addr constant [7 x i8] c"[1;36m\00", align 1
 @36 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@37 = private unnamed_addr constant [16 x i8] c"Codigo:        \00", align 1
+@37 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @38 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@39 = private unnamed_addr constant [16 x i8] c"Comentarios:   \00", align 1
+@39 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @40 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@41 = private unnamed_addr constant [16 x i8] c"Vacias:        \00", align 1
-@42 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@43 = private unnamed_addr constant [16 x i8] c"TOTAL:         \00", align 1
-@44 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@45 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@46 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@47 = private unnamed_addr constant [15 x i8] c"=== CZL OK ===\00", align 1
+@41 = private unnamed_addr constant [12 x i8] c"src/ast.zen\00", align 1
+@42 = private unnamed_addr constant [17 x i8] c"src/builtins.zen\00", align 1
+@43 = private unnamed_addr constant [16 x i8] c"src/codegen.zen\00", align 1
+@44 = private unnamed_addr constant [14 x i8] c"src/lexer.zen\00", align 1
+@45 = private unnamed_addr constant [13 x i8] c"src/main.zen\00", align 1
+@46 = private unnamed_addr constant [15 x i8] c"src/parser.zen\00", align 1
+@47 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @48 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@49 = private unnamed_addr constant [23 x i8] c" Zen                  \00", align 1
+@50 = private unnamed_addr constant [11 x i8] c"          \00", align 1
+@51 = private unnamed_addr constant [11 x i8] c"          \00", align 1
+@52 = private unnamed_addr constant [13 x i8] c"            \00", align 1
+@53 = private unnamed_addr constant [12 x i8] c"           \00", align 1
+@54 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@55 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@56 = private unnamed_addr constant [22 x i8] c" Total               \00", align 1
+@57 = private unnamed_addr constant [11 x i8] c"          \00", align 1
+@58 = private unnamed_addr constant [11 x i8] c"          \00", align 1
+@59 = private unnamed_addr constant [13 x i8] c"            \00", align 1
+@60 = private unnamed_addr constant [12 x i8] c"           \00", align 1
+@61 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@62 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -614,6 +636,11 @@ endif85:                                          ; preds = %else84, %then83
 
 define i32 @main() {
 entry:
+  %chrbuf = call i8* @malloc(i64 2)
+  store i8 27, i8* %chrbuf, align 1
+  %nullptr = getelementptr i8, i8* %chrbuf, i64 1
+  store i8 0, i8* %nullptr, align 1
+  store i8* %chrbuf, i8** @g_ESC, align 8
   %numstr = call i8* @__zen_num_to_str(double 0.000000e+00)
   store i8* %numstr, i8** @g_czl_archivos, align 8
   %numstr1 = call i8* @__zen_num_to_str(double 0.000000e+00)
@@ -624,30 +651,97 @@ entry:
   store i8* %numstr3, i8** @g_czl_vacias, align 8
   %numstr4 = call i8* @__zen_num_to_str(double 0.000000e+00)
   store i8* %numstr4, i8** @g_czl_total, align 8
-  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @26, i32 0, i32 0), i8* getelementptr inbounds ([33 x i8], [33 x i8]* @25, i32 0, i32 0))
-  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @28, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @27, i32 0, i32 0))
-  %call = call i8* @contar_archivo(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @29, i32 0, i32 0))
-  %call5 = call i8* @contar_archivo(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @30, i32 0, i32 0))
-  %call6 = call i8* @contar_archivo(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @31, i32 0, i32 0))
-  %call7 = call i8* @contar_archivo(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @32, i32 0, i32 0))
-  %call8 = call i8* @contar_archivo(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @33, i32 0, i32 0))
-  %call9 = call i8* @contar_archivo(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @34, i32 0, i32 0))
+  %ESC = load i8*, i8** @g_ESC, align 8
+  %concat = call i8* @zen_concat(i8* %ESC, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @25, i32 0, i32 0))
+  %ESC5 = load i8*, i8** @g_ESC, align 8
+  %concat6 = call i8* @zen_concat(i8* %concat, i8* %ESC5)
+  %concat7 = call i8* @zen_concat(i8* %concat6, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @26, i32 0, i32 0))
+  store i8* %concat7, i8** @g_header, align 8
+  %ESC8 = load i8*, i8** @g_ESC, align 8
+  %concat9 = call i8* @zen_concat(i8* %ESC8, i8* getelementptr inbounds ([32 x i8], [32 x i8]* @27, i32 0, i32 0))
+  %ESC10 = load i8*, i8** @g_ESC, align 8
+  %concat11 = call i8* @zen_concat(i8* %concat9, i8* %ESC10)
+  %concat12 = call i8* @zen_concat(i8* %concat11, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @28, i32 0, i32 0))
+  store i8* %concat12, i8** @g_title, align 8
+  %ESC13 = load i8*, i8** @g_ESC, align 8
+  %concat14 = call i8* @zen_concat(i8* %ESC13, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @29, i32 0, i32 0))
+  %ESC15 = load i8*, i8** @g_ESC, align 8
+  %concat16 = call i8* @zen_concat(i8* %concat14, i8* %ESC15)
+  %concat17 = call i8* @zen_concat(i8* %concat16, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @30, i32 0, i32 0))
+  store i8* %concat17, i8** @g_sep, align 8
+  %ESC18 = load i8*, i8** @g_ESC, align 8
+  %concat19 = call i8* @zen_concat(i8* %ESC18, i8* getelementptr inbounds ([82 x i8], [82 x i8]* @31, i32 0, i32 0))
+  %ESC20 = load i8*, i8** @g_ESC, align 8
+  %concat21 = call i8* @zen_concat(i8* %concat19, i8* %ESC20)
+  %concat22 = call i8* @zen_concat(i8* %concat21, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @32, i32 0, i32 0))
+  store i8* %concat22, i8** @g_lang_hdr, align 8
+  %ESC23 = load i8*, i8** @g_ESC, align 8
+  %concat24 = call i8* @zen_concat(i8* %ESC23, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @33, i32 0, i32 0))
+  store i8* %concat24, i8** @g_reset, align 8
+  %ESC25 = load i8*, i8** @g_ESC, align 8
+  %concat26 = call i8* @zen_concat(i8* %ESC25, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @34, i32 0, i32 0))
+  store i8* %concat26, i8** @g_green, align 8
+  %ESC27 = load i8*, i8** @g_ESC, align 8
+  %concat28 = call i8* @zen_concat(i8* %ESC27, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @35, i32 0, i32 0))
+  store i8* %concat28, i8** @g_cyan, align 8
+  %header = load i8*, i8** @g_header, align 8
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @36, i32 0, i32 0), i8* %header)
+  %title = load i8*, i8** @g_title, align 8
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @37, i32 0, i32 0), i8* %title)
+  %header29 = load i8*, i8** @g_header, align 8
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @38, i32 0, i32 0), i8* %header29)
+  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @40, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @39, i32 0, i32 0))
+  %call = call i8* @contar_archivo(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @41, i32 0, i32 0))
+  %call30 = call i8* @contar_archivo(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @42, i32 0, i32 0))
+  %call31 = call i8* @contar_archivo(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @43, i32 0, i32 0))
+  %call32 = call i8* @contar_archivo(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @44, i32 0, i32 0))
+  %call33 = call i8* @contar_archivo(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @45, i32 0, i32 0))
+  %call34 = call i8* @contar_archivo(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @46, i32 0, i32 0))
+  %lang_hdr = load i8*, i8** @g_lang_hdr, align 8
+  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @47, i32 0, i32 0), i8* %lang_hdr)
+  %sep = load i8*, i8** @g_sep, align 8
+  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @48, i32 0, i32 0), i8* %sep)
+  %green = load i8*, i8** @g_green, align 8
+  %concat35 = call i8* @zen_concat(i8* %green, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @49, i32 0, i32 0))
   %czl_archivos = load i8*, i8** @g_czl_archivos, align 8
-  %concat = call i8* @zen_concat(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @35, i32 0, i32 0), i8* %czl_archivos)
-  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @36, i32 0, i32 0), i8* %concat)
-  %czl_codigo = load i8*, i8** @g_czl_codigo, align 8
-  %concat10 = call i8* @zen_concat(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @37, i32 0, i32 0), i8* %czl_codigo)
-  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @38, i32 0, i32 0), i8* %concat10)
-  %czl_comentarios = load i8*, i8** @g_czl_comentarios, align 8
-  %concat11 = call i8* @zen_concat(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @39, i32 0, i32 0), i8* %czl_comentarios)
-  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @40, i32 0, i32 0), i8* %concat11)
-  %czl_vacias = load i8*, i8** @g_czl_vacias, align 8
-  %concat12 = call i8* @zen_concat(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @41, i32 0, i32 0), i8* %czl_vacias)
-  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @42, i32 0, i32 0), i8* %concat12)
+  %concat36 = call i8* @zen_concat(i8* %concat35, i8* %czl_archivos)
+  %concat37 = call i8* @zen_concat(i8* %concat36, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @50, i32 0, i32 0))
   %czl_total = load i8*, i8** @g_czl_total, align 8
-  %concat13 = call i8* @zen_concat(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @43, i32 0, i32 0), i8* %czl_total)
-  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @44, i32 0, i32 0), i8* %concat13)
-  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @46, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @45, i32 0, i32 0))
-  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @48, i32 0, i32 0), i8* getelementptr inbounds ([15 x i8], [15 x i8]* @47, i32 0, i32 0))
+  %concat38 = call i8* @zen_concat(i8* %concat37, i8* %czl_total)
+  %concat39 = call i8* @zen_concat(i8* %concat38, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @51, i32 0, i32 0))
+  %czl_codigo = load i8*, i8** @g_czl_codigo, align 8
+  %concat40 = call i8* @zen_concat(i8* %concat39, i8* %czl_codigo)
+  %concat41 = call i8* @zen_concat(i8* %concat40, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @52, i32 0, i32 0))
+  %czl_comentarios = load i8*, i8** @g_czl_comentarios, align 8
+  %concat42 = call i8* @zen_concat(i8* %concat41, i8* %czl_comentarios)
+  %concat43 = call i8* @zen_concat(i8* %concat42, i8* getelementptr inbounds ([12 x i8], [12 x i8]* @53, i32 0, i32 0))
+  %czl_vacias = load i8*, i8** @g_czl_vacias, align 8
+  %concat44 = call i8* @zen_concat(i8* %concat43, i8* %czl_vacias)
+  %reset = load i8*, i8** @g_reset, align 8
+  %concat45 = call i8* @zen_concat(i8* %concat44, i8* %reset)
+  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @54, i32 0, i32 0), i8* %concat45)
+  %sep46 = load i8*, i8** @g_sep, align 8
+  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @55, i32 0, i32 0), i8* %sep46)
+  %cyan = load i8*, i8** @g_cyan, align 8
+  %concat47 = call i8* @zen_concat(i8* %cyan, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @56, i32 0, i32 0))
+  %czl_archivos48 = load i8*, i8** @g_czl_archivos, align 8
+  %concat49 = call i8* @zen_concat(i8* %concat47, i8* %czl_archivos48)
+  %concat50 = call i8* @zen_concat(i8* %concat49, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @57, i32 0, i32 0))
+  %czl_total51 = load i8*, i8** @g_czl_total, align 8
+  %concat52 = call i8* @zen_concat(i8* %concat50, i8* %czl_total51)
+  %concat53 = call i8* @zen_concat(i8* %concat52, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @58, i32 0, i32 0))
+  %czl_codigo54 = load i8*, i8** @g_czl_codigo, align 8
+  %concat55 = call i8* @zen_concat(i8* %concat53, i8* %czl_codigo54)
+  %concat56 = call i8* @zen_concat(i8* %concat55, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @59, i32 0, i32 0))
+  %czl_comentarios57 = load i8*, i8** @g_czl_comentarios, align 8
+  %concat58 = call i8* @zen_concat(i8* %concat56, i8* %czl_comentarios57)
+  %concat59 = call i8* @zen_concat(i8* %concat58, i8* getelementptr inbounds ([12 x i8], [12 x i8]* @60, i32 0, i32 0))
+  %czl_vacias60 = load i8*, i8** @g_czl_vacias, align 8
+  %concat61 = call i8* @zen_concat(i8* %concat59, i8* %czl_vacias60)
+  %reset62 = load i8*, i8** @g_reset, align 8
+  %concat63 = call i8* @zen_concat(i8* %concat61, i8* %reset62)
+  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @61, i32 0, i32 0), i8* %concat63)
+  %header64 = load i8*, i8** @g_header, align 8
+  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @62, i32 0, i32 0), i8* %header64)
   ret i32 0
 }

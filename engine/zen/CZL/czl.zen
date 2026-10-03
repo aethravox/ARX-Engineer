@@ -1,6 +1,7 @@
 extern "libc" printf(str) -> int
 extern "libc" strlen(str) -> int
 
+ESC = char_to_str(27)
 czl_archivos = 0
 czl_codigo = 0
 czl_comentarios = 0
@@ -50,7 +51,17 @@ funcion contar_archivo(ruta)
             czl_codigo = czl_codigo + 1
     czl_archivos = czl_archivos + 1
 
-muestra "=== CZL - Counting Zen Lines ==="
+header = ESC + "[1;36m========================================" + ESC + "[0m"
+title = ESC + "[1;36m CZL - Counting Zen Lines" + ESC + "[0m"
+sep = ESC + "[0;37m----------------------------------------" + ESC + "[0m"
+lang_hdr = ESC + "[1;33m Language         Files        Lines         Code     Comments       Blanks" + ESC + "[0m"
+reset = ESC + "[0m"
+green = ESC + "[1;32m"
+cyan = ESC + "[1;36m"
+
+muestra header
+muestra title
+muestra header
 muestra ""
 contar_archivo("src/ast.zen")
 contar_archivo("src/builtins.zen")
@@ -58,10 +69,9 @@ contar_archivo("src/codegen.zen")
 contar_archivo("src/lexer.zen")
 contar_archivo("src/main.zen")
 contar_archivo("src/parser.zen")
-muestra "Archivos:      " + czl_archivos
-muestra "Codigo:        " + czl_codigo
-muestra "Comentarios:   " + czl_comentarios
-muestra "Vacias:        " + czl_vacias
-muestra "TOTAL:         " + czl_total
-muestra ""
-muestra "=== CZL OK ==="
+muestra lang_hdr
+muestra sep
+muestra green + " Zen                  " + czl_archivos + "          " + czl_total + "          " + czl_codigo + "            " + czl_comentarios + "           " + czl_vacias + reset
+muestra sep
+muestra cyan + " Total               " + czl_archivos + "          " + czl_total + "          " + czl_codigo + "            " + czl_comentarios + "           " + czl_vacias + reset
+muestra header

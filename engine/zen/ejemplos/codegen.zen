@@ -212,6 +212,27 @@ funcion codegen_statement(estado, nodo)
         LLVMBuildRet(b, val)
         retorna 0
     si tipo == 20
+        nombre = nodo_nombre(nodo)
+        hijos = nodo.hijos
+        num_hijos = longitud(hijos)
+        num_params = 0
+        idx = 0
+        mientras idx < num_hijos
+            si nodo_tipo(hijos[idx]) == 5
+                num_params = num_params + 1
+                idx = idx + 1
+            sino
+                romper
+        double_ty = LLVMDoubleType()
+        func_type = LLVMFunctionType(double_ty, 0, 0)
+        func = LLVMAddFunction(mod, nombre, func_type)
+        entry_bb = LLVMAppendBasicBlock(func, "entry")
+        LLVMPositionBuilderAtEnd(b, entry_bb)
+        body_idx = num_params
+        mientras body_idx < num_hijos
+            codegen_statement(estado, hijos[body_idx])
+            body_idx = body_idx + 1
+        LLVMPositionBuilderAtEnd(b, LLVMAppendBasicBlock(LLVMGetNamedFunction(mod, "main"), "resume"))
         retorna 0
     si tipo == 22
         hijos = nodo.hijos
@@ -286,5 +307,5 @@ funcion codegen_finalize(estado)
 muestra "=== Codegen de Zen escrito en Zen ==="
 muestra "Nodos: NumberLit, StringLit, BoolLit, NullLit, BinaryOp, UnaryOp"
 muestra "       FuncCall(muestra/longitud/numero), Print, Assign, Return"
-muestra "       FuncDecl, ExprStmt, IfStmt(COND BR), WhileStmt(LOOP)"
+muestra "       FuncDecl(crear+body), ExprStmt, IfStmt(COND BR), WhileStmt(LOOP)"
 muestra "FFI: 50+ funciones LLVM-C"
