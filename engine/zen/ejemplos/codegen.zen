@@ -1,0 +1,186 @@
+
+extern "libLLVM" LLVMModuleCreateWithName(str) -> ptr
+extern "libLLVM" LLVMCreateBuilder() -> ptr
+extern "libLLVM" LLVMDisposeBuilder(ptr) -> void
+extern "libLLVM" LLVMDisposeModule(ptr) -> void
+extern "libLLVM" LLVMDumpModule(ptr) -> void
+extern "libLLVM" LLVMPrintModuleToFile(ptr, str, ptr) -> int
+
+extern "libLLVM" LLVMInt1Type() -> ptr
+extern "libLLVM" LLVMInt8Type() -> ptr
+extern "libLLVM" LLVMInt32Type() -> ptr
+extern "libLLVM" LLVMInt64Type() -> ptr
+extern "libLLVM" LLVMFloatType() -> ptr
+extern "libLLVM" LLVMDoubleType() -> ptr
+extern "libLLVM" LLVMInt8PtrType() -> ptr
+extern "libLLVM" LLVMVoidType() -> ptr
+extern "libLLVM" LLVMFunctionType(ptr, ptr, int) -> ptr
+
+extern "libLLVM" LLVMAddFunction(ptr, str, ptr) -> ptr
+extern "libLLVM" LLVMGetParam(ptr, int) -> ptr
+
+extern "libLLVM" LLVMAppendBasicBlock(ptr, str) -> ptr
+extern "libLLVM" LLVMPositionBuilderAtEnd(ptr, ptr) -> void
+
+extern "libLLVM" LLVMBuildRet(ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildRetVoid(ptr) -> ptr
+extern "libLLVM" LLVMBuildAdd(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildSub(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildMul(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildSDiv(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFAdd(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFSub(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFMul(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFDiv(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildAlloca(ptr, str) -> ptr
+extern "libLLVM" LLVMBuildStore(ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildLoad(ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildCall(ptr, ptr, ptr, int, str) -> ptr
+
+extern "libLLVM" LLVMConstReal(ptr, double) -> ptr
+extern "libLLVM" LLVMConstString(str, int, int) -> ptr
+extern "libLLVM" LLVMConstInt(ptr, int, int) -> ptr
+
+extern "libLLVM" LLVMBuildUIToFP(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildSIToFP(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildFPToSI(ptr, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildIntToPtr(ptr, ptr, ptr, str) -> ptr
+
+extern "libLLVM" LLVMBuildFCmp(ptr, int, ptr, ptr, str) -> ptr
+extern "libLLVM" LLVMBuildICmp(ptr, int, ptr, ptr, str) -> ptr
+
+extern "libLLVM" LLVMBuildBr(ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildCondBr(ptr, ptr, ptr, ptr) -> ptr
+extern "libLLVM" LLVMBuildPhi(ptr, str) -> ptr
+extern "libLLVM" LLVMAddIncoming(ptr, ptr, ptr, int, ptr) -> void
+
+extern "libc" printf(str) -> int
+extern "libc" malloc(int) -> ptr
+extern "libc" strlen(str) -> int
+
+CodeGenState {modulo, builder, tipos, funciones, variables}
+
+NODO_NUMBER = 1
+NODO_STRING = 2
+NODO_BOOL = 3
+NODO_NULL = 4
+NODO_IDENTIFIER = 5
+NODO_BINARY_OP = 6
+NODO_UNARY_OP = 7
+NODO_FUNC_CALL = 9
+NODO_ASSIGN = 10
+NODO_PRINT = 12
+NODO_IF = 13
+NODO_WHILE = 16
+NODO_FUNC_DECL = 20
+NODO_RETURN = 21
+
+funcion estado_modulo(e)
+    retorna e.modulo
+
+funcion estado_builder(e)
+    retorna e.builder
+
+funcion estado_modulo(e)
+    retorna e.modulo
+
+funcion estado_builder(e)
+    retorna e.builder
+
+funcion nodo_tipo(n)
+    retorna n.tipo
+
+funcion nodo_valor(n)
+    retorna n.valor
+
+funcion nodo_nombre(n)
+    retorna n.nombre
+
+funcion nodo_op(n)
+    retorna n.op
+
+funcion nodo_linea(n)
+    retorna n.linea
+
+funcion codegen_init()
+    estado = CodeGenState {modulo: 0, builder: 0, tipos: 0, funciones: 0, variables: 0}
+    estado.modulo = LLVMModuleCreateWithName("zen")
+    estado.builder = LLVMCreateBuilder()
+    retorna estado
+funcion codegen_declarar_externs(estado)
+    i8ptr = LLVMInt8PtrType()
+    i32 = LLVMInt32Type()
+    printf_type = LLVMFunctionType(i32, i8ptr, 1)
+    LLVMAddFunction(estado_modulo(estado), "printf", printf_type)
+    i64 = LLVMInt64Type()
+    malloc_type = LLVMFunctionType(i8ptr, i64, 0)
+    LLVMAddFunction(estado_modulo(estado), "malloc", malloc_type)
+    strlen_type = LLVMFunctionType(i64, i8ptr, 0)
+    LLVMAddFunction(estado_modulo(estado), "strlen", strlen_type)
+funcion codegen_expresion(estado, nodo)
+    tipo = nodo_tipo(nodo)
+    si tipo == NODO_NUMBER
+        double_ty = LLVMDoubleType()
+        val = numero(nodo_valor(nodo))
+        retorna LLVMConstReal(double_ty, val)
+    si tipo == NODO_STRING
+        retorna LLVMConstString(nodo_valor(nodo), 0, 0)
+    si tipo == NODO_IDENTIFIER
+        retorna 0
+    si tipo == NODO_BINARY_OP
+        retorna 0
+    si tipo == NODO_FUNC_CALL
+        retorna 0
+    retorna 0
+funcion codegen_statement(estado, nodo)
+    tipo = nodo_tipo(nodo)
+    si tipo == NODO_PRINT
+        retorna 0
+    si tipo == NODO_ASSIGN
+        retorna 0
+    si tipo == NODO_IF
+        retorna 0
+    si tipo == NODO_WHILE
+        retorna 0
+    si tipo == NODO_FUNC_DECL
+        retorna 0
+    si tipo == NODO_RETURN
+        retorna 0
+funcion codegen_programa(estado, programa)
+    codegen_declarar_externs(estado)
+    i32 = LLVMInt32Type()
+    main_type = LLVMFunctionType(i32, 0, 0)
+    main_func = LLVMAddFunction(estado_modulo(estado), "main", main_type)
+    entry = LLVMAppendBasicBlock(main_func, "entry")
+    LLVMPositionBuilderAtEnd(estado_builder(estado), entry)
+    para cada stmt en programa
+        codegen_statement(estado, stmt)
+    LLVMBuildRet(estado_builder(estado), LLVMConstInt(i32, 0, 0))
+funcion codegen_compilar(estado, ruta_salida)
+    LLVMPrintModuleToFile(estado_modulo(estado), ruta_salida, nada)
+funcion codegen_finalize(estado)
+    LLVMDisposeBuilder(estado_builder(estado))
+    LLVMDisposeModule(estado_modulo(estado))
+muestra "=== Codegen de Zen escrito en Zen ==="
+muestra "Etapa 4: Zen sobre Zen"
+muestra ""
+muestra "FFI a LLVM-C API declarado:"
+muestra "  - LLVMModuleCreateWithName, LLVMCreateBuilder"
+muestra "  - LLVMBuildAdd, LLVMBuildSub, LLVMBuildMul, LLVMBuildFDiv"
+muestra "  - LLVMConstReal, LLVMConstString, LLVMConstInt"
+muestra "  - LLVMAppendBasicBlock, LLVMBuildRet, LLVMBuildCall"
+muestra "  - LLVMBuildCondBr, LLVMBuildPhi (control de flujo)"
+muestra "  - LLVMPrintModuleToFile (output)"
+muestra ""
+muestra "Funciones codegen:"
+muestra "  - codegen_init() -> estado"
+muestra "  - codegen_declarar_externs(estado)"
+muestra "  - codegen_expresion(estado, nodo) -> valor LLVM"
+muestra "  - codegen_statement(estado, nodo)"
+muestra "  - codegen_programa(estado, programa)"
+muestra "  - codegen_compilar(estado, ruta)"
+muestra ""
+muestra "Codegen en Zen cargado OK!"
+muestra ""
+muestra "PENDIENTE: implementar codegen_expresion y codegen_statement"
+muestra "con todos los tipos de nodo del AST."
