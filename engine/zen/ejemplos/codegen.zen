@@ -354,6 +354,6 @@ funcion codegen_finalize(estado)
     LLVMDisposeModule(estado_modulo(estado))
 muestra "=== Codegen de Zen escrito en Zen ==="
 muestra "Nodos: NumberLit, StringLit, BoolLit, NullLit, BinaryOp, UnaryOp"
-muestra "       FuncCall(muestra/longitud/numero), Print, Assign, Return"
+muestra "       FuncCall(muestra/longitud/numero/texto/concat), Print, Assign, Return"
 muestra "       FuncDecl(crear+body), ExprStmt, IfStmt(COND BR), WhileStmt(LOOP)"
 muestra "FFI: 50+ funciones LLVM-C"
