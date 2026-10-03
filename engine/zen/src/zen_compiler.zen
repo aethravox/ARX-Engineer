@@ -1005,6 +1005,16 @@ funcion codegen_statement(estado, nodo)
         loop_end_bb = old_end
         loop_cond_bb = old_cond
         retorna 0
+    si tipo == 29
+        hijos = nodo.hijos
+        base = codegen_expresion(estado, hijos[0])
+        val = codegen_expresion(estado, hijos[1])
+        set_fn = LLVMGetNamedFunction(mod, "__zen_struct_set")
+        si set_fn != 0
+            field_idx = LLVMConstReal(LLVMDoubleType(), 0)
+            args = [base, field_idx, val]
+            LLVMBuildCall(b, set_fn, args, 3, "sset")
+        retorna 0
     si tipo == 18
         si loop_end_bb != 0
             LLVMBuildBr(b, loop_end_bb)
@@ -1012,6 +1022,8 @@ funcion codegen_statement(estado, nodo)
     si tipo == 19
         si loop_cond_bb != 0
             LLVMBuildBr(b, loop_cond_bb)
+        retorna 0
+    si tipo == 30
         retorna 0
     retorna 0
 funcion codegen_struct_lit(estado, nodo)
