@@ -8338,116 +8338,110 @@ then84:                                           ; preds = %endif40
   %c2d93 = sitofp i32 %c_call92 to double
   %c_call94 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @332, i32 0, i32 0))
   %c2d95 = sitofp i32 %c_call94 to double
-  %estado96 = load i8*, i8** %estado, align 8
-  %call97 = call i8* @codegen_finalize(i8* %estado96)
-  %numstr98 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr98
+  %numstr96 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr96
 
 endif85:                                          ; preds = %endif40
-  %estado99 = load i8*, i8** %estado, align 8
-  %ll_file100 = load i8*, i8** %ll_file, align 8
-  %call101 = call i8* @codegen_compilar(i8* %estado99, i8* %ll_file100)
-  %c_call102 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @333, i32 0, i32 0))
-  %c2d103 = sitofp i32 %c_call102 to double
-  %ll_file104 = load i8*, i8** %ll_file, align 8
-  %c_call105 = call i32 (i8*, ...) @printf(i8* %ll_file104)
+  %estado97 = load i8*, i8** %estado, align 8
+  %ll_file98 = load i8*, i8** %ll_file, align 8
+  %call99 = call i8* @codegen_compilar(i8* %estado97, i8* %ll_file98)
+  %c_call100 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @333, i32 0, i32 0))
+  %c2d101 = sitofp i32 %c_call100 to double
+  %ll_file102 = load i8*, i8** %ll_file, align 8
+  %c_call103 = call i32 (i8*, ...) @printf(i8* %ll_file102)
+  %c2d104 = sitofp i32 %c_call103 to double
+  %c_call105 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @334, i32 0, i32 0))
   %c2d106 = sitofp i32 %c_call105 to double
-  %c_call107 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @334, i32 0, i32 0))
-  %c2d108 = sitofp i32 %c_call107 to double
-  %emitir_obj109 = load i1, i1* %emitir_obj, align 1
-  br i1 %emitir_obj109, label %then110, label %endif111
+  %emitir_obj107 = load i1, i1* %emitir_obj, align 1
+  br i1 %emitir_obj107, label %then108, label %endif109
 
-then110:                                          ; preds = %endif85
-  %base112 = load i8*, i8** %base, align 8
-  %concat113 = call i8* @zen_concat(i8* %base112, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @335, i32 0, i32 0))
-  store i8* %concat113, i8** %obj_file, align 8
-  %c_call114 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([35 x i8], [35 x i8]* @336, i32 0, i32 0))
-  %c2d115 = sitofp i32 %c_call114 to double
-  %estado116 = load i8*, i8** %estado, align 8
-  %obj_file117 = load i8*, i8** %obj_file, align 8
-  %call118 = call i8* @codegen_compilar_nativo(i8* %estado116, i8* %obj_file117)
-  %c_call119 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @337, i32 0, i32 0))
-  %c2d120 = sitofp i32 %c_call119 to double
-  %obj_file121 = load i8*, i8** %obj_file, align 8
-  %c_call122 = call i32 (i8*, ...) @printf(i8* %obj_file121)
+then108:                                          ; preds = %endif85
+  %base110 = load i8*, i8** %base, align 8
+  %concat111 = call i8* @zen_concat(i8* %base110, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @335, i32 0, i32 0))
+  store i8* %concat111, i8** %obj_file, align 8
+  %c_call112 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([35 x i8], [35 x i8]* @336, i32 0, i32 0))
+  %c2d113 = sitofp i32 %c_call112 to double
+  %estado114 = load i8*, i8** %estado, align 8
+  %obj_file115 = load i8*, i8** %obj_file, align 8
+  %call116 = call i8* @codegen_compilar_nativo(i8* %estado114, i8* %obj_file115)
+  %c_call117 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @337, i32 0, i32 0))
+  %c2d118 = sitofp i32 %c_call117 to double
+  %obj_file119 = load i8*, i8** %obj_file, align 8
+  %c_call120 = call i32 (i8*, ...) @printf(i8* %obj_file119)
+  %c2d121 = sitofp i32 %c_call120 to double
+  %c_call122 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @338, i32 0, i32 0))
   %c2d123 = sitofp i32 %c_call122 to double
-  %c_call124 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @338, i32 0, i32 0))
-  %c2d125 = sitofp i32 %c_call124 to double
-  %estado126 = load i8*, i8** %estado, align 8
-  %call127 = call i8* @codegen_finalize(i8* %estado126)
-  %numstr128 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr128
+  %numstr124 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr124
 
-endif111:                                         ; preds = %endif85
-  %compilar_exe129 = load i1, i1* %compilar_exe, align 1
-  %ejecutar130 = load i1, i1* %ejecutar, align 1
-  %or = or i1 %compilar_exe129, %ejecutar130
-  br i1 %or, label %then131, label %endif132
+endif109:                                         ; preds = %endif85
+  %compilar_exe125 = load i1, i1* %compilar_exe, align 1
+  %ejecutar126 = load i1, i1* %ejecutar, align 1
+  %or = or i1 %compilar_exe125, %ejecutar126
+  br i1 %or, label %then127, label %endif128
 
-then131:                                          ; preds = %endif111
-  %base133 = load i8*, i8** %base, align 8
-  %concat134 = call i8* @zen_concat(i8* %base133, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @339, i32 0, i32 0))
-  store i8* %concat134, i8** %obj_file, align 8
-  %c_call135 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([38 x i8], [38 x i8]* @340, i32 0, i32 0))
-  %c2d136 = sitofp i32 %c_call135 to double
-  %estado137 = load i8*, i8** %estado, align 8
+then127:                                          ; preds = %endif109
+  %base129 = load i8*, i8** %base, align 8
+  %concat130 = call i8* @zen_concat(i8* %base129, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @339, i32 0, i32 0))
+  store i8* %concat130, i8** %obj_file, align 8
+  %c_call131 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([38 x i8], [38 x i8]* @340, i32 0, i32 0))
+  %c2d132 = sitofp i32 %c_call131 to double
+  %estado133 = load i8*, i8** %estado, align 8
+  %obj_file134 = load i8*, i8** %obj_file, align 8
+  %call135 = call i8* @codegen_compilar_nativo(i8* %estado133, i8* %obj_file134)
+  %c_call136 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @341, i32 0, i32 0))
+  %c2d137 = sitofp i32 %c_call136 to double
   %obj_file138 = load i8*, i8** %obj_file, align 8
-  %call139 = call i8* @codegen_compilar_nativo(i8* %estado137, i8* %obj_file138)
-  %c_call140 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @341, i32 0, i32 0))
-  %c2d141 = sitofp i32 %c_call140 to double
-  %obj_file142 = load i8*, i8** %obj_file, align 8
-  %c_call143 = call i32 (i8*, ...) @printf(i8* %obj_file142)
-  %c2d144 = sitofp i32 %c_call143 to double
-  %c_call145 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @342, i32 0, i32 0))
-  %c2d146 = sitofp i32 %c_call145 to double
-  %obj_file147 = load i8*, i8** %obj_file, align 8
-  %concat148 = call i8* @zen_concat(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @343, i32 0, i32 0), i8* %obj_file147)
-  %concat149 = call i8* @zen_concat(i8* %concat148, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @344, i32 0, i32 0))
-  %base150 = load i8*, i8** %base, align 8
-  %concat151 = call i8* @zen_concat(i8* %concat149, i8* %base150)
-  %concat152 = call i8* @zen_concat(i8* %concat151, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @345, i32 0, i32 0))
-  store i8* %concat152, i8** %link_cmd, align 8
-  %c_call153 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @346, i32 0, i32 0))
-  %c2d154 = sitofp i32 %c_call153 to double
-  %link_cmd155 = load i8*, i8** %link_cmd, align 8
-  %c_call156 = call i32 (i8*, ...) @printf(i8* %link_cmd155)
-  %c2d157 = sitofp i32 %c_call156 to double
-  %c_call158 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @347, i32 0, i32 0))
-  %c2d159 = sitofp i32 %c_call158 to double
-  %link_cmd160 = load i8*, i8** %link_cmd, align 8
-  %c_call161 = call i32 @system(i8* %link_cmd160)
-  %c2d162 = sitofp i32 %c_call161 to double
-  %c_call163 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @348, i32 0, i32 0))
-  %c2d164 = sitofp i32 %c_call163 to double
-  %base165 = load i8*, i8** %base, align 8
-  %c_call166 = call i32 (i8*, ...) @printf(i8* %base165)
-  %c2d167 = sitofp i32 %c_call166 to double
-  %c_call168 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @349, i32 0, i32 0))
-  %c2d169 = sitofp i32 %c_call168 to double
-  %ejecutar170 = load i1, i1* %ejecutar, align 1
-  br i1 %ejecutar170, label %then171, label %endif172
+  %c_call139 = call i32 (i8*, ...) @printf(i8* %obj_file138)
+  %c2d140 = sitofp i32 %c_call139 to double
+  %c_call141 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @342, i32 0, i32 0))
+  %c2d142 = sitofp i32 %c_call141 to double
+  %obj_file143 = load i8*, i8** %obj_file, align 8
+  %concat144 = call i8* @zen_concat(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @343, i32 0, i32 0), i8* %obj_file143)
+  %concat145 = call i8* @zen_concat(i8* %concat144, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @344, i32 0, i32 0))
+  %base146 = load i8*, i8** %base, align 8
+  %concat147 = call i8* @zen_concat(i8* %concat145, i8* %base146)
+  %concat148 = call i8* @zen_concat(i8* %concat147, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @345, i32 0, i32 0))
+  store i8* %concat148, i8** %link_cmd, align 8
+  %c_call149 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @346, i32 0, i32 0))
+  %c2d150 = sitofp i32 %c_call149 to double
+  %link_cmd151 = load i8*, i8** %link_cmd, align 8
+  %c_call152 = call i32 (i8*, ...) @printf(i8* %link_cmd151)
+  %c2d153 = sitofp i32 %c_call152 to double
+  %c_call154 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @347, i32 0, i32 0))
+  %c2d155 = sitofp i32 %c_call154 to double
+  %link_cmd156 = load i8*, i8** %link_cmd, align 8
+  %c_call157 = call i32 @system(i8* %link_cmd156)
+  %c2d158 = sitofp i32 %c_call157 to double
+  %c_call159 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @348, i32 0, i32 0))
+  %c2d160 = sitofp i32 %c_call159 to double
+  %base161 = load i8*, i8** %base, align 8
+  %c_call162 = call i32 (i8*, ...) @printf(i8* %base161)
+  %c2d163 = sitofp i32 %c_call162 to double
+  %c_call164 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @349, i32 0, i32 0))
+  %c2d165 = sitofp i32 %c_call164 to double
+  %ejecutar166 = load i1, i1* %ejecutar, align 1
+  br i1 %ejecutar166, label %then167, label %endif168
 
-endif132:                                         ; preds = %endif172, %endif111
-  %estado182 = load i8*, i8** %estado, align 8
-  %call183 = call i8* @codegen_finalize(i8* %estado182)
-  %numstr184 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr184
+endif128:                                         ; preds = %endif168, %endif109
+  %numstr178 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr178
 
-then171:                                          ; preds = %then131
-  %c_call173 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @350, i32 0, i32 0))
-  %c2d174 = sitofp i32 %c_call173 to double
-  %base175 = load i8*, i8** %base, align 8
-  %concat176 = call i8* @zen_concat(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @351, i32 0, i32 0), i8* %base175)
-  store i8* %concat176, i8** %run_cmd, align 8
-  %run_cmd177 = load i8*, i8** %run_cmd, align 8
-  %c_call178 = call i32 @system(i8* %run_cmd177)
-  %c2d179 = sitofp i32 %c_call178 to double
-  %c_call180 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @352, i32 0, i32 0))
-  %c2d181 = sitofp i32 %c_call180 to double
-  br label %endif172
+then167:                                          ; preds = %then127
+  %c_call169 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @350, i32 0, i32 0))
+  %c2d170 = sitofp i32 %c_call169 to double
+  %base171 = load i8*, i8** %base, align 8
+  %concat172 = call i8* @zen_concat(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @351, i32 0, i32 0), i8* %base171)
+  store i8* %concat172, i8** %run_cmd, align 8
+  %run_cmd173 = load i8*, i8** %run_cmd, align 8
+  %c_call174 = call i32 @system(i8* %run_cmd173)
+  %c2d175 = sitofp i32 %c_call174 to double
+  %c_call176 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @352, i32 0, i32 0))
+  %c2d177 = sitofp i32 %c_call176 to double
+  br label %endif168
 
-endif172:                                         ; preds = %then171, %then131
-  br label %endif132
+endif168:                                         ; preds = %then167, %then127
+  br label %endif128
 }
 
 define i32 @main(i32 %argc, i8** %argv) {

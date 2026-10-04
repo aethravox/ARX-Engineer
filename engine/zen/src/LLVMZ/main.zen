@@ -124,7 +124,7 @@ funcion principal()
         printf("--- LLVM IR generado en ")
         printf(ll_file)
         printf(" ---\n")
-        codegen_finalize(estado)
+        # codegen_finalize(estado)  # comentado: causa segfault
         retorna 0
     codegen_compilar(estado, ll_file)
     printf("   OK: ")
@@ -137,7 +137,7 @@ funcion principal()
         printf("   OK: ")
         printf(obj_file)
         printf(" generado\n")
-        codegen_finalize(estado)
+        # codegen_finalize(estado)  # comentado: causa segfault
         retorna 0
     si compilar_exe o ejecutar
         obj_file = base + ".o"
@@ -159,7 +159,7 @@ funcion principal()
             run_cmd = "./" + base
             system(run_cmd)
             printf("--- Fin ejecucion ---\n")
-    codegen_finalize(estado)
+    # codegen_finalize(estado)  # comentado: causa segfault
     retorna 0
 
 # ============================================================
