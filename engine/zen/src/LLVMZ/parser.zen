@@ -49,10 +49,30 @@ funcion match_token(tipo)
         retorna verdad
     retorna falso
 
+# Salta todos los NEWLINE seguidos (lineas vacias y de comentario generan uno cada una)
+funcion saltar_nuevas_lineas()
+    mientras token_tipo(peek()) == 67
+        avanzar()
+
+# Salta NEWLINE y DEDENT sueltos (solo a nivel superior)
+funcion saltar_separadores()
+    seguir = verdad
+    mientras seguir == verdad
+        seguir = falso
+        si token_tipo(peek()) == 67
+            avanzar()
+            seguir = verdad
+        si token_tipo(peek()) == 69
+            avanzar()
+            seguir = verdad
+
+# Si el token no es el esperado: error y salir.
+# (Antes solo imprimia y seguia SIN avanzar, y los bucles del parser giraban para siempre)
 funcion consumir(tipo, msg)
     si token_tipo(peek()) == tipo
         retorna avanzar()
     muestra "ERROR: " + msg + " en linea " + token_linea(peek())
+    salir(1)
     retorna peek()
 
 # ============================================================
@@ -76,11 +96,11 @@ funcion es_fin_bloque(tipo)
 
 funcion parsear_bloque()
     stmts = []
-    mientras no es_fin_bloque(token_tipo(peek()))
+    saltar_nuevas_lineas()
+    mientras es_fin_bloque(token_tipo(peek())) == falso
         s = parsear_statement()
         agregar(stmts, s)
-        mientras token_tipo(peek()) == 67
-            avanzar()
+        saltar_nuevas_lineas()
     si token_tipo(peek()) == 69
         avanzar()
     retorna stmts
@@ -121,8 +141,7 @@ funcion parsear_print()
 funcion parsear_si()
     t = avanzar()
     cond = parsear_expresion()
-    si token_tipo(peek()) == 67
-        avanzar()
+    saltar_nuevas_lineas()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
@@ -145,8 +164,7 @@ funcion parsear_si()
             elif_stmt = parsear_si()
             agregar(sino_cuerpo, elif_stmt)
         sino
-            si token_tipo(peek()) == 67
-                avanzar()
+            saltar_nuevas_lineas()
             si token_tipo(peek()) == 68
                 avanzar()
             sino_cuerpo = parsear_bloque()
@@ -162,8 +180,7 @@ funcion parsear_si()
 funcion parsear_mientras()
     t = avanzar()
     cond = parsear_expresion()
-    si token_tipo(peek()) == 67
-        avanzar()
+    saltar_nuevas_lineas()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
@@ -178,8 +195,7 @@ funcion parsear_repetir()
     cuenta = parsear_expresion()
     si token_tipo(peek()) == 14
         avanzar()
-    si token_tipo(peek()) == 67
-        avanzar()
+    saltar_nuevas_lineas()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
@@ -200,8 +216,7 @@ funcion parsear_funcion()
             avanzar()
             agregar(params, token_valor(avanzar()))
     consumir(58, "Se esperaba ) ")
-    si token_tipo(peek()) == 67
-        avanzar()
+    saltar_nuevas_lineas()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
@@ -222,8 +237,7 @@ funcion parsear_para()
         si token_tipo(peek()) == 9
             avanzar()
             hasta_expr = parsear_expresion()
-        si token_tipo(peek()) == 67
-            avanzar()
+        saltar_nuevas_lineas()
         si token_tipo(peek()) == 68
             avanzar()
         cuerpo = parsear_bloque()
@@ -452,6 +466,10 @@ funcion parsear_primario()
                 agregar(n.hijos, a)
             retorna n
         return crear_nodo(5, token_valor(t), token_linea(t))
+    # Este token no puede empezar una expresion. Antes se devolvia un nodo vacio
+    # SIN consumir el token y los bucles del parser giraban para siempre.
+    muestra "ERROR: Token inesperado '" + token_valor(t) + "' (tipo " + token_tipo(t) + ") en linea " + token_linea(t)
+    salir(1)
     return crear_nodo(4, "nada", token_linea(t))
 
 # ============================================================
@@ -462,25 +480,9 @@ funcion parsear(lista_tokens)
     tokens_parser = lista_tokens
     pos_parser = 0
     programa = []
-    max_iter = 500
-    iter = 0
+    saltar_separadores()
     mientras token_tipo(peek()) != 0
-        iter = iter + 1
-        si iter > max_iter
-            romper
         s = parsear_statement()
         agregar(programa, s)
-        # saltar newlines (67) y dedents (69)
-        saltar = falso
-        si token_tipo(peek()) == 67
-            saltar = verdad
-        si token_tipo(peek()) == 69
-            saltar = verdad
-        mientras saltar == verdad
-            avanzar()
-            saltar = falso
-            si token_tipo(peek()) == 67
-                saltar = verdad
-            si token_tipo(peek()) == 69
-                saltar = verdad
+        saltar_separadores()
     retorna programa
