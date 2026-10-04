@@ -205,6 +205,10 @@ LLVMValueRef zen_neg(LLVMBuilderRef B, LLVMValueRef V, const char* Name) {
     return LLVMBuildNeg(B, V, Name);
 }
 
+
+extern "C" int zen_is_null(LLVMValueRef val) {
+    return val == NULL ? 1 : 0;
+}
 } // extern "C"
 
 // ============================================================
