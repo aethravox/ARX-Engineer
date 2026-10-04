@@ -11,6 +11,7 @@ importar "lexer"
 extern "libLLVM" __zen_list_len(ptr) -> long
 extern "libLLVM" __zen_list_get(ptr, long) -> ptr
 extern "libc" printf(str) -> int
+extern "libc" strcmp(str, str) -> int
 
 # ============================================================
 # Estado del parser (modulo-level)
@@ -73,7 +74,6 @@ funcion consumir(tipo, msg)
         retorna avanzar()
     muestra "ERROR: " + msg + " en linea " + token_linea(peek())
     salir(1)
-    retorna peek()
 
 # ============================================================
 # Bloques y statements
@@ -105,7 +105,26 @@ funcion parsear_bloque()
         avanzar()
     retorna stmts
 
+# Parsea: extern "lib" nombre(args) -> tipo
+# Lee y descarta la declaracion extern (no genera nodo AST)
+# Salta todos los tokens hasta encontrar NEWLINE o EOF
+funcion parsear_extern()
+    avanzar()
+    mientras token_tipo(peek()) != 67
+        si token_tipo(peek()) == 0
+            retorna nada
+        avanzar()
+    # Saltar NEWLINE y DEDENT
+    mientras token_tipo(peek()) == 67
+        avanzar()
+    mientras token_tipo(peek()) == 69
+        avanzar()
+    retorna nada
+
 funcion parsear_statement()
+    # Saltar DEDENTs sueltos
+    mientras token_tipo(peek()) == 69
+        avanzar()
     t = peek()
     si token_tipo(t) == 19
         return parsear_print()
@@ -119,10 +138,15 @@ funcion parsear_statement()
         return parsear_repetir()
     si token_tipo(t) == 17
         return parsear_funcion()
+    # extern: detectar con strcmp
+    si strcmp(token_valor(t), "extern") == 0
+        return parsear_extern()
     si token_tipo(t) == 18
         avanzar()
         expr = parsear_expresion()
-        return crear_nodo(21, "", token_linea(t))
+        n_ret = crear_nodo(21, "", token_linea(t))
+        agregar(n_ret.hijos, expr)
+        return n_ret
     si token_tipo(t) == 15
         avanzar()
         return crear_nodo(18, "", token_linea(t))
@@ -470,7 +494,6 @@ funcion parsear_primario()
     # SIN consumir el token y los bucles del parser giraban para siempre.
     muestra "ERROR: Token inesperado '" + token_valor(t) + "' (tipo " + token_tipo(t) + ") en linea " + token_linea(t)
     salir(1)
-    return crear_nodo(4, "nada", token_linea(t))
 
 # ============================================================
 # Entry point del parser
