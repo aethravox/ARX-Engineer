@@ -185,11 +185,17 @@ funcion codegen_expresion(estado, nodo)
     si zen_is_null(nodo) == 1
         retorna 0
     tipo = nodo_tipo(nodo)
+    si zen_is_null(tipo) == 1
+        retorna 0
     si tipo == 1
-        # NODO_NUMBER: usar zen_constreal en vez de LLVMConstReal
-        retorna zen_constreal(LLVMDoubleType(), numero(nodo_valor(nodo)))
+        val_str = nodo_valor(nodo)
+        si zen_is_null(val_str) == 1
+            retorna 0
+        retorna zen_constreal(LLVMDoubleType(), numero(val_str))
     si tipo == 2
         str_val = nodo_valor(nodo)
+        si zen_is_null(str_val) == 1
+            retorna 0
         ret = LLVMConstString(str_val, 0, 0)
         gvar = LLVMAddGlobal(estado_modulo(estado), LLVMInt8Type(), ".str")
         LLVMSetInitializer(gvar, ret)
@@ -204,14 +210,17 @@ funcion codegen_expresion(estado, nodo)
     si tipo == 4
         retorna LLVMConstPointerNull(i8ptr_type())
     si tipo == 5
-        # NODO_IDENTIFIER: cargar variable global
         nombre = nodo_valor(nodo)
+        si zen_is_null(nombre) == 1
+            retorna 0
         gvar = zen_getnamedglobal(estado_modulo(estado), nombre)
         si gvar != 0
             retorna zen_load(estado_builder(estado), gvar, nombre)
         retorna 0
     si tipo == 6
         op = nodo_op(nodo)
+        si zen_is_null(op) == 1
+            retorna 0
         hijos = nodo.hijos
         left = codegen_expresion(estado, hijos[0])
         right = codegen_expresion(estado, hijos[1])
@@ -264,8 +273,9 @@ funcion codegen_expresion(estado, nodo)
         # select(cond, then, else)
         retorna LLVMBuildSelect(b, cond, then_val, else_val, "ternary")
     si tipo == 9
-        # FuncCall
         nombre = nodo_nombre(nodo)
+        si zen_is_null(nombre) == 1
+            retorna 0
         hijos = nodo.hijos
         b = estado_builder(estado)
         mod = estado_modulo(estado)
@@ -344,6 +354,8 @@ funcion codegen_statement(estado, nodo)
     si zen_is_null(nodo) == 1
         retorna 0
     tipo = nodo_tipo(nodo)
+    si zen_is_null(tipo) == 1
+        retorna 0
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     si tipo == 12
@@ -358,9 +370,10 @@ funcion codegen_statement(estado, nodo)
         zen_printf_call(b, mod, arg)
         retorna 0
     si tipo == 10
-        # NODO_ASSIGN: x = valor
         hijos = nodo.hijos
         nombre = nodo_nombre(nodo)
+        si zen_is_null(nombre) == 1
+            retorna 0
         tipo_hijo = nodo_tipo(hijos[0])
         # Si el valor es NUMBER, usar zen_assign_double (recibe double)
         si tipo_hijo == 1
@@ -373,6 +386,8 @@ funcion codegen_statement(estado, nodo)
         retorna 0
     si tipo == 20
         nombre = nodo_nombre(nodo)
+        si zen_is_null(nombre) == 1
+            retorna 0
         hijos = nodo.hijos
         num_hijos = longitud(hijos)
         num_params = 0
