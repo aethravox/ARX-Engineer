@@ -26,15 +26,15 @@ funcion peek()
     idx = pos_parser
     n = __zen_list_len(tokens_parser)
     si idx >= n
-        retorna __zen_list_get(tokens_parser, n - 1)
-    retorna __zen_list_get(tokens_parser, idx)
+        idx = n - 1
+    retorna tokens_parser[idx]
 
 funcion avanzar()
     idx = pos_parser
     n = __zen_list_len(tokens_parser)
     si idx >= n
         idx = n - 1
-    t = __zen_list_get(tokens_parser, idx)
+    t = tokens_parser[idx]
     si pos_parser < n - 1
         pos_parser = pos_parser + 1
     retorna t
