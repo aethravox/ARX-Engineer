@@ -1,0 +1,13 @@
+# test_sino_anidado.zen
+extern "libc" printf(str) -> int
+
+funcion test(a)
+    si a == 1
+        printf("uno\n")
+    sino
+        si a == 2
+            printf("dos\n")
+        sino
+            printf("otro\n")
+
+test(1)

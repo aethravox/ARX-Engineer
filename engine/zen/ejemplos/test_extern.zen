@@ -1,0 +1,4 @@
+# test_extern.zen
+extern "libc" printf(str) -> int
+
+muestra "test"

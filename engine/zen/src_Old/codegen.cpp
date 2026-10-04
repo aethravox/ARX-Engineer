@@ -56,6 +56,16 @@ LLVMValueRef zen_call4(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMV
     return LLVMBuildCall(B, Fn, args, 4, Name);
 }
 
+LLVMValueRef zen_call5(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMValueRef a1, LLVMValueRef a2, LLVMValueRef a3, LLVMValueRef a4, const char* Name) {
+    LLVMValueRef args[5] = { a0, a1, a2, a3, a4 };
+    return LLVMBuildCall(B, Fn, args, 5, Name);
+}
+
+LLVMValueRef zen_call6(LLVMBuilderRef B, LLVMValueRef Fn, LLVMValueRef a0, LLVMValueRef a1, LLVMValueRef a2, LLVMValueRef a3, LLVMValueRef a4, LLVMValueRef a5, const char* Name) {
+    LLVMValueRef args[6] = { a0, a1, a2, a3, a4, a5 };
+    return LLVMBuildCall(B, Fn, args, 6, Name);
+}
+
 // Wrappers adicionales para operaciones LLVM que necesitan LLVMValueRef nativo
 // (sin boxing a string)
 LLVMValueRef zen_alloca(LLVMBuilderRef B, LLVMTypeRef Ty, const char* Name) {
@@ -205,9 +215,96 @@ LLVMValueRef zen_neg(LLVMBuilderRef B, LLVMValueRef V, const char* Name) {
     return LLVMBuildNeg(B, V, Name);
 }
 
+// ============================================================
+// zen_function_type_N: wrappers para LLVMFunctionType
+// Necesario porque Zen no puede pasar arrays de LLVMTypeRef.
+// Crea un tipo funcion con N params (todos del mismo tipo que se pasa).
+// ============================================================
+
+LLVMTypeRef zen_function_type_0(LLVMTypeRef retTy, int isVarArg) {
+    return LLVMFunctionType(retTy, NULL, 0, isVarArg);
+}
+
+LLVMTypeRef zen_function_type_1(LLVMTypeRef retTy, LLVMTypeRef p0, int isVarArg) {
+    LLVMTypeRef params[1] = { p0 };
+    return LLVMFunctionType(retTy, params, 1, isVarArg);
+}
+
+LLVMTypeRef zen_function_type_2(LLVMTypeRef retTy, LLVMTypeRef p0, LLVMTypeRef p1, int isVarArg) {
+    LLVMTypeRef params[2] = { p0, p1 };
+    return LLVMFunctionType(retTy, params, 2, isVarArg);
+}
+
+LLVMTypeRef zen_function_type_3(LLVMTypeRef retTy, LLVMTypeRef p0, LLVMTypeRef p1, LLVMTypeRef p2, int isVarArg) {
+    LLVMTypeRef params[3] = { p0, p1, p2 };
+    return LLVMFunctionType(retTy, params, 3, isVarArg);
+}
+
+LLVMTypeRef zen_function_type_4(LLVMTypeRef retTy, LLVMTypeRef p0, LLVMTypeRef p1, LLVMTypeRef p2, LLVMTypeRef p3, int isVarArg) {
+    LLVMTypeRef params[4] = { p0, p1, p2, p3 };
+    return LLVMFunctionType(retTy, params, 4, isVarArg);
+}
+
+LLVMTypeRef zen_function_type_5(LLVMTypeRef retTy, LLVMTypeRef p0, LLVMTypeRef p1, LLVMTypeRef p2, LLVMTypeRef p3, LLVMTypeRef p4, int isVarArg) {
+    LLVMTypeRef params[5] = { p0, p1, p2, p3, p4 };
+    return LLVMFunctionType(retTy, params, 5, isVarArg);
+}
+
+LLVMTypeRef zen_function_type_6(LLVMTypeRef retTy, LLVMTypeRef p0, LLVMTypeRef p1, LLVMTypeRef p2, LLVMTypeRef p3, LLVMTypeRef p4, LLVMTypeRef p5, int isVarArg) {
+    LLVMTypeRef params[6] = { p0, p1, p2, p3, p4, p5 };
+    return LLVMFunctionType(retTy, params, 6, isVarArg);
+}
+
+// ============================================================
+// zen_gep_1, zen_gep_2: wrappers para LLVMBuildGEP
+// Necesario porque Zen no puede pasar arrays de LLVMValueRef.
+// ============================================================
+
+LLVMValueRef zen_gep_1(LLVMBuilderRef B, LLVMTypeRef Ty, LLVMValueRef Ptr, LLVMValueRef i0, const char* Name) {
+    LLVMValueRef indices[1] = { i0 };
+    return LLVMBuildGEP(B, Ptr, indices, 1, Name);
+    (void)Ty;
+}
+
+LLVMValueRef zen_gep_2(LLVMBuilderRef B, LLVMTypeRef Ty, LLVMValueRef Ptr, LLVMValueRef i0, LLVMValueRef i1, const char* Name) {
+    LLVMValueRef indices[2] = { i0, i1 };
+    return LLVMBuildGEP(B, Ptr, indices, 2, Name);
+    (void)Ty;
+}
+
+// ============================================================
+// zen_const_array_n: wrappers para LLVMConstArray
+// ============================================================
+
+LLVMValueRef zen_const_array_1(LLVMTypeRef ElemTy, LLVMValueRef v0) {
+    LLVMValueRef vals[1] = { v0 };
+    return LLVMConstArray(ElemTy, vals, 1);
+}
+
+LLVMValueRef zen_const_array_2(LLVMTypeRef ElemTy, LLVMValueRef v0, LLVMValueRef v1) {
+    LLVMValueRef vals[2] = { v0, v1 };
+    return LLVMConstArray(ElemTy, vals, 2);
+}
+
+// ============================================================
+// zen_add_incoming_2: wrapper para LLVMAddIncoming con 2 incoming values
+// ============================================================
+
+void zen_add_incoming_2(LLVMValueRef Phi, LLVMValueRef v0, LLVMValueRef bb0, LLVMValueRef v1, LLVMValueRef bb1) {
+    LLVMValueRef vals[2] = { v0, v1 };
+    LLVMBasicBlockRef bbs[2] = { (LLVMBasicBlockRef)bb0, (LLVMBasicBlockRef)bb1 };
+    LLVMAddIncoming(Phi, vals, bbs, 2);
+}
 
 extern "C" int zen_is_null(LLVMValueRef val) {
     return val == NULL ? 1 : 0;
+}
+
+extern "C" int zen_bb_has_terminator(LLVMBuilderRef B) {
+    LLVMBasicBlockRef bb = LLVMGetInsertBlock(B);
+    if (!bb) return 0;
+    LLVMValueRef term = LLVMGetBasicBlockTerminator(bb);
+    return term != nullptr ? 1 : 0;
 }
 } // extern "C"
 
@@ -1171,6 +1268,12 @@ void CodeGen::generateFunctionBody(FuncDecl* node) {
 // ============================================================
 
 void CodeGen::generateNode(ASTNode* node) {
+    // Fix: si el bb actual ya tiene terminator (return/break/continue/salir),
+    // crear un dead_bb para que el siguiente statement no se agregue al bb terminado
+    if (builder.GetInsertBlock()->getTerminator()) {
+        llvm::BasicBlock* dead = llvm::BasicBlock::Create(context, "dead", currentFunction);
+        builder.SetInsertPoint(dead);
+    }
     switch (node->kind) {
         case NodeType::PrintStmt:    generatePrint(static_cast<PrintStmt*>(node)); break;
         case NodeType::AssignStmt:   generateAssign(static_cast<AssignStmt*>(node)); break;
@@ -1207,6 +1310,11 @@ void CodeGen::generateNode(ASTNode* node) {
 // Igual que generateNode pero para dentro de bucles
 // (hace branch al break/continue BB si ya hay terminador)
 void CodeGen::generateNodeInLoop(ASTNode* node) {
+    // Fix: si el bb actual ya tiene terminator, crear dead_bb
+    if (builder.GetInsertBlock()->getTerminator()) {
+        llvm::BasicBlock* dead = llvm::BasicBlock::Create(context, "dead", currentFunction);
+        builder.SetInsertPoint(dead);
+    }
     generateNode(node);
 }
 

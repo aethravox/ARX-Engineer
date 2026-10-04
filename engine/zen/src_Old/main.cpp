@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <algorithm>
+#include <unistd.h>  // getpid() para .o unicos en /tmp
 
 void printBanner() {
     std::cout << "\033[32m";
@@ -114,7 +115,6 @@ std::string resolveImports(const std::string& source, const std::string& baseDir
                 std::string impSource = readFile(tryPath);
                 std::string impDir = getDir(tryPath);
                 result += "# Import: " + tryPath + "\n";
-                std::cerr << "DEBUG: trying " << tryPath << std::endl;
                 result += resolveImports(impSource, impDir);
                 result += "\n# --- end of import ---\n\n";
             }
@@ -199,6 +199,8 @@ int main(int argc, char* argv[]) {
         importedFiles.clear();
         importedFiles.push_back(inputFile);
         std::string baseDir = getDir(inputFile);
+        // Insertar marker de archivo inicial para que el lexer trackee filename
+        source = "# Import: " + inputFile + "\n" + source;
         source = resolveImports(source, baseDir);
 
         // 2. Lexico
@@ -228,6 +230,7 @@ int main(int argc, char* argv[]) {
 
         if (codegen.verify()) {
             std::cerr << "\033[31mERROR: El modulo LLVM generado es invalido.\033[0m\n";
+            // El IR se mantiene en memoria en codegen.getIR() — no escribir al disco del proyecto
             return 1;
         }
 
@@ -242,16 +245,16 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 
-        // --- Modo por defecto: .ll ---
-        std::string llFile = outBase + ".ll";
+        // --- Modo por defecto: mostrar resumen del IR (en RAM, no al disco) ---
+        // El IR completo vive en codegen.getIR() y solo se materializa a /tmp si hace falta
+        // para --obj / --build / --run (que lo pasan a LLVM directamente).
         {
-            std::ofstream out(llFile);
-            out << ir;
-            out.close();
-            std::cout << "\033[32m   OK: \033[0m" << llFile << " generado (" << ir.size() << " bytes)\n\n";
+            std::cout << "\033[32m   OK: \033[0m" << outBase << " IR generado ("
+                      << ir.size() << " bytes, en RAM)\n\n";
         }
 
         // --- Modo --obj ---
+        // El .o se escribe donde el usuario espera (junto al .zen) — el .ll nunca toca disco
         if (emitObj) {
             std::string objFile = outBase + ".o";
             std::cout << "\033[90mGenerando codigo objeto nativo...\033[0m\n";
@@ -285,20 +288,26 @@ int main(int argc, char* argv[]) {
             std::string link_error;
             if (!zen::link_object(objFile, exeFile, targetPlatform, libs, link_error)) {
                 std::cerr << "ERROR al linkear: " << link_error << "\n";
+                cleanupFile(objFile);  // limpiar .o temporal
                 return 1;
             }
+            cleanupFile(objFile);  // limpiar .o temporal tras linkeo exitoso
             std::cout << "   OK: " << exeFile << " generado\n\n";
             return 0;
         }
 
         // --- Modo --build / --run ---
+        // El .o se genera temporalmente en /tmp, NO en el directorio del proyecto
         if (buildExe || runAfter) {
-            std::string objFile = outBase + ".o";
+            // Generar .o en /tmp para no ensuciar el directorio del proyecto
+            // (cuando se haga el refactor de compilacion modular, cada .zen → su .o en /tmp/zen_build/)
+            std::string objFile = "/tmp/zen_" + outBase + "_" + std::to_string(getpid()) + ".o";
             std::string exeFile = outBase;
 
             std::cout << "\033[90mCompilando a codigo objeto nativo...\033[0m\n";
             if (!codegen.emitObjectFile(objFile)) {
                 std::cerr << "\033[31mERROR al generar codigo objeto.\033[0m\n";
+                cleanupFile(objFile);
                 return 1;
             }
             std::cout << "\033[32m   OK: \033[0m" << objFile << " generado\n";

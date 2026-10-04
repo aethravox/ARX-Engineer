@@ -106,6 +106,7 @@ struct Token {
     std::string value;
     int line;
     int col;
+    std::string filename;  // archivo donde aparece el token (para errores claros)
 };
 
 // Resultado del lexer: tokens + idioma detectado
@@ -124,6 +125,7 @@ class Lexer {
     std::vector<Token> tokens;
     std::vector<int> indentStack = {0};
     std::string detectedLang;  // idioma del archivo
+    std::string currentFile;  // archivo que se esta procesando (trackeado via # Import: markers)
 
     void handleIndent(int indent, int lineNum);
     void readString(char quote, int lineNum, int startCol);
@@ -146,4 +148,5 @@ public:
     Lexer(const std::string& source) : source(source) {}
     LexResult tokenize();
     std::string getLang() const { return detectedLang; }
+    void setFilename(const std::string& f) { currentFile = f; }
 };

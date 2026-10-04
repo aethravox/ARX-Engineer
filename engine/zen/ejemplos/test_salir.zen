@@ -1,0 +1,9 @@
+# test_salir.zen — probar el fix v5 con salir
+extern "libc" printf(str) -> int
+
+funcion main()
+    printf("antes del salir\n")
+    salir(1)
+    printf("despues del salir\n")
+
+main()

@@ -1,65 +1,23 @@
-# hola.zen — Primer ejemplo del compilador Zen
-# Compila con: clang hola.ll runtime.c -o hola -lm
+# hola.zen - Test basico para Zen
+# Sin 'fin' — los bloques se cierran por indentacion como Python
 
-# Textos
-muestra "Hola desde Zen!"
-muestra "Compilador nativo con LLVM"
-
-# Numeros
+muestra "Hola, mundo!"
 muestra 42
-muestra 3.14159
+muestra 3.14
 
-# Aritmetica
-muestra 2 + 3
-muestra 10 - 4
-muestra 6 * 7
-muestra 15 / 4
-muestra 2 ^ 10
-
-# Variables
 x = 10
-y = 25
+y = 20
 muestra x + y
 
-# Concatenacion de textos
-saludo = "Hola"
-muestra saludo + " desde Zen"
+funcion saludar(nombre)
+    muestra "Hola " + nombre
 
-# Booleanos
-muestra verdad
-muestra falso
-muestra 5 > 3
-muestra no (5 > 3)
+saludar("aethravox")
 
-# If / Else
-nota = 85
-si nota >= 90
-    muestra "Excelente"
+si x < y
+    muestra "x es menor"
 sino
-    si nota >= 70
-        muestra "Buen trabajo"
-    sino
-        muestra "Sigue esforzandote"
+    muestra "x es mayor"
 
-# For loop
-muestra ""
-muestra "Contando del 1 al 5:"
-para i desde 1 hasta 6
+para i desde 0 hasta 3
     muestra i
-
-# Funciones
-factorial(n)
-    si n <= 1
-        retorna 1
-    retorna n * factorial(n - 1)
-
-muestra ""
-muestra "Factorial de 10:"
-muestra factorial(10)
-
-# Funcion con multiples parametros
-suma(a, b)
-    retorna a + b
-
-muestra "Suma de 3 + 4:"
-muestra suma(3, 4)

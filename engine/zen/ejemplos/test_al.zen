@@ -1,0 +1,5 @@
+# test_ast_lexer.zen
+importar "ast"
+importar "lexer"
+
+muestra "ast + lexer cargados"

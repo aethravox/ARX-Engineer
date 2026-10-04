@@ -1,4 +1,4 @@
-# parser.zen — Parser de Zen escrito EN Zen
+# parser.zen — Parser de Zen escrito EN Zen (1:1 con C++)
 #
 # Modulo: funcion parsear(tokens) -> lista[Nodo]
 #         construye el AST a partir de la lista de tokens producida por lexer.
@@ -50,7 +50,7 @@ funcion match_token(tipo)
         retorna verdad
     retorna falso
 
-# Salta todos los NEWLINE seguidos (lineas vacias y de comentario generan uno cada una)
+# Salta todos los NEWLINE seguidos
 funcion saltar_nuevas_lineas()
     mientras token_tipo(peek()) == 67
         avanzar()
@@ -67,8 +67,6 @@ funcion saltar_separadores()
             avanzar()
             seguir = verdad
 
-# Si el token no es el esperado: error y salir.
-# (Antes solo imprimia y seguia SIN avanzar, y los bucles del parser giraban para siempre)
 funcion consumir(tipo, msg)
     si token_tipo(peek()) == tipo
         retorna avanzar()
@@ -88,10 +86,6 @@ funcion es_fin_bloque(tipo)
         retorna verdad
     si tipo == 6
         retorna verdad
-    si tipo == 25
-        retorna verdad
-    si tipo == 26
-        retorna verdad
     retorna falso
 
 funcion parsear_bloque()
@@ -105,21 +99,47 @@ funcion parsear_bloque()
         avanzar()
     retorna stmts
 
-# Parsea: extern "lib" nombre(args) -> tipo
-# Lee y descarta la declaracion extern (no genera nodo AST)
-# Salta todos los tokens hasta encontrar NEWLINE o EOF
+# Parsea: extern "lib" nombre(tipo1, tipo2, ...) -> tipo_ret
+# Genera un NODO_EXTERN_DECL con valor="ret|tipo1,tipo2,..."
+# C types: int, long, double, float, void, str, ptr, char
 funcion parsear_extern()
+    ln = token_linea(peek())
+    avanzar()  # 'extern'
+    # String con nombre de libreria
+    si token_tipo(peek()) != 2
+        muestra "ERROR: Se esperaba string con libreria despues de 'extern' en linea " + texto(ln)
+        salir(1)
+    lib = token_valor(avanzar())
+    # Nombre de funcion
+    nombre = token_valor(avanzar())
+    consumir(57, "Se esperaba ( despues de funcion externa")
+    # Parsear tipos de params
+    param_tipos = []
+    si token_tipo(peek()) != 58
+        agregar(param_tipos, token_valor(avanzar()))
+        # Si sigue *, es ptr: lo marcamos con sufijo
+        si strcmp(token_valor(peek()), "*") == 0
+            avanzar()
+        mientras token_tipo(peek()) == 63
+            avanzar()
+            agregar(param_tipos, token_valor(avanzar()))
+            si strcmp(token_valor(peek()), "*") == 0
+                avanzar()
+    consumir(58, "Se esperaba ) al final de params externos")
+    # Flecha -> tipo
+    si token_tipo(peek()) != 56
+        muestra "ERROR: Se esperaba -> despues de params en linea " + texto(ln)
+        salir(1)
     avanzar()
-    mientras token_tipo(peek()) != 67
-        si token_tipo(peek()) == 0
-            retorna nada
+    ret_tipo = token_valor(avanzar())
+    si strcmp(token_valor(peek()), "*") == 0
         avanzar()
     # Saltar NEWLINE y DEDENT
     mientras token_tipo(peek()) == 67
         avanzar()
     mientras token_tipo(peek()) == 69
         avanzar()
-    retorna nada
+    retorna nodo_extern_decl(lib, nombre, ret_tipo, param_tipos, ln)
 
 funcion parsear_statement()
     # Saltar DEDENTs sueltos
@@ -127,43 +147,52 @@ funcion parsear_statement()
         avanzar()
     t = peek()
     si token_tipo(t) == 19
-        return parsear_print()
+        retorna parsear_print()
     si token_tipo(t) == 4
-        return parsear_si()
+        retorna parsear_si()
     si token_tipo(t) == 7
-        return parsear_para()
+        retorna parsear_para()
     si token_tipo(t) == 10
-        return parsear_mientras()
+        retorna parsear_mientras()
     si token_tipo(t) == 13
-        return parsear_repetir()
+        retorna parsear_repetir()
     si token_tipo(t) == 17
-        return parsear_funcion()
-    # extern: detectar con strcmp
+        retorna parsear_funcion()
+    # extern: detectar con strcmp (no es keyword)
     si strcmp(token_valor(t), "extern") == 0
-        return parsear_extern()
+        retorna parsear_extern()
     si token_tipo(t) == 18
         avanzar()
         expr = parsear_expresion()
-        n_ret = crear_nodo(21, "", token_linea(t))
+        n_ret = crear_nodo(NODO_RETURN, "", token_linea(t))
         agregar(n_ret.hijos, expr)
-        return n_ret
+        retorna n_ret
     si token_tipo(t) == 15
         avanzar()
-        return crear_nodo(18, "", token_linea(t))
+        retorna crear_nodo(NODO_BREAK, "", token_linea(t))
     si token_tipo(t) == 16
         avanzar()
-        return crear_nodo(19, "", token_linea(t))
-    return parsear_expr_stmt()
+        retorna crear_nodo(NODO_CONTINUE, "", token_linea(t))
+    # plataforma: detectar con strcmp
+    si strcmp(token_valor(t), "plataforma") == 0 o strcmp(token_valor(t), "platform") == 0
+        retorna parsear_plataforma()
+    # estructura: detectar con strcmp
+    si strcmp(token_valor(t), "estructura") == 0 o strcmp(token_valor(t), "struct") == 0
+        retorna parsear_estructura_decl()
+    # estructura implicita: Nombre { campo, campo, ... }
+    si token_tipo(t) == 3
+        # lookahead: si el siguiente es '{'
+        # (lo manejamos en parsear_expr_stmt para no romper otras cosas)
+        retorna parsear_expr_stmt()
+    retorna parsear_expr_stmt()
 
 funcion parsear_print()
     t = avanzar()
     expr = parsear_expresion()
-    n = crear_nodo(12, "", token_linea(t))
-    agregar(n.hijos, expr)
-    retorna n
+    retorna nodo_print(expr, token_linea(t))
 
 funcion parsear_si()
-    t = avanzar()
+    t = avanzar()  # 'si'/'if'
     cond = parsear_expresion()
     saltar_nuevas_lineas()
     si token_tipo(peek()) == 68
@@ -174,8 +203,6 @@ funcion parsear_si()
     es_sino = falso
     si token_tipo(peek()) == 5
         es_sino = verdad
-    si token_tipo(peek()) == 6
-        es_sino = verdad
     si es_sino == verdad
         avanzar()
         # sino si / elif
@@ -185,6 +212,7 @@ funcion parsear_si()
         si token_tipo(peek()) == 6
             es_elif = verdad
         si es_elif == verdad
+            # Generar un if anidado como cuerpo del sino
             elif_stmt = parsear_si()
             agregar(sino_cuerpo, elif_stmt)
         sino
@@ -192,14 +220,7 @@ funcion parsear_si()
             si token_tipo(peek()) == 68
                 avanzar()
             sino_cuerpo = parsear_bloque()
-    n = crear_nodo(13, "", token_linea(t))
-    agregar(n.hijos, cond)
-    para cada s en cuerpo
-        agregar(n.hijos, s)
-    n.nombre = "sino"
-    para cada s in sino_cuerpo
-        agregar(n.hijos, s)
-    retorna n
+    retorna nodo_if(cond, cuerpo, sino_cuerpo, token_linea(t))
 
 funcion parsear_mientras()
     t = avanzar()
@@ -208,26 +229,18 @@ funcion parsear_mientras()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
-    n = crear_nodo(16, "", token_linea(t))
-    agregar(n.hijos, cond)
-    para cada s en cuerpo
-        agregar(n.hijos, s)
-    retorna n
+    retorna nodo_while(cond, cuerpo, token_linea(t))
 
 funcion parsear_repetir()
     t = avanzar()
     cuenta = parsear_expresion()
-    si token_tipo(peek()) == 14
+    si token_tipo(peek()) == 14  # 'veces'/'times'
         avanzar()
     saltar_nuevas_lineas()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
-    n = crear_nodo(17, "", token_linea(t))
-    agregar(n.hijos, cuenta)
-    para cada s en cuerpo
-        agregar(n.hijos, s)
-    retorna n
+    retorna nodo_repeat(cuenta, cuerpo, token_linea(t))
 
 funcion parsear_funcion()
     t = avanzar()
@@ -244,56 +257,134 @@ funcion parsear_funcion()
     si token_tipo(peek()) == 68
         avanzar()
     cuerpo = parsear_bloque()
-    n = crear_nodo(20, "", token_linea(t))
-    n.nombre = nombre_tok.valor
-    para cada p en params
-        agregar(n.hijos, crear_nodo(5, p, token_linea(t)))
-    para cada s en cuerpo
-        agregar(n.hijos, s)
-    retorna n
+    retorna nodo_func_decl(nombre_tok.valor, params, cuerpo, token_linea(t))
 
 funcion parsear_para()
-    t = avanzar()
+    t = avanzar()  # 'para'/'for'
     var_tok = avanzar()
-    si token_tipo(peek()) == 8
+    # para cada x en expr  → for-each
+    si token_tipo(peek()) == 12  # 'cada'/'each'
+        avanzar()
+        # siguiente: var_tok ya fue consumido, sera el nombre del loop var
+        # pero 'cada' espera el var antes, aqui reorganizamos:
+        # patrón correcto: para cada <var> en <iter>
+        var_name = var_tok.valor
+        # esperar 'en'/'in'
+        consumir(11, "Se esperaba 'en' despues de 'cada <var>'")
+        iterable = parsear_expresion()
+        saltar_nuevas_lineas()
+        si token_tipo(peek()) == 68
+            avanzar()
+        cuerpo = parsear_bloque()
+        retorna nodo_for_each(var_name, iterable, cuerpo, token_linea(t))
+    # para <var> desde <expr> hasta <expr>
+    si token_tipo(peek()) == 8  # 'desde'/'from'
         avanzar()
         desde_expr = parsear_expresion()
-        si token_tipo(peek()) == 9
+        si token_tipo(peek()) == 9  # 'hasta'/'to'
             avanzar()
             hasta_expr = parsear_expresion()
         saltar_nuevas_lineas()
         si token_tipo(peek()) == 68
             avanzar()
         cuerpo = parsear_bloque()
-        n = crear_nodo(14, "", token_linea(t))
-        n.nombre = var_tok.valor
-        agregar(n.hijos, desde_expr)
-        agregar(n.hijos, hasta_expr)
-        para cada s en cuerpo
-            agregar(n.hijos, s)
-        retorna n
-    retorna crear_nodo(22, "", token_linea(t))
+        retorna nodo_for_range(var_tok.valor, desde_expr, hasta_expr, cuerpo, token_linea(t))
+    retorna crear_nodo(NODO_EXPR_STMT, "", token_linea(t))
+
+funcion parsear_plataforma()
+    t = avanzar()  # 'plataforma'/'platform'
+    nombre_plat = token_valor(avanzar())
+    saltar_nuevas_lineas()
+    si token_tipo(peek()) == 68
+        avanzar()
+    cuerpo = parsear_bloque()
+    # Esperar fin_plataforma / end_platform (opcional)
+    si strcmp(token_valor(peek()), "fin_plataforma") == 0
+        avanzar()
+    si strcmp(token_valor(peek()), "end_platform") == 0
+        avanzar()
+    retorna nodo_platform(nombre_plat, cuerpo, token_linea(t))
+
+funcion parsear_estructura_decl()
+    t = avanzar()  # 'estructura'/'struct'
+    nombre = token_valor(avanzar())
+    # Esperar { campo, campo, ... }
+    consumir(61, "Se esperaba { despues de struct")
+    campos = []
+    saltar_nuevas_lineas()
+    si token_tipo(peek()) != 62  # no es '}' inmediato
+        agregar(campos, token_valor(avanzar()))
+        mientras token_tipo(peek()) == 63
+            avanzar()
+            saltar_nuevas_lineas()
+            agregar(campos, token_valor(avanzar()))
+    consumir(62, "Se esperaba } al final de struct")
+    retorna nodo_struct_decl(nombre, campos, token_linea(t))
 
 funcion parsear_expr_stmt()
+    # Detectar struct literal implicito: Nombre { campo: valor, ... }
+    t = peek()
+    si token_tipo(t) == 3  # IDENTIFIER
+        # lookahead: siguiente token
+        # (no podemos mirar sin avanzar; workaround: avanzar y ver)
+        # Para simplicidad, dejamos que parsear_expresion lo maneje
+        # (cuando vea '{' intentara StructLit)
+        ""
     expr = parsear_expresion()
     # asignacion: identificador = valor o identificador += valor
     es_assign = falso
-    si nodo_tipo(expr) == 5
-        si token_tipo(peek()) == 49
+    es_aug = falso
+    aug_op = ""
+    si nodo_tipo(expr) == NODO_IDENTIFIER
+        si token_tipo(peek()) == 49  # '='
             es_assign = verdad
-        si token_tipo(peek()) == 50
-            es_assign = verdad
+        si token_tipo(peek()) == 50  # '+='
+            es_aug = verdad
+            aug_op = "+"
+        si token_tipo(peek()) == 51  # '-='
+            es_aug = verdad
+            aug_op = "-"
+        si token_tipo(peek()) == 52  # '*='
+            es_aug = verdad
+            aug_op = "*"
+        si token_tipo(peek()) == 53  # '/='
+            es_aug = verdad
+            aug_op = "/"
+        si token_tipo(peek()) == 54  # '%='
+            es_aug = verdad
+            aug_op = "%"
+        si token_tipo(peek()) == 55  # '^='
+            es_aug = verdad
+            aug_op = "^"
     si es_assign == verdad
-        op = "="
-        si token_tipo(peek()) == 50
-            op = "+"
         avanzar()
         valor = parsear_expresion()
-        n = crear_nodo(10, "", nodo_linea(expr))
-        n.nombre = nodo_valor(expr)
-        agregar(n.hijos, valor)
-        retorna n
-    n = crear_nodo(22, "", nodo_linea(expr))
+        retorna nodo_assign(nodo_valor(expr), valor, nodo_linea(expr))
+    si es_aug == verdad
+        avanzar()
+        valor = parsear_expresion()
+        retorna nodo_aug_assign(nodo_valor(expr), aug_op, valor, nodo_linea(expr))
+    # IndexAssign: lista[0] = valor
+    si nodo_tipo(expr) == NODO_INDEX_ACCESS
+        si token_tipo(peek()) == 49
+            avanzar()
+            valor = parsear_expresion()
+            hijos = nodo_hijos(expr)
+            base = hijos[0]
+            idx = hijos[1]
+            ln = nodo_linea(expr)
+            retorna nodo_index_assign(base, idx, valor, ln)
+    # MemberAssign: obj.campo = valor
+    si nodo_tipo(expr) == NODO_MEMBER_ACCESS
+        si token_tipo(peek()) == 49
+            avanzar()
+            valor = parsear_expresion()
+            hijos = nodo_hijos(expr)
+            base = hijos[0]
+            miembro = nodo_nombre(expr)
+            ln = nodo_linea(expr)
+            retorna nodo_member_assign(base, miembro, valor, ln)
+    n = crear_nodo(NODO_EXPR_STMT, "", nodo_linea(expr))
     agregar(n.hijos, expr)
     retorna n
 
@@ -303,43 +394,35 @@ funcion parsear_expr_stmt()
 
 funcion parsear_expresion()
     expr = parsear_or()
-    si token_tipo(peek()) == 66
+    si token_tipo(peek()) == 66  # '?'
         avanzar()
         then_expr = parsear_expresion()
         consumir(65, "Se esperaba :")
         else_expr = parsear_expresion()
-        n = crear_nodo(8, "", nodo_linea(expr))
-        agregar(n.hijos, expr)
-        agregar(n.hijos, then_expr)
-        agregar(n.hijos, else_expr)
+        n = nodo_ternary(expr, then_expr, else_expr, nodo_linea(expr))
         retorna n
     retorna expr
 
 funcion parsear_or()
     left = parsear_and()
-    mientras token_tipo(peek()) == 21
+    mientras token_tipo(peek()) == 21  # 'o'/'or'
         t = avanzar()
         right = parsear_and()
-        n = crear_nodo_op(6, "or", token_linea(t))
-        agregar(n.hijos, left)
-        agregar(n.hijos, right)
+        n = nodo_binary_op("or", left, right, token_linea(t))
         left = n
     retorna left
 
 funcion parsear_and()
     left = parsear_comparacion()
-    mientras token_tipo(peek()) == 20
+    mientras token_tipo(peek()) == 20  # 'y'/'and'
         t = avanzar()
         right = parsear_comparacion()
-        n = crear_nodo_op(6, "and", token_linea(t))
-        agregar(n.hijos, left)
-        agregar(n.hijos, right)
+        n = nodo_binary_op("and", left, right, token_linea(t))
         left = n
     retorna left
 
 funcion parsear_comparacion()
     left = parsear_suma_resta()
-    # mientras token_tipo(peek()) >= 43 y <= 48
     en_rango = falso
     si token_tipo(peek()) >= 43
         si token_tipo(peek()) <= 48
@@ -347,11 +430,8 @@ funcion parsear_comparacion()
     mientras en_rango == verdad
         t = avanzar()
         right = parsear_suma_resta()
-        n = crear_nodo_op(6, token_valor(t), token_linea(t))
-        agregar(n.hijos, left)
-        agregar(n.hijos, right)
+        n = nodo_binary_op(token_valor(t), left, right, token_linea(t))
         left = n
-        # recalcular en_rango
         en_rango = falso
         si token_tipo(peek()) >= 43
             si token_tipo(peek()) <= 48
@@ -368,9 +448,7 @@ funcion parsear_suma_resta()
     mientras es_suma == verdad
         t = avanzar()
         right = parsear_mul_div()
-        n = crear_nodo_op(6, token_valor(t), token_linea(t))
-        agregar(n.hijos, left)
-        agregar(n.hijos, right)
+        n = nodo_binary_op(token_valor(t), left, right, token_linea(t))
         left = n
         es_suma = falso
         si token_tipo(peek()) == 37
@@ -391,9 +469,7 @@ funcion parsear_mul_div()
     mientras es_mul == verdad
         t = avanzar()
         right = parsear_potencia()
-        n = crear_nodo_op(6, token_valor(t), token_linea(t))
-        agregar(n.hijos, left)
-        agregar(n.hijos, right)
+        n = nodo_binary_op(token_valor(t), left, right, token_linea(t))
         left = n
         es_mul = falso
         si token_tipo(peek()) == 39
@@ -406,21 +482,25 @@ funcion parsear_mul_div()
 
 funcion parsear_potencia()
     left = parsear_unario()
-    si token_tipo(peek()) == 42
+    si token_tipo(peek()) == 42  # '^'
         t = avanzar()
         right = parsear_potencia()
-        n = crear_nodo_op(6, "^", token_linea(t))
-        agregar(n.hijos, left)
-        agregar(n.hijos, right)
+        n = nodo_binary_op("^", left, right, token_linea(t))
         retorna n
     retorna left
 
 funcion parsear_unario()
+    # unary '-'
     si token_tipo(peek()) == 38
         t = avanzar()
         operand = parsear_unario()
-        n = crear_nodo_op(7, "-", token_linea(t))
-        agregar(n.hijos, operand)
+        n = nodo_unary_op("-", operand, token_linea(t))
+        retorna n
+    # unary 'no' / 'not'
+    si token_tipo(peek()) == 22
+        t = avanzar()
+        operand = parsear_unario()
+        n = nodo_unary_op("not", operand, token_linea(t))
         retorna n
     retorna parsear_primario()
 
@@ -429,21 +509,21 @@ funcion parsear_primario()
     # verdad / yes
     si token_tipo(t) == 34
         avanzar()
-        return crear_nodo(3, token_valor(t), token_linea(t))
-    # falso / no
+        retorna nodo_bool("verdad", token_linea(t))
+    # falso
     si token_tipo(t) == 35
         avanzar()
-        return crear_nodo(3, token_valor(t), token_linea(t))
-    si token_tipo(t) == 36
+        retorna nodo_bool("falso", token_linea(t))
+    si token_tipo(t) == 36  # nada / nothing
         avanzar()
-        return crear_nodo(4, "nada", token_linea(t))
-    si token_tipo(t) == 1
+        retorna nodo_null(token_linea(t))
+    si token_tipo(t) == 1  # NUMBER
         avanzar()
-        return crear_nodo(1, token_valor(t), token_linea(t))
-    si token_tipo(t) == 2
+        retorna nodo_number(token_valor(t), token_linea(t))
+    si token_tipo(t) == 2  # STRING
         avanzar()
-        return crear_nodo(2, token_valor(t), token_linea(t))
-    si token_tipo(t) == 59
+        retorna nodo_string(token_valor(t), token_linea(t))
+    si token_tipo(t) == 59  # '['
         avanzar()
         elementos = []
         si token_tipo(peek()) != 60
@@ -452,15 +532,57 @@ funcion parsear_primario()
                 avanzar()
                 agregar(elementos, parsear_expresion())
         consumir(60, "Se esperaba ]")
-        n = crear_nodo(23, "", token_linea(t))
-        para cada e en elementos
-            agregar(n.hijos, e)
-        retorna n
-    si token_tipo(t) == 57
+        retorna nodo_list_lit(elementos, token_linea(t))
+    si token_tipo(t) == 57  # '('
         avanzar()
         expr = parsear_expresion()
         consumir(58, "Se esperaba )")
         retorna expr
+    # StructLit implicito: Nombre { campo: valor, ... }
+    si token_tipo(t) == 3  # IDENTIFIER
+        # lookahead: si siguiente es '{' y los elementos son 'campo: valor', es StructLit
+        # No podemos mirar sin avanzar. Avanzar, ver, y backtrackear si no era.
+        save_pos = pos_parser
+        avanzar()  # IDENTIFIER
+        si token_tipo(peek()) == 61  # '{'
+            # Intentar StructLit
+            struct_name = token_valor(t)
+            avanzar()  # '{'
+            saltar_nuevas_lineas()
+            campos = []
+            valores = []
+            # Si siguiente es '}', struct vacio
+            si token_tipo(peek()) != 62
+                # Parsear primer campo: nombre ':' valor  O  solo nombre
+                si token_tipo(peek()) == 3
+                    nombre_campo = token_valor(avanzar())
+                    agregar(campos, nombre_campo)
+                    si token_tipo(peek()) == 65  # ':'
+                        avanzar()
+                        agregar(valores, parsear_expresion())
+                    sino
+                        # solo nombre, valor vacio
+                        agregar(valores, nodo_null(token_linea(t)))
+                    mientras token_tipo(peek()) == 63
+                        avanzar()
+                        saltar_nuevas_lineas()
+                        nombre_campo = token_valor(avanzar())
+                        agregar(campos, nombre_campo)
+                        si token_tipo(peek()) == 65
+                            avanzar()
+                            agregar(valores, parsear_expresion())
+                        sino
+                            agregar(valores, nodo_null(token_linea(t)))
+                sino
+                    # no es StructLit, restaurar
+                    pos_parser = save_pos
+                    retorna parsear_func_call_o_id()
+            consumir(62, "Se esperaba } en struct lit")
+            retorna nodo_struct_lit(struct_name, campos, valores, token_linea(t))
+        sino
+            # no era '{', restaurar y manejar como func call o id
+            pos_parser = save_pos
+            retorna parsear_func_call_o_id()
     # identificador o keyword seguido de ( → funcion call
     es_id = falso
     si token_tipo(t) == 3
@@ -474,26 +596,59 @@ funcion parsear_primario()
     si token_tipo(t) == 11
         es_id = verdad
     si es_id == verdad
-        avanzar()
-        si token_tipo(peek()) == 57
-            avanzar()
-            args = []
-            si token_tipo(peek()) != 58
-                agregar(args, parsear_expresion())
-                mientras token_tipo(peek()) == 63
-                    avanzar()
-                    agregar(args, parsear_expresion())
-            consumir(58, "Se esperaba )")
-            n = crear_nodo(9, "", token_linea(t))
-            n.nombre = token_valor(t)
-            para cada a en args
-                agregar(n.hijos, a)
-            retorna n
-        return crear_nodo(5, token_valor(t), token_linea(t))
-    # Este token no puede empezar una expresion. Antes se devolvia un nodo vacio
-    # SIN consumir el token y los bucles del parser giraban para siempre.
-    muestra "ERROR: Token inesperado '" + token_valor(t) + "' (tipo " + token_tipo(t) + ") en linea " + token_linea(t)
+        retorna parsear_func_call_o_id()
+    # Este token no puede empezar una expresion
+    muestra "ERROR: Token inesperado '" + token_valor(t) + "' (tipo " + texto(token_tipo(t)) + ") en linea " + texto(token_linea(t))
     salir(1)
+
+# Parsea un identificador o llamada a funcion: foo, foo(a, b), foo.campo, foo[0]
+funcion parsear_func_call_o_id()
+    t = peek()
+    avanzar()  # IDENTIFIER
+    # Si sigue '(', es FuncCall
+    si token_tipo(peek()) == 57
+        avanzar()
+        args = []
+        si token_tipo(peek()) != 58
+            agregar(args, parsear_expresion())
+            mientras token_tipo(peek()) == 63
+                avanzar()
+                agregar(args, parsear_expresion())
+        consumir(58, "Se esperaba )")
+        # Postfix: .campo o [indice]
+        base = nodo_func_call(token_valor(t), args, token_linea(t))
+        retorna parsear_postfix(base)
+    # Si sigue '.', es MemberAccess
+    si token_tipo(peek()) == 64  # '.'
+        avanzar()
+        miembro_tok = avanzar()
+        base = nodo_member_access(nodo_identifier(token_valor(t), token_linea(t)), miembro_tok.valor, token_linea(t))
+        retorna parsear_postfix(base)
+    # Si sigue '[', es IndexAccess
+    si token_tipo(peek()) == 59
+        avanzar()
+        idx = parsear_expresion()
+        consumir(60, "Se esperaba ]")
+        base = nodo_index_access(nodo_identifier(token_valor(t), token_linea(t)), idx, token_linea(t))
+        retorna parsear_postfix(base)
+    # Es solo un identifier
+    retorna nodo_identifier(token_valor(t), token_linea(t))
+
+# Maneja postfix .campo, [idx] encadenados
+funcion parsear_postfix(base)
+    mientras verdad
+        si token_tipo(peek()) == 64  # '.'
+            avanzar()
+            miembro_tok = avanzar()
+            base = nodo_member_access(base, miembro_tok.valor, token_linea(miembro_tok))
+        sino
+            si token_tipo(peek()) == 59  # '['
+                avanzar()
+                idx = parsear_expresion()
+                consumir(60, "Se esperaba ]")
+                base = nodo_index_access(base, idx, token_linea(idx))
+            sino
+                retorna base
 
 # ============================================================
 # Entry point del parser

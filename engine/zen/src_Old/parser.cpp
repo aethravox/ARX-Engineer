@@ -810,9 +810,7 @@ std::unique_ptr<ASTNode> Parser::parseCallOrPrimary() {
             if (!check(TokenType::RBRACE)) {
                 // Esperamos:  nombre: valor
                 if (!isIdentifierLike(peek().type)) {
-                    throw std::runtime_error(
-                        "Se esperaba nombre de campo en struct literal linea " +
-                        std::to_string(peek().line));
+                    throwErrorWithContext("Se esperaba nombre de campo en struct literal linea ");
                 }
                 std::string fname = advance().value;
                 expect(TokenType::COLON, "Se esperaba ':' despues del nombre del campo");
@@ -824,9 +822,7 @@ std::unique_ptr<ASTNode> Parser::parseCallOrPrimary() {
                         advance();
                     if (check(TokenType::RBRACE)) break;  // trailing comma
                     if (!isIdentifierLike(peek().type)) {
-                        throw std::runtime_error(
-                            "Se esperaba nombre de campo en struct literal linea " +
-                            std::to_string(peek().line));
+                        throwErrorWithContext("Se esperaba nombre de campo en struct literal linea ");
                     }
                     std::string fname2 = advance().value;
                     expect(TokenType::COLON, "Se esperaba ':' despues del nombre del campo");
@@ -964,9 +960,7 @@ bool Parser::checkCType() {
 
 CType Parser::parseCType() {
     if (!checkCType()) {
-        throw std::runtime_error(
-            "Se esperaba tipo de C (int, double, str, etc.) en linea " +
-            std::to_string(peek().line));
+        throwErrorWithContext("Se esperaba tipo de C (int, double, str, etc.) en linea ");
     }
     std::string v = advance().value;
     if (v == "int")     return CType::Int;
@@ -1002,9 +996,7 @@ std::unique_ptr<ASTNode> Parser::parseExternDecl() {
     if (!check(TokenType::RPAREN)) {
         // ..., ...
         if (!checkCType()) {
-            throw std::runtime_error(
-                "Se esperaba tipo de C en parametros de funcion externa linea " +
-                std::to_string(peek().line));
+            throwErrorWithContext("Se esperaba tipo de C en parametros de funcion externa linea ");
         }
         CType t = parseCType();
         bool isPtr = false;
@@ -1012,9 +1004,7 @@ std::unique_ptr<ASTNode> Parser::parseExternDecl() {
         params.push_back({t, isPtr});
         while (match(TokenType::COMMA)) {
             if (!checkCType()) {
-                throw std::runtime_error(
-                    "Se esperaba tipo de C en parametros de funcion externa linea " +
-                    std::to_string(peek().line));
+                throwErrorWithContext("Se esperaba tipo de C en parametros de funcion externa linea ");
             }
             CType t2 = parseCType();
             bool isPtr2 = false;
@@ -1026,15 +1016,11 @@ std::unique_ptr<ASTNode> Parser::parseExternDecl() {
 
     // Flecha -> tipo
     if (!check(TokenType::ARROW)) {
-        throw std::runtime_error(
-            "Se esperaba '->' despues de los parametros de funcion externa linea " +
-            std::to_string(peek().line));
+        throwErrorWithContext("Se esperaba '->' despues de los parametros de funcion externa linea ");
     }
     advance();
     if (!checkCType()) {
-        throw std::runtime_error(
-            "Se esperaba tipo de C para retorno en linea " +
-            std::to_string(peek().line));
+        throwErrorWithContext("Se esperaba tipo de C para retorno en linea ");
     }
     CType retType = parseCType();
     bool retIsPtr = false;

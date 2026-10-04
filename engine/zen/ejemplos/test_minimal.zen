@@ -1,0 +1,7 @@
+# test_minimal.zen
+extern "libc" printf(str) -> int
+
+funcion hola()
+    printf("Hola\\n")
+
+hola()

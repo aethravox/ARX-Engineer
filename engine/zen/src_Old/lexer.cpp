@@ -101,7 +101,7 @@ void Lexer::processLangDirective(int lineNum, int startCol) {
             "Linea " + std::to_string(lineNum));
     }
 
-    tokens.push_back({TokenType::LANG_HASH, "#lang " + detectedLang, lineNum, startCol});
+    tokens.push_back({TokenType::LANG_HASH, "#lang " + detectedLang, lineNum, startCol, currentFile});
 }
 
 LexResult Lexer::tokenize() {
@@ -139,7 +139,7 @@ LexResult Lexer::tokenize() {
         }
         if (isEmpty) {
             if (i < lines.size() - 1)
-                tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col});
+                tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col, currentFile});
             continue;
         }
 
@@ -157,12 +157,29 @@ LexResult Lexer::tokenize() {
                 currentLine[pos + 3] == 'g') {
                 processLangDirective(this->line, col);
                 if (i < lines.size() - 1)
-                    tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col});
+                    tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col, currentFile});
+                continue;
+            }
+            // Detectar # Import: <path> para trackear filename
+            // (insertado por main.cpp resolveImports al concatenar archivos)
+            if (pos + 8 < (int)currentLine.size() &&
+                currentLine.substr(pos, 8) == "# Import") {
+                size_t colonPos = currentLine.find(':', pos);
+                if (colonPos != std::string::npos) {
+                    std::string path = currentLine.substr(colonPos + 1);
+                    size_t s = path.find_first_not_of(" \t");
+                    size_t e = path.find_last_not_of(" \t\r\n");
+                    if (s != std::string::npos) {
+                        currentFile = path.substr(s, e - s + 1);
+                    }
+                }
+                if (i < lines.size() - 1)
+                    tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col, currentFile});
                 continue;
             }
             // Es un comentario normal
             if (i < lines.size() - 1)
-                tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col});
+                tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col, currentFile});
             continue;
         }
 
@@ -199,17 +216,17 @@ LexResult Lexer::tokenize() {
         }
 
         if (i < lines.size() - 1) {
-            tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col});
+            tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col, currentFile});
         }
     }
 
     // Cerrar indentacion pendiente
     while ((int)indentStack.size() > 1) {
         indentStack.pop_back();
-        tokens.push_back({TokenType::DEDENT, "DEDENT", this->line, 1});
+        tokens.push_back({TokenType::DEDENT, "DEDENT", this->line, 1, currentFile});
     }
 
-    tokens.push_back({TokenType::EOF_TOKEN, "EOF", this->line, col});
+    tokens.push_back({TokenType::EOF_TOKEN, "EOF", this->line, col, currentFile});
     return {tokens, detectedLang};
 }
 
@@ -227,11 +244,11 @@ void Lexer::handleIndent(int indent, int lineNum) {
     int current = indentStack.back();
     if (indent > current) {
         indentStack.push_back(indent);
-        tokens.push_back({TokenType::INDENT, "INDENT", lineNum, 1});
+        tokens.push_back({TokenType::INDENT, "INDENT", lineNum, 1, currentFile});
     } else if (indent < current) {
         while ((int)indentStack.size() > 1 && indentStack.back() > indent) {
             indentStack.pop_back();
-            tokens.push_back({TokenType::DEDENT, "DEDENT", lineNum, 1});
+            tokens.push_back({TokenType::DEDENT, "DEDENT", lineNum, 1, currentFile});
         }
         if (indentStack.back() != indent) {
             throw std::runtime_error(
@@ -258,7 +275,7 @@ void Lexer::readString(char quote, int lineNum, int startCol) {
             }
         } else if (ch == quote) {
             pos++; col++;
-            tokens.push_back({TokenType::STRING, value, lineNum, startCol});
+            tokens.push_back({TokenType::STRING, value, lineNum, startCol, currentFile});
             return;
         } else {
             value += ch;
@@ -290,7 +307,7 @@ void Lexer::readFString(char quote, int lineNum, int startCol) {
             }
         } else if (ch == quote) {
             pos++; col++;
-            tokens.push_back({TokenType::FSTRING, value, lineNum, startCol});
+            tokens.push_back({TokenType::FSTRING, value, lineNum, startCol, currentFile});
             return;
         } else {
             value += ch;
@@ -316,7 +333,7 @@ void Lexer::readNumber(int lineNum, int startCol) {
         }
         pos++; col++;
     }
-    tokens.push_back({TokenType::NUMBER, value, lineNum, startCol});
+    tokens.push_back({TokenType::NUMBER, value, lineNum, startCol, currentFile});
 }
 
 void Lexer::readIdentifier(int lineNum, int startCol) {
@@ -328,7 +345,7 @@ void Lexer::readIdentifier(int lineNum, int startCol) {
     // Buscar en palabras clave
     auto it = KEYWORDS.find(value);
     TokenType type = (it != KEYWORDS.end()) ? it->second : TokenType::IDENTIFIER;
-    tokens.push_back({type, value, lineNum, startCol});
+    tokens.push_back({type, value, lineNum, startCol, currentFile});
 }
 
 void Lexer::readOperator(int lineNum, int startCol) {
@@ -347,7 +364,7 @@ void Lexer::readOperator(int lineNum, int startCol) {
         };
         auto it = twoCharOps.find(two);
         if (it != twoCharOps.end()) {
-            tokens.push_back({it->second, two, lineNum, startCol});
+            tokens.push_back({it->second, two, lineNum, startCol, currentFile});
             pos += 2; col += 2;
             return;
         }
@@ -369,7 +386,7 @@ void Lexer::readOperator(int lineNum, int startCol) {
 
     auto it = oneCharOps.find(ch);
     if (it != oneCharOps.end()) {
-        tokens.push_back({it->second, std::string(1, ch), lineNum, startCol});
+        tokens.push_back({it->second, std::string(1, ch), lineNum, startCol, currentFile});
         pos++; col++;
     } else {
         throw std::runtime_error(

@@ -1,0 +1,7 @@
+# test_sino_simple.zen
+extern "libc" printf(str) -> int
+
+si 1 == 1
+    printf("uno\n")
+sino
+    printf("otro\n")

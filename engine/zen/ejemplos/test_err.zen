@@ -1,0 +1,5 @@
+# test_err.zen — provoca error para ver si muestra archivo+linea
+extern "libc" printf(str) -> int
+
+funcion prueba(desde, hasta)
+    printf("test")

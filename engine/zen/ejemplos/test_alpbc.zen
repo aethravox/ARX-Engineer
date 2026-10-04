@@ -1,0 +1,8 @@
+# test_alpbc.zen
+importar "ast"
+importar "lexer"
+importar "parser"
+importar "builtins"
+importar "codegen"
+
+muestra "TODO cargado"

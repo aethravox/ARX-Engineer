@@ -1,0 +1,7 @@
+# test_alpb.zen
+importar "ast"
+importar "lexer"
+importar "parser"
+importar "builtins"
+
+muestra "ast + lexer + parser + builtins cargados"

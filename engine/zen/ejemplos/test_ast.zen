@@ -1,0 +1,4 @@
+# test_ast.zen — probar solo ast.zen
+importar "ast"
+
+muestra "ast cargado"
