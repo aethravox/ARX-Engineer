@@ -6692,7 +6692,7 @@ entry:
   %val = alloca i8*, align 8
   %base = alloca i8*, align 8
   %next_val = alloca i8*, align 8
-  %cmp307 = alloca i8*, align 8
+  %cmp309 = alloca i8*, align 8
   %cur_val = alloca i8*, align 8
   %loop_var = alloca i8*, align 8
   %hasta_val = alloca i8*, align 8
@@ -6708,6 +6708,8 @@ entry:
   %then_bb = alloca i8*, align 8
   %main_fn = alloca i8*, align 8
   %cond = alloca i8*, align 8
+  %resume_bb = alloca i8*, align 8
+  %main_fn2 = alloca i8*, align 8
   %body_idx = alloca double, align 8
   %entry_bb = alloca i8*, align 8
   %func = alloca i8*, align 8
@@ -6838,10 +6840,10 @@ then58:                                           ; preds = %endif45
   br label %while.cond
 
 endif59:                                          ; preds = %endif45
-  %tipo112 = load i8*, i8** %tipo, align 8
-  %s2d113 = call double @strtod(i8* %tipo112, i8** null)
-  %cmp114 = fcmp oeq double %s2d113, 2.200000e+01
-  br i1 %cmp114, label %then115, label %endif116
+  %tipo114 = load i8*, i8** %tipo, align 8
+  %s2d115 = call double @strtod(i8* %tipo114, i8** null)
+  %cmp116 = fcmp oeq double %s2d115, 2.200000e+01
+  br i1 %cmp116, label %then117, label %endif118
 
 while.cond:                                       ; preds = %endif76, %then58
   %idx65 = load double, double* %idx, align 8
@@ -6869,14 +6871,14 @@ while.end:                                        ; preds = %else, %while.cond
   %mod84 = load i8*, i8** %mod, align 8
   %nombre85 = load i8*, i8** %nombre, align 8
   %func_type86 = load i8*, i8** %func_type, align 8
-  %c_call87 = call i8* @LLVMAddFunction(i8* %mod84, i8* %nombre85, i8* %func_type86)
+  %c_call87 = call i8* @zen_addfunction(i8* %mod84, i8* %nombre85, i8* %func_type86)
   store i8* %c_call87, i8** %func, align 8
   %func88 = load i8*, i8** %func, align 8
-  %c_call89 = call i8* @LLVMAppendBasicBlock(i8* %func88, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @265, i32 0, i32 0))
+  %c_call89 = call i8* @zen_appendbasicblock(i8* %func88, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @265, i32 0, i32 0))
   store i8* %c_call89, i8** %entry_bb, align 8
   %b90 = load i8*, i8** %b, align 8
   %entry_bb91 = load i8*, i8** %entry_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b90, i8* %entry_bb91)
+  call void @zen_positionbuilder(i8* %b90, i8* %entry_bb91)
   %num_params92 = load double, double* %num_params, align 8
   store double %num_params92, double* %body_idx, align 8
   br label %while.cond93
@@ -6915,454 +6917,458 @@ while.body94:                                     ; preds = %while.cond93
   br label %while.cond93
 
 while.end95:                                      ; preds = %while.cond93
-  %b107 = load i8*, i8** %b, align 8
-  %mod108 = load i8*, i8** %mod, align 8
-  %c_call109 = call i8* @LLVMGetNamedFunction(i8* %mod108, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @266, i32 0, i32 0))
-  %c_call110 = call i8* @LLVMAppendBasicBlock(i8* %c_call109, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @267, i32 0, i32 0))
-  call void @LLVMPositionBuilderAtEnd(i8* %b107, i8* %c_call110)
-  %numstr111 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr111
+  %mod107 = load i8*, i8** %mod, align 8
+  %c_call108 = call i8* @zen_getnamedfunction(i8* %mod107, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @266, i32 0, i32 0))
+  store i8* %c_call108, i8** %main_fn2, align 8
+  %main_fn2109 = load i8*, i8** %main_fn2, align 8
+  %c_call110 = call i8* @zen_appendbasicblock(i8* %main_fn2109, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @267, i32 0, i32 0))
+  store i8* %c_call110, i8** %resume_bb, align 8
+  %b111 = load i8*, i8** %b, align 8
+  %resume_bb112 = load i8*, i8** %resume_bb, align 8
+  call void @zen_positionbuilder(i8* %b111, i8* %resume_bb112)
+  %numstr113 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr113
 
-then115:                                          ; preds = %endif59
-  %nodo117 = load i8*, i8** %nodo2, align 8
-  %member118 = call i8* @__zen_struct_get(i8* %nodo117, i64 3)
-  store i8* %member118, i8** %hijos, align 8
-  %estado119 = load i8*, i8** %estado1, align 8
-  %hijos120 = load i8*, i8** %hijos, align 8
-  %elem121 = call i8* @__zen_list_get(i8* %hijos120, i64 0)
-  %call122 = call i8* @codegen_expresion(i8* %estado119, i8* %elem121)
-  %numstr123 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr123
+then117:                                          ; preds = %endif59
+  %nodo119 = load i8*, i8** %nodo2, align 8
+  %member120 = call i8* @__zen_struct_get(i8* %nodo119, i64 3)
+  store i8* %member120, i8** %hijos, align 8
+  %estado121 = load i8*, i8** %estado1, align 8
+  %hijos122 = load i8*, i8** %hijos, align 8
+  %elem123 = call i8* @__zen_list_get(i8* %hijos122, i64 0)
+  %call124 = call i8* @codegen_expresion(i8* %estado121, i8* %elem123)
+  %numstr125 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr125
 
-endif116:                                         ; preds = %endif59
-  %tipo124 = load i8*, i8** %tipo, align 8
-  %s2d125 = call double @strtod(i8* %tipo124, i8** null)
-  %cmp126 = fcmp oeq double %s2d125, 1.300000e+01
-  br i1 %cmp126, label %then127, label %endif128
+endif118:                                         ; preds = %endif59
+  %tipo126 = load i8*, i8** %tipo, align 8
+  %s2d127 = call double @strtod(i8* %tipo126, i8** null)
+  %cmp128 = fcmp oeq double %s2d127, 1.300000e+01
+  br i1 %cmp128, label %then129, label %endif130
 
-then127:                                          ; preds = %endif116
-  %nodo129 = load i8*, i8** %nodo2, align 8
-  %member130 = call i8* @__zen_struct_get(i8* %nodo129, i64 3)
-  store i8* %member130, i8** %hijos, align 8
-  %estado131 = load i8*, i8** %estado1, align 8
-  %hijos132 = load i8*, i8** %hijos, align 8
-  %elem133 = call i8* @__zen_list_get(i8* %hijos132, i64 0)
-  %call134 = call i8* @codegen_expresion(i8* %estado131, i8* %elem133)
-  store i8* %call134, i8** %cond, align 8
-  %mod135 = load i8*, i8** %mod, align 8
-  %c_call136 = call i8* @LLVMGetNamedFunction(i8* %mod135, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @268, i32 0, i32 0))
-  store i8* %c_call136, i8** %main_fn, align 8
-  %main_fn137 = load i8*, i8** %main_fn, align 8
-  %c_call138 = call i8* @LLVMAppendBasicBlock(i8* %main_fn137, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @269, i32 0, i32 0))
-  store i8* %c_call138, i8** %then_bb, align 8
+then129:                                          ; preds = %endif118
+  %nodo131 = load i8*, i8** %nodo2, align 8
+  %member132 = call i8* @__zen_struct_get(i8* %nodo131, i64 3)
+  store i8* %member132, i8** %hijos, align 8
+  %estado133 = load i8*, i8** %estado1, align 8
+  %hijos134 = load i8*, i8** %hijos, align 8
+  %elem135 = call i8* @__zen_list_get(i8* %hijos134, i64 0)
+  %call136 = call i8* @codegen_expresion(i8* %estado133, i8* %elem135)
+  store i8* %call136, i8** %cond, align 8
+  %mod137 = load i8*, i8** %mod, align 8
+  %c_call138 = call i8* @zen_getnamedfunction(i8* %mod137, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @268, i32 0, i32 0))
+  store i8* %c_call138, i8** %main_fn, align 8
   %main_fn139 = load i8*, i8** %main_fn, align 8
-  %c_call140 = call i8* @LLVMAppendBasicBlock(i8* %main_fn139, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @270, i32 0, i32 0))
-  store i8* %c_call140, i8** %else_bb, align 8
+  %c_call140 = call i8* @zen_appendbasicblock(i8* %main_fn139, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @269, i32 0, i32 0))
+  store i8* %c_call140, i8** %then_bb, align 8
   %main_fn141 = load i8*, i8** %main_fn, align 8
-  %c_call142 = call i8* @LLVMAppendBasicBlock(i8* %main_fn141, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @271, i32 0, i32 0))
-  store i8* %c_call142, i8** %merge_bb, align 8
-  %b143 = load i8*, i8** %b, align 8
-  %cond144 = load i8*, i8** %cond, align 8
-  %then_bb145 = load i8*, i8** %then_bb, align 8
-  %else_bb146 = load i8*, i8** %else_bb, align 8
-  %c_call147 = call i8* @LLVMBuildCondBr(i8* %b143, i8* %cond144, i8* %then_bb145, i8* %else_bb146)
-  %b148 = load i8*, i8** %b, align 8
-  %then_bb149 = load i8*, i8** %then_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b148, i8* %then_bb149)
+  %c_call142 = call i8* @zen_appendbasicblock(i8* %main_fn141, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @270, i32 0, i32 0))
+  store i8* %c_call142, i8** %else_bb, align 8
+  %main_fn143 = load i8*, i8** %main_fn, align 8
+  %c_call144 = call i8* @zen_appendbasicblock(i8* %main_fn143, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @271, i32 0, i32 0))
+  store i8* %c_call144, i8** %merge_bb, align 8
+  %b145 = load i8*, i8** %b, align 8
+  %cond146 = load i8*, i8** %cond, align 8
+  %then_bb147 = load i8*, i8** %then_bb, align 8
+  %else_bb148 = load i8*, i8** %else_bb, align 8
+  %c_call149 = call i8* @zen_condbr(i8* %b145, i8* %cond146, i8* %then_bb147, i8* %else_bb148)
+  %b150 = load i8*, i8** %b, align 8
+  %then_bb151 = load i8*, i8** %then_bb, align 8
+  call void @zen_positionbuilder(i8* %b150, i8* %then_bb151)
   store double 1.000000e+00, double* %idx, align 8
-  %hijos150 = load i8*, i8** %hijos, align 8
-  %len151 = call i64 @strlen(i8* %hijos150)
-  %lend152 = uitofp i64 %len151 to double
-  store double %lend152, double* %num_hijos, align 8
-  br label %while.cond153
+  %hijos152 = load i8*, i8** %hijos, align 8
+  %len153 = call i64 @strlen(i8* %hijos152)
+  %lend154 = uitofp i64 %len153 to double
+  store double %lend154, double* %num_hijos, align 8
+  br label %while.cond155
 
-endif128:                                         ; preds = %endif116
-  %tipo199 = load i8*, i8** %tipo, align 8
-  %s2d200 = call double @strtod(i8* %tipo199, i8** null)
-  %cmp201 = fcmp oeq double %s2d200, 1.600000e+01
-  br i1 %cmp201, label %then202, label %endif203
+endif130:                                         ; preds = %endif118
+  %tipo201 = load i8*, i8** %tipo, align 8
+  %s2d202 = call double @strtod(i8* %tipo201, i8** null)
+  %cmp203 = fcmp oeq double %s2d202, 1.600000e+01
+  br i1 %cmp203, label %then204, label %endif205
 
-while.cond153:                                    ; preds = %endif168, %then127
-  %idx156 = load double, double* %idx, align 8
-  %num_hijos157 = load double, double* %num_hijos, align 8
-  %cmp158 = fcmp olt double %idx156, %num_hijos157
-  br i1 %cmp158, label %while.body154, label %while.end155
+while.cond155:                                    ; preds = %endif170, %then129
+  %idx158 = load double, double* %idx, align 8
+  %num_hijos159 = load double, double* %num_hijos, align 8
+  %cmp160 = fcmp olt double %idx158, %num_hijos159
+  br i1 %cmp160, label %while.body156, label %while.end157
 
-while.body154:                                    ; preds = %while.cond153
-  %hijos159 = load i8*, i8** %hijos, align 8
-  %idx160 = load double, double* %idx, align 8
-  %idx161 = fptosi double %idx160 to i64
-  %elem162 = call i8* @__zen_list_get(i8* %hijos159, i64 %idx161)
-  store i8* %elem162, i8** %stmt, align 8
-  %stmt163 = load i8*, i8** %stmt, align 8
-  %call164 = call i8* @nodo_tipo(i8* %stmt163)
-  %s2d165 = call double @strtod(i8* %call164, i8** null)
-  %cmp166 = fcmp oeq double %s2d165, 1.300000e+01
-  br i1 %cmp166, label %then167, label %endif168
+while.body156:                                    ; preds = %while.cond155
+  %hijos161 = load i8*, i8** %hijos, align 8
+  %idx162 = load double, double* %idx, align 8
+  %idx163 = fptosi double %idx162 to i64
+  %elem164 = call i8* @__zen_list_get(i8* %hijos161, i64 %idx163)
+  store i8* %elem164, i8** %stmt, align 8
+  %stmt165 = load i8*, i8** %stmt, align 8
+  %call166 = call i8* @nodo_tipo(i8* %stmt165)
+  %s2d167 = call double @strtod(i8* %call166, i8** null)
+  %cmp168 = fcmp oeq double %s2d167, 1.300000e+01
+  br i1 %cmp168, label %then169, label %endif170
 
-while.end155:                                     ; preds = %then167, %while.cond153
-  %b174 = load i8*, i8** %b, align 8
-  %merge_bb175 = load i8*, i8** %merge_bb, align 8
-  %c_call176 = call i8* @LLVMBuildBr(i8* %b174, i8* %merge_bb175)
-  %b177 = load i8*, i8** %b, align 8
-  %else_bb178 = load i8*, i8** %else_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b177, i8* %else_bb178)
-  br label %while.cond179
+while.end157:                                     ; preds = %then169, %while.cond155
+  %b176 = load i8*, i8** %b, align 8
+  %merge_bb177 = load i8*, i8** %merge_bb, align 8
+  %c_call178 = call i8* @zen_br(i8* %b176, i8* %merge_bb177)
+  %b179 = load i8*, i8** %b, align 8
+  %else_bb180 = load i8*, i8** %else_bb, align 8
+  call void @zen_positionbuilder(i8* %b179, i8* %else_bb180)
+  br label %while.cond181
 
-then167:                                          ; preds = %while.body154
-  br label %while.end155
+then169:                                          ; preds = %while.body156
+  br label %while.end157
 
-endif168:                                         ; preds = %while.body154
-  %estado169 = load i8*, i8** %estado1, align 8
-  %stmt170 = load i8*, i8** %stmt, align 8
-  %call171 = call i8* @codegen_statement(i8* %estado169, i8* %stmt170)
-  %idx172 = load double, double* %idx, align 8
-  %add173 = fadd double %idx172, 1.000000e+00
-  store double %add173, double* %idx, align 8
-  br label %while.cond153
+endif170:                                         ; preds = %while.body156
+  %estado171 = load i8*, i8** %estado1, align 8
+  %stmt172 = load i8*, i8** %stmt, align 8
+  %call173 = call i8* @codegen_statement(i8* %estado171, i8* %stmt172)
+  %idx174 = load double, double* %idx, align 8
+  %add175 = fadd double %idx174, 1.000000e+00
+  store double %add175, double* %idx, align 8
+  br label %while.cond155
 
-while.cond179:                                    ; preds = %while.body180, %while.end155
-  %idx182 = load double, double* %idx, align 8
-  %num_hijos183 = load double, double* %num_hijos, align 8
-  %cmp184 = fcmp olt double %idx182, %num_hijos183
-  br i1 %cmp184, label %while.body180, label %while.end181
+while.cond181:                                    ; preds = %while.body182, %while.end157
+  %idx184 = load double, double* %idx, align 8
+  %num_hijos185 = load double, double* %num_hijos, align 8
+  %cmp186 = fcmp olt double %idx184, %num_hijos185
+  br i1 %cmp186, label %while.body182, label %while.end183
 
-while.body180:                                    ; preds = %while.cond179
-  %estado185 = load i8*, i8** %estado1, align 8
-  %hijos186 = load i8*, i8** %hijos, align 8
-  %idx187 = load double, double* %idx, align 8
-  %idx188 = fptosi double %idx187 to i64
-  %elem189 = call i8* @__zen_list_get(i8* %hijos186, i64 %idx188)
-  %call190 = call i8* @codegen_statement(i8* %estado185, i8* %elem189)
-  %idx191 = load double, double* %idx, align 8
-  %add192 = fadd double %idx191, 1.000000e+00
-  store double %add192, double* %idx, align 8
-  br label %while.cond179
+while.body182:                                    ; preds = %while.cond181
+  %estado187 = load i8*, i8** %estado1, align 8
+  %hijos188 = load i8*, i8** %hijos, align 8
+  %idx189 = load double, double* %idx, align 8
+  %idx190 = fptosi double %idx189 to i64
+  %elem191 = call i8* @__zen_list_get(i8* %hijos188, i64 %idx190)
+  %call192 = call i8* @codegen_statement(i8* %estado187, i8* %elem191)
+  %idx193 = load double, double* %idx, align 8
+  %add194 = fadd double %idx193, 1.000000e+00
+  store double %add194, double* %idx, align 8
+  br label %while.cond181
 
-while.end181:                                     ; preds = %while.cond179
-  %b193 = load i8*, i8** %b, align 8
-  %merge_bb194 = load i8*, i8** %merge_bb, align 8
-  %c_call195 = call i8* @LLVMBuildBr(i8* %b193, i8* %merge_bb194)
-  %b196 = load i8*, i8** %b, align 8
-  %merge_bb197 = load i8*, i8** %merge_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b196, i8* %merge_bb197)
-  %numstr198 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr198
+while.end183:                                     ; preds = %while.cond181
+  %b195 = load i8*, i8** %b, align 8
+  %merge_bb196 = load i8*, i8** %merge_bb, align 8
+  %c_call197 = call i8* @zen_br(i8* %b195, i8* %merge_bb196)
+  %b198 = load i8*, i8** %b, align 8
+  %merge_bb199 = load i8*, i8** %merge_bb, align 8
+  call void @zen_positionbuilder(i8* %b198, i8* %merge_bb199)
+  %numstr200 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr200
 
-then202:                                          ; preds = %endif128
-  %nodo204 = load i8*, i8** %nodo2, align 8
-  %member205 = call i8* @__zen_struct_get(i8* %nodo204, i64 3)
-  store i8* %member205, i8** %hijos, align 8
-  %mod206 = load i8*, i8** %mod, align 8
-  %c_call207 = call i8* @LLVMGetNamedFunction(i8* %mod206, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @272, i32 0, i32 0))
-  store i8* %c_call207, i8** %main_fn, align 8
-  %main_fn208 = load i8*, i8** %main_fn, align 8
-  %c_call209 = call i8* @LLVMAppendBasicBlock(i8* %main_fn208, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @273, i32 0, i32 0))
-  store i8* %c_call209, i8** %cond_bb, align 8
+then204:                                          ; preds = %endif130
+  %nodo206 = load i8*, i8** %nodo2, align 8
+  %member207 = call i8* @__zen_struct_get(i8* %nodo206, i64 3)
+  store i8* %member207, i8** %hijos, align 8
+  %mod208 = load i8*, i8** %mod, align 8
+  %c_call209 = call i8* @zen_getnamedfunction(i8* %mod208, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @272, i32 0, i32 0))
+  store i8* %c_call209, i8** %main_fn, align 8
   %main_fn210 = load i8*, i8** %main_fn, align 8
-  %c_call211 = call i8* @LLVMAppendBasicBlock(i8* %main_fn210, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @274, i32 0, i32 0))
-  store i8* %c_call211, i8** %body_bb, align 8
+  %c_call211 = call i8* @zen_appendbasicblock(i8* %main_fn210, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @273, i32 0, i32 0))
+  store i8* %c_call211, i8** %cond_bb, align 8
   %main_fn212 = load i8*, i8** %main_fn, align 8
-  %c_call213 = call i8* @LLVMAppendBasicBlock(i8* %main_fn212, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @275, i32 0, i32 0))
-  store i8* %c_call213, i8** %end_bb, align 8
+  %c_call213 = call i8* @zen_appendbasicblock(i8* %main_fn212, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @274, i32 0, i32 0))
+  store i8* %c_call213, i8** %body_bb, align 8
+  %main_fn214 = load i8*, i8** %main_fn, align 8
+  %c_call215 = call i8* @zen_appendbasicblock(i8* %main_fn214, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @275, i32 0, i32 0))
+  store i8* %c_call215, i8** %end_bb, align 8
   %loop_end_bb = load i8*, i8** @g_loop_end_bb, align 8
   store i8* %loop_end_bb, i8** %old_end, align 8
   %loop_cond_bb = load i8*, i8** @g_loop_cond_bb, align 8
   store i8* %loop_cond_bb, i8** %old_cond, align 8
-  %end_bb214 = load i8*, i8** %end_bb, align 8
-  store i8* %end_bb214, i8** @g_loop_end_bb, align 8
-  %cond_bb215 = load i8*, i8** %cond_bb, align 8
-  store i8* %cond_bb215, i8** @g_loop_cond_bb, align 8
-  %b216 = load i8*, i8** %b, align 8
+  %end_bb216 = load i8*, i8** %end_bb, align 8
+  store i8* %end_bb216, i8** @g_loop_end_bb, align 8
   %cond_bb217 = load i8*, i8** %cond_bb, align 8
-  %c_call218 = call i8* @LLVMBuildBr(i8* %b216, i8* %cond_bb217)
-  %b219 = load i8*, i8** %b, align 8
-  %cond_bb220 = load i8*, i8** %cond_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b219, i8* %cond_bb220)
-  %estado221 = load i8*, i8** %estado1, align 8
-  %hijos222 = load i8*, i8** %hijos, align 8
-  %elem223 = call i8* @__zen_list_get(i8* %hijos222, i64 0)
-  %call224 = call i8* @codegen_expresion(i8* %estado221, i8* %elem223)
-  store i8* %call224, i8** %cond, align 8
-  %b225 = load i8*, i8** %b, align 8
-  %cond226 = load i8*, i8** %cond, align 8
-  %body_bb227 = load i8*, i8** %body_bb, align 8
-  %end_bb228 = load i8*, i8** %end_bb, align 8
-  %c_call229 = call i8* @LLVMBuildCondBr(i8* %b225, i8* %cond226, i8* %body_bb227, i8* %end_bb228)
-  %b230 = load i8*, i8** %b, align 8
-  %body_bb231 = load i8*, i8** %body_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b230, i8* %body_bb231)
+  store i8* %cond_bb217, i8** @g_loop_cond_bb, align 8
+  %b218 = load i8*, i8** %b, align 8
+  %cond_bb219 = load i8*, i8** %cond_bb, align 8
+  %c_call220 = call i8* @zen_br(i8* %b218, i8* %cond_bb219)
+  %b221 = load i8*, i8** %b, align 8
+  %cond_bb222 = load i8*, i8** %cond_bb, align 8
+  call void @zen_positionbuilder(i8* %b221, i8* %cond_bb222)
+  %estado223 = load i8*, i8** %estado1, align 8
+  %hijos224 = load i8*, i8** %hijos, align 8
+  %elem225 = call i8* @__zen_list_get(i8* %hijos224, i64 0)
+  %call226 = call i8* @codegen_expresion(i8* %estado223, i8* %elem225)
+  store i8* %call226, i8** %cond, align 8
+  %b227 = load i8*, i8** %b, align 8
+  %cond228 = load i8*, i8** %cond, align 8
+  %body_bb229 = load i8*, i8** %body_bb, align 8
+  %end_bb230 = load i8*, i8** %end_bb, align 8
+  %c_call231 = call i8* @zen_condbr(i8* %b227, i8* %cond228, i8* %body_bb229, i8* %end_bb230)
+  %b232 = load i8*, i8** %b, align 8
+  %body_bb233 = load i8*, i8** %body_bb, align 8
+  call void @zen_positionbuilder(i8* %b232, i8* %body_bb233)
   store double 1.000000e+00, double* %idx, align 8
-  %hijos232 = load i8*, i8** %hijos, align 8
-  %len233 = call i64 @strlen(i8* %hijos232)
-  %lend234 = uitofp i64 %len233 to double
-  store double %lend234, double* %num_hijos, align 8
-  br label %while.cond235
+  %hijos234 = load i8*, i8** %hijos, align 8
+  %len235 = call i64 @strlen(i8* %hijos234)
+  %lend236 = uitofp i64 %len235 to double
+  store double %lend236, double* %num_hijos, align 8
+  br label %while.cond237
 
-endif203:                                         ; preds = %endif128
-  %tipo257 = load i8*, i8** %tipo, align 8
-  %s2d258 = call double @strtod(i8* %tipo257, i8** null)
-  %cmp259 = fcmp oeq double %s2d258, 1.400000e+01
-  br i1 %cmp259, label %then260, label %endif261
+endif205:                                         ; preds = %endif130
+  %tipo259 = load i8*, i8** %tipo, align 8
+  %s2d260 = call double @strtod(i8* %tipo259, i8** null)
+  %cmp261 = fcmp oeq double %s2d260, 1.400000e+01
+  br i1 %cmp261, label %then262, label %endif263
 
-while.cond235:                                    ; preds = %while.body236, %then202
-  %idx238 = load double, double* %idx, align 8
-  %num_hijos239 = load double, double* %num_hijos, align 8
-  %cmp240 = fcmp olt double %idx238, %num_hijos239
-  br i1 %cmp240, label %while.body236, label %while.end237
+while.cond237:                                    ; preds = %while.body238, %then204
+  %idx240 = load double, double* %idx, align 8
+  %num_hijos241 = load double, double* %num_hijos, align 8
+  %cmp242 = fcmp olt double %idx240, %num_hijos241
+  br i1 %cmp242, label %while.body238, label %while.end239
 
-while.body236:                                    ; preds = %while.cond235
-  %estado241 = load i8*, i8** %estado1, align 8
-  %hijos242 = load i8*, i8** %hijos, align 8
-  %idx243 = load double, double* %idx, align 8
-  %idx244 = fptosi double %idx243 to i64
-  %elem245 = call i8* @__zen_list_get(i8* %hijos242, i64 %idx244)
-  %call246 = call i8* @codegen_statement(i8* %estado241, i8* %elem245)
-  %idx247 = load double, double* %idx, align 8
-  %add248 = fadd double %idx247, 1.000000e+00
-  store double %add248, double* %idx, align 8
-  br label %while.cond235
+while.body238:                                    ; preds = %while.cond237
+  %estado243 = load i8*, i8** %estado1, align 8
+  %hijos244 = load i8*, i8** %hijos, align 8
+  %idx245 = load double, double* %idx, align 8
+  %idx246 = fptosi double %idx245 to i64
+  %elem247 = call i8* @__zen_list_get(i8* %hijos244, i64 %idx246)
+  %call248 = call i8* @codegen_statement(i8* %estado243, i8* %elem247)
+  %idx249 = load double, double* %idx, align 8
+  %add250 = fadd double %idx249, 1.000000e+00
+  store double %add250, double* %idx, align 8
+  br label %while.cond237
 
-while.end237:                                     ; preds = %while.cond235
-  %b249 = load i8*, i8** %b, align 8
-  %cond_bb250 = load i8*, i8** %cond_bb, align 8
-  %c_call251 = call i8* @LLVMBuildBr(i8* %b249, i8* %cond_bb250)
-  %b252 = load i8*, i8** %b, align 8
-  %end_bb253 = load i8*, i8** %end_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b252, i8* %end_bb253)
-  %old_end254 = load i8*, i8** %old_end, align 8
-  store i8* %old_end254, i8** @g_loop_end_bb, align 8
-  %old_cond255 = load i8*, i8** %old_cond, align 8
-  store i8* %old_cond255, i8** @g_loop_cond_bb, align 8
-  %numstr256 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr256
+while.end239:                                     ; preds = %while.cond237
+  %b251 = load i8*, i8** %b, align 8
+  %cond_bb252 = load i8*, i8** %cond_bb, align 8
+  %c_call253 = call i8* @zen_br(i8* %b251, i8* %cond_bb252)
+  %b254 = load i8*, i8** %b, align 8
+  %end_bb255 = load i8*, i8** %end_bb, align 8
+  call void @zen_positionbuilder(i8* %b254, i8* %end_bb255)
+  %old_end256 = load i8*, i8** %old_end, align 8
+  store i8* %old_end256, i8** @g_loop_end_bb, align 8
+  %old_cond257 = load i8*, i8** %old_cond, align 8
+  store i8* %old_cond257, i8** @g_loop_cond_bb, align 8
+  %numstr258 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr258
 
-then260:                                          ; preds = %endif203
-  %nodo262 = load i8*, i8** %nodo2, align 8
-  %call263 = call i8* @nodo_nombre(i8* %nodo262)
-  store i8* %call263, i8** %nombre, align 8
+then262:                                          ; preds = %endif205
   %nodo264 = load i8*, i8** %nodo2, align 8
-  %member265 = call i8* @__zen_struct_get(i8* %nodo264, i64 3)
-  store i8* %member265, i8** %hijos, align 8
-  %estado266 = load i8*, i8** %estado1, align 8
-  %hijos267 = load i8*, i8** %hijos, align 8
-  %elem268 = call i8* @__zen_list_get(i8* %hijos267, i64 0)
-  %call269 = call i8* @codegen_expresion(i8* %estado266, i8* %elem268)
-  store i8* %call269, i8** %desde_val, align 8
-  %estado270 = load i8*, i8** %estado1, align 8
-  %hijos271 = load i8*, i8** %hijos, align 8
-  %elem272 = call i8* @__zen_list_get(i8* %hijos271, i64 1)
-  %call273 = call i8* @codegen_expresion(i8* %estado270, i8* %elem272)
-  store i8* %call273, i8** %hasta_val, align 8
-  %mod274 = load i8*, i8** %mod, align 8
-  %c_call275 = call i8* @LLVMGetNamedFunction(i8* %mod274, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @276, i32 0, i32 0))
-  store i8* %c_call275, i8** %main_fn, align 8
-  %b276 = load i8*, i8** %b, align 8
-  %c_call277 = call i8* @LLVMDoubleType()
-  %nombre278 = load i8*, i8** %nombre, align 8
-  %c_call279 = call i8* @LLVMBuildAlloca(i8* %b276, i8* %c_call277, i8* %nombre278)
-  store i8* %c_call279, i8** %loop_var, align 8
-  %b280 = load i8*, i8** %b, align 8
-  %desde_val281 = load i8*, i8** %desde_val, align 8
-  %loop_var282 = load i8*, i8** %loop_var, align 8
-  %c_call283 = call i8* @LLVMBuildStore(i8* %b280, i8* %desde_val281, i8* %loop_var282)
-  %main_fn284 = load i8*, i8** %main_fn, align 8
-  %c_call285 = call i8* @LLVMAppendBasicBlock(i8* %main_fn284, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @277, i32 0, i32 0))
-  store i8* %c_call285, i8** %cond_bb, align 8
+  %call265 = call i8* @nodo_nombre(i8* %nodo264)
+  store i8* %call265, i8** %nombre, align 8
+  %nodo266 = load i8*, i8** %nodo2, align 8
+  %member267 = call i8* @__zen_struct_get(i8* %nodo266, i64 3)
+  store i8* %member267, i8** %hijos, align 8
+  %estado268 = load i8*, i8** %estado1, align 8
+  %hijos269 = load i8*, i8** %hijos, align 8
+  %elem270 = call i8* @__zen_list_get(i8* %hijos269, i64 0)
+  %call271 = call i8* @codegen_expresion(i8* %estado268, i8* %elem270)
+  store i8* %call271, i8** %desde_val, align 8
+  %estado272 = load i8*, i8** %estado1, align 8
+  %hijos273 = load i8*, i8** %hijos, align 8
+  %elem274 = call i8* @__zen_list_get(i8* %hijos273, i64 1)
+  %call275 = call i8* @codegen_expresion(i8* %estado272, i8* %elem274)
+  store i8* %call275, i8** %hasta_val, align 8
+  %mod276 = load i8*, i8** %mod, align 8
+  %c_call277 = call i8* @zen_getnamedfunction(i8* %mod276, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @276, i32 0, i32 0))
+  store i8* %c_call277, i8** %main_fn, align 8
+  %b278 = load i8*, i8** %b, align 8
+  %c_call279 = call i8* @LLVMDoubleType()
+  %nombre280 = load i8*, i8** %nombre, align 8
+  %c_call281 = call i8* @zen_alloca(i8* %b278, i8* %c_call279, i8* %nombre280)
+  store i8* %c_call281, i8** %loop_var, align 8
+  %b282 = load i8*, i8** %b, align 8
+  %desde_val283 = load i8*, i8** %desde_val, align 8
+  %loop_var284 = load i8*, i8** %loop_var, align 8
+  %c_call285 = call i8* @zen_store(i8* %b282, i8* %desde_val283, i8* %loop_var284)
   %main_fn286 = load i8*, i8** %main_fn, align 8
-  %c_call287 = call i8* @LLVMAppendBasicBlock(i8* %main_fn286, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @278, i32 0, i32 0))
-  store i8* %c_call287, i8** %body_bb, align 8
+  %c_call287 = call i8* @zen_appendbasicblock(i8* %main_fn286, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @277, i32 0, i32 0))
+  store i8* %c_call287, i8** %cond_bb, align 8
   %main_fn288 = load i8*, i8** %main_fn, align 8
-  %c_call289 = call i8* @LLVMAppendBasicBlock(i8* %main_fn288, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @279, i32 0, i32 0))
-  store i8* %c_call289, i8** %end_bb, align 8
-  %loop_end_bb290 = load i8*, i8** @g_loop_end_bb, align 8
-  store i8* %loop_end_bb290, i8** %old_end, align 8
-  %loop_cond_bb291 = load i8*, i8** @g_loop_cond_bb, align 8
-  store i8* %loop_cond_bb291, i8** %old_cond, align 8
-  %end_bb292 = load i8*, i8** %end_bb, align 8
-  store i8* %end_bb292, i8** @g_loop_end_bb, align 8
-  %cond_bb293 = load i8*, i8** %cond_bb, align 8
-  store i8* %cond_bb293, i8** @g_loop_cond_bb, align 8
-  %b294 = load i8*, i8** %b, align 8
+  %c_call289 = call i8* @zen_appendbasicblock(i8* %main_fn288, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @278, i32 0, i32 0))
+  store i8* %c_call289, i8** %body_bb, align 8
+  %main_fn290 = load i8*, i8** %main_fn, align 8
+  %c_call291 = call i8* @zen_appendbasicblock(i8* %main_fn290, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @279, i32 0, i32 0))
+  store i8* %c_call291, i8** %end_bb, align 8
+  %loop_end_bb292 = load i8*, i8** @g_loop_end_bb, align 8
+  store i8* %loop_end_bb292, i8** %old_end, align 8
+  %loop_cond_bb293 = load i8*, i8** @g_loop_cond_bb, align 8
+  store i8* %loop_cond_bb293, i8** %old_cond, align 8
+  %end_bb294 = load i8*, i8** %end_bb, align 8
+  store i8* %end_bb294, i8** @g_loop_end_bb, align 8
   %cond_bb295 = load i8*, i8** %cond_bb, align 8
-  %c_call296 = call i8* @LLVMBuildBr(i8* %b294, i8* %cond_bb295)
-  %b297 = load i8*, i8** %b, align 8
-  %cond_bb298 = load i8*, i8** %cond_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b297, i8* %cond_bb298)
+  store i8* %cond_bb295, i8** @g_loop_cond_bb, align 8
+  %b296 = load i8*, i8** %b, align 8
+  %cond_bb297 = load i8*, i8** %cond_bb, align 8
+  %c_call298 = call i8* @zen_br(i8* %b296, i8* %cond_bb297)
   %b299 = load i8*, i8** %b, align 8
-  %loop_var300 = load i8*, i8** %loop_var, align 8
-  %nombre301 = load i8*, i8** %nombre, align 8
-  %c_call302 = call i8* @LLVMBuildLoad(i8* %b299, i8* %loop_var300, i8* %nombre301)
-  store i8* %c_call302, i8** %cur_val, align 8
-  %b303 = load i8*, i8** %b, align 8
-  %cur_val304 = load i8*, i8** %cur_val, align 8
-  %hasta_val305 = load i8*, i8** %hasta_val, align 8
-  %c_call306 = call i8* @LLVMBuildFCmp(i8* %b303, i32 4, i8* %cur_val304, i8* %hasta_val305, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @280, i32 0, i32 0))
-  store i8* %c_call306, i8** %cmp307, align 8
-  %b308 = load i8*, i8** %b, align 8
-  %cmp309 = load i8*, i8** %cmp307, align 8
-  %body_bb310 = load i8*, i8** %body_bb, align 8
-  %end_bb311 = load i8*, i8** %end_bb, align 8
-  %c_call312 = call i8* @LLVMBuildCondBr(i8* %b308, i8* %cmp309, i8* %body_bb310, i8* %end_bb311)
-  %b313 = load i8*, i8** %b, align 8
-  %body_bb314 = load i8*, i8** %body_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b313, i8* %body_bb314)
+  %cond_bb300 = load i8*, i8** %cond_bb, align 8
+  call void @zen_positionbuilder(i8* %b299, i8* %cond_bb300)
+  %b301 = load i8*, i8** %b, align 8
+  %loop_var302 = load i8*, i8** %loop_var, align 8
+  %nombre303 = load i8*, i8** %nombre, align 8
+  %c_call304 = call i8* @zen_load(i8* %b301, i8* %loop_var302, i8* %nombre303)
+  store i8* %c_call304, i8** %cur_val, align 8
+  %b305 = load i8*, i8** %b, align 8
+  %cur_val306 = load i8*, i8** %cur_val, align 8
+  %hasta_val307 = load i8*, i8** %hasta_val, align 8
+  %c_call308 = call i8* @zen_fcmp(i8* %b305, i32 4, i8* %cur_val306, i8* %hasta_val307, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @280, i32 0, i32 0))
+  store i8* %c_call308, i8** %cmp309, align 8
+  %b310 = load i8*, i8** %b, align 8
+  %cmp311 = load i8*, i8** %cmp309, align 8
+  %body_bb312 = load i8*, i8** %body_bb, align 8
+  %end_bb313 = load i8*, i8** %end_bb, align 8
+  %c_call314 = call i8* @zen_condbr(i8* %b310, i8* %cmp311, i8* %body_bb312, i8* %end_bb313)
+  %b315 = load i8*, i8** %b, align 8
+  %body_bb316 = load i8*, i8** %body_bb, align 8
+  call void @zen_positionbuilder(i8* %b315, i8* %body_bb316)
   store double 2.000000e+00, double* %idx, align 8
-  %hijos315 = load i8*, i8** %hijos, align 8
-  %len316 = call i64 @strlen(i8* %hijos315)
-  %lend317 = uitofp i64 %len316 to double
-  store double %lend317, double* %num_hijos, align 8
-  br label %while.cond318
+  %hijos317 = load i8*, i8** %hijos, align 8
+  %len318 = call i64 @strlen(i8* %hijos317)
+  %lend319 = uitofp i64 %len318 to double
+  store double %lend319, double* %num_hijos, align 8
+  br label %while.cond320
 
-endif261:                                         ; preds = %endif203
-  %tipo349 = load i8*, i8** %tipo, align 8
-  %s2d350 = call double @strtod(i8* %tipo349, i8** null)
-  %cmp351 = fcmp oeq double %s2d350, 2.900000e+01
-  br i1 %cmp351, label %then352, label %endif353
+endif263:                                         ; preds = %endif205
+  %tipo351 = load i8*, i8** %tipo, align 8
+  %s2d352 = call double @strtod(i8* %tipo351, i8** null)
+  %cmp353 = fcmp oeq double %s2d352, 2.900000e+01
+  br i1 %cmp353, label %then354, label %endif355
 
-while.cond318:                                    ; preds = %while.body319, %then260
-  %idx321 = load double, double* %idx, align 8
-  %num_hijos322 = load double, double* %num_hijos, align 8
-  %cmp323 = fcmp olt double %idx321, %num_hijos322
-  br i1 %cmp323, label %while.body319, label %while.end320
+while.cond320:                                    ; preds = %while.body321, %then262
+  %idx323 = load double, double* %idx, align 8
+  %num_hijos324 = load double, double* %num_hijos, align 8
+  %cmp325 = fcmp olt double %idx323, %num_hijos324
+  br i1 %cmp325, label %while.body321, label %while.end322
 
-while.body319:                                    ; preds = %while.cond318
-  %estado324 = load i8*, i8** %estado1, align 8
-  %hijos325 = load i8*, i8** %hijos, align 8
-  %idx326 = load double, double* %idx, align 8
-  %idx327 = fptosi double %idx326 to i64
-  %elem328 = call i8* @__zen_list_get(i8* %hijos325, i64 %idx327)
-  %call329 = call i8* @codegen_statement(i8* %estado324, i8* %elem328)
-  %idx330 = load double, double* %idx, align 8
-  %add331 = fadd double %idx330, 1.000000e+00
-  store double %add331, double* %idx, align 8
-  br label %while.cond318
+while.body321:                                    ; preds = %while.cond320
+  %estado326 = load i8*, i8** %estado1, align 8
+  %hijos327 = load i8*, i8** %hijos, align 8
+  %idx328 = load double, double* %idx, align 8
+  %idx329 = fptosi double %idx328 to i64
+  %elem330 = call i8* @__zen_list_get(i8* %hijos327, i64 %idx329)
+  %call331 = call i8* @codegen_statement(i8* %estado326, i8* %elem330)
+  %idx332 = load double, double* %idx, align 8
+  %add333 = fadd double %idx332, 1.000000e+00
+  store double %add333, double* %idx, align 8
+  br label %while.cond320
 
-while.end320:                                     ; preds = %while.cond318
-  %b332 = load i8*, i8** %b, align 8
-  %cur_val333 = load i8*, i8** %cur_val, align 8
-  %c_call334 = call i8* @LLVMDoubleType()
-  %c_call335 = call i8* @LLVMConstReal(i8* %c_call334, double 1.000000e+00)
-  %c_call336 = call i8* @LLVMBuildFAdd(i8* %b332, i8* %cur_val333, i8* %c_call335, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @281, i32 0, i32 0))
-  store i8* %c_call336, i8** %next_val, align 8
-  %b337 = load i8*, i8** %b, align 8
-  %next_val338 = load i8*, i8** %next_val, align 8
-  %loop_var339 = load i8*, i8** %loop_var, align 8
-  %c_call340 = call i8* @LLVMBuildStore(i8* %b337, i8* %next_val338, i8* %loop_var339)
-  %b341 = load i8*, i8** %b, align 8
-  %cond_bb342 = load i8*, i8** %cond_bb, align 8
-  %c_call343 = call i8* @LLVMBuildBr(i8* %b341, i8* %cond_bb342)
-  %b344 = load i8*, i8** %b, align 8
-  %end_bb345 = load i8*, i8** %end_bb, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %b344, i8* %end_bb345)
-  %old_end346 = load i8*, i8** %old_end, align 8
-  store i8* %old_end346, i8** @g_loop_end_bb, align 8
-  %old_cond347 = load i8*, i8** %old_cond, align 8
-  store i8* %old_cond347, i8** @g_loop_cond_bb, align 8
-  %numstr348 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr348
+while.end322:                                     ; preds = %while.cond320
+  %b334 = load i8*, i8** %b, align 8
+  %cur_val335 = load i8*, i8** %cur_val, align 8
+  %c_call336 = call i8* @LLVMDoubleType()
+  %c_call337 = call i8* @zen_constreal(i8* %c_call336, double 1.000000e+00)
+  %c_call338 = call i8* @zen_fadd(i8* %b334, i8* %cur_val335, i8* %c_call337, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @281, i32 0, i32 0))
+  store i8* %c_call338, i8** %next_val, align 8
+  %b339 = load i8*, i8** %b, align 8
+  %next_val340 = load i8*, i8** %next_val, align 8
+  %loop_var341 = load i8*, i8** %loop_var, align 8
+  %c_call342 = call i8* @zen_store(i8* %b339, i8* %next_val340, i8* %loop_var341)
+  %b343 = load i8*, i8** %b, align 8
+  %cond_bb344 = load i8*, i8** %cond_bb, align 8
+  %c_call345 = call i8* @zen_br(i8* %b343, i8* %cond_bb344)
+  %b346 = load i8*, i8** %b, align 8
+  %end_bb347 = load i8*, i8** %end_bb, align 8
+  call void @zen_positionbuilder(i8* %b346, i8* %end_bb347)
+  %old_end348 = load i8*, i8** %old_end, align 8
+  store i8* %old_end348, i8** @g_loop_end_bb, align 8
+  %old_cond349 = load i8*, i8** %old_cond, align 8
+  store i8* %old_cond349, i8** @g_loop_cond_bb, align 8
+  %numstr350 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr350
 
-then352:                                          ; preds = %endif261
-  %nodo354 = load i8*, i8** %nodo2, align 8
-  %member355 = call i8* @__zen_struct_get(i8* %nodo354, i64 3)
-  store i8* %member355, i8** %hijos, align 8
-  %estado356 = load i8*, i8** %estado1, align 8
-  %hijos357 = load i8*, i8** %hijos, align 8
-  %elem358 = call i8* @__zen_list_get(i8* %hijos357, i64 0)
-  %call359 = call i8* @codegen_expresion(i8* %estado356, i8* %elem358)
-  store i8* %call359, i8** %base, align 8
-  %estado360 = load i8*, i8** %estado1, align 8
-  %hijos361 = load i8*, i8** %hijos, align 8
-  %elem362 = call i8* @__zen_list_get(i8* %hijos361, i64 1)
-  %call363 = call i8* @codegen_expresion(i8* %estado360, i8* %elem362)
-  store i8* %call363, i8** %val, align 8
-  %mod364 = load i8*, i8** %mod, align 8
-  %c_call365 = call i8* @LLVMGetNamedFunction(i8* %mod364, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @282, i32 0, i32 0))
-  store i8* %c_call365, i8** %set_fn, align 8
-  %set_fn366 = load i8*, i8** %set_fn, align 8
-  %s2d367 = call double @strtod(i8* %set_fn366, i8** null)
-  %cmp368 = fcmp one double %s2d367, 0.000000e+00
-  br i1 %cmp368, label %then369, label %endif370
+then354:                                          ; preds = %endif263
+  %nodo356 = load i8*, i8** %nodo2, align 8
+  %member357 = call i8* @__zen_struct_get(i8* %nodo356, i64 3)
+  store i8* %member357, i8** %hijos, align 8
+  %estado358 = load i8*, i8** %estado1, align 8
+  %hijos359 = load i8*, i8** %hijos, align 8
+  %elem360 = call i8* @__zen_list_get(i8* %hijos359, i64 0)
+  %call361 = call i8* @codegen_expresion(i8* %estado358, i8* %elem360)
+  store i8* %call361, i8** %base, align 8
+  %estado362 = load i8*, i8** %estado1, align 8
+  %hijos363 = load i8*, i8** %hijos, align 8
+  %elem364 = call i8* @__zen_list_get(i8* %hijos363, i64 1)
+  %call365 = call i8* @codegen_expresion(i8* %estado362, i8* %elem364)
+  store i8* %call365, i8** %val, align 8
+  %mod366 = load i8*, i8** %mod, align 8
+  %c_call367 = call i8* @LLVMGetNamedFunction(i8* %mod366, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @282, i32 0, i32 0))
+  store i8* %c_call367, i8** %set_fn, align 8
+  %set_fn368 = load i8*, i8** %set_fn, align 8
+  %s2d369 = call double @strtod(i8* %set_fn368, i8** null)
+  %cmp370 = fcmp one double %s2d369, 0.000000e+00
+  br i1 %cmp370, label %then371, label %endif372
 
-endif353:                                         ; preds = %endif261
-  %tipo381 = load i8*, i8** %tipo, align 8
-  %s2d382 = call double @strtod(i8* %tipo381, i8** null)
-  %cmp383 = fcmp oeq double %s2d382, 1.800000e+01
-  br i1 %cmp383, label %then384, label %endif385
+endif355:                                         ; preds = %endif263
+  %tipo383 = load i8*, i8** %tipo, align 8
+  %s2d384 = call double @strtod(i8* %tipo383, i8** null)
+  %cmp385 = fcmp oeq double %s2d384, 1.800000e+01
+  br i1 %cmp385, label %then386, label %endif387
 
-then369:                                          ; preds = %then352
-  %c_call371 = call i8* @LLVMDoubleType()
-  %c_call372 = call i8* @LLVMConstReal(i8* %c_call371, double 0.000000e+00)
-  store i8* %c_call372, i8** %field_idx, align 8
+then371:                                          ; preds = %then354
+  %c_call373 = call i8* @LLVMDoubleType()
+  %c_call374 = call i8* @LLVMConstReal(i8* %c_call373, double 0.000000e+00)
+  store i8* %c_call374, i8** %field_idx, align 8
   %list = call i8* @__zen_list_create(i64 4)
-  %base373 = load i8*, i8** %base, align 8
-  call void @__zen_list_push(i8* %list, i8* %base373)
-  %field_idx374 = load i8*, i8** %field_idx, align 8
-  call void @__zen_list_push(i8* %list, i8* %field_idx374)
-  %val375 = load i8*, i8** %val, align 8
-  call void @__zen_list_push(i8* %list, i8* %val375)
+  %base375 = load i8*, i8** %base, align 8
+  call void @__zen_list_push(i8* %list, i8* %base375)
+  %field_idx376 = load i8*, i8** %field_idx, align 8
+  call void @__zen_list_push(i8* %list, i8* %field_idx376)
+  %val377 = load i8*, i8** %val, align 8
+  call void @__zen_list_push(i8* %list, i8* %val377)
   store i8* %list, i8** %args, align 8
-  %b376 = load i8*, i8** %b, align 8
-  %set_fn377 = load i8*, i8** %set_fn, align 8
-  %args378 = load i8*, i8** %args, align 8
-  %c_call379 = call i8* @LLVMBuildCall(i8* %b376, i8* %set_fn377, i8* %args378, i32 3, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @283, i32 0, i32 0))
-  br label %endif370
+  %b378 = load i8*, i8** %b, align 8
+  %set_fn379 = load i8*, i8** %set_fn, align 8
+  %args380 = load i8*, i8** %args, align 8
+  %c_call381 = call i8* @LLVMBuildCall(i8* %b378, i8* %set_fn379, i8* %args380, i32 3, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @283, i32 0, i32 0))
+  br label %endif372
 
-endif370:                                         ; preds = %then369, %then352
-  %numstr380 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr380
+endif372:                                         ; preds = %then371, %then354
+  %numstr382 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr382
 
-then384:                                          ; preds = %endif353
-  %loop_end_bb386 = load i8*, i8** @g_loop_end_bb, align 8
-  %s2d387 = call double @strtod(i8* %loop_end_bb386, i8** null)
-  %cmp388 = fcmp one double %s2d387, 0.000000e+00
-  br i1 %cmp388, label %then389, label %endif390
+then386:                                          ; preds = %endif355
+  %loop_end_bb388 = load i8*, i8** @g_loop_end_bb, align 8
+  %s2d389 = call double @strtod(i8* %loop_end_bb388, i8** null)
+  %cmp390 = fcmp one double %s2d389, 0.000000e+00
+  br i1 %cmp390, label %then391, label %endif392
 
-endif385:                                         ; preds = %endif353
-  %tipo395 = load i8*, i8** %tipo, align 8
-  %s2d396 = call double @strtod(i8* %tipo395, i8** null)
-  %cmp397 = fcmp oeq double %s2d396, 1.900000e+01
-  br i1 %cmp397, label %then398, label %endif399
+endif387:                                         ; preds = %endif355
+  %tipo397 = load i8*, i8** %tipo, align 8
+  %s2d398 = call double @strtod(i8* %tipo397, i8** null)
+  %cmp399 = fcmp oeq double %s2d398, 1.900000e+01
+  br i1 %cmp399, label %then400, label %endif401
 
-then389:                                          ; preds = %then384
-  %b391 = load i8*, i8** %b, align 8
-  %loop_end_bb392 = load i8*, i8** @g_loop_end_bb, align 8
-  %c_call393 = call i8* @LLVMBuildBr(i8* %b391, i8* %loop_end_bb392)
-  br label %endif390
+then391:                                          ; preds = %then386
+  %b393 = load i8*, i8** %b, align 8
+  %loop_end_bb394 = load i8*, i8** @g_loop_end_bb, align 8
+  %c_call395 = call i8* @zen_br(i8* %b393, i8* %loop_end_bb394)
+  br label %endif392
 
-endif390:                                         ; preds = %then389, %then384
-  %numstr394 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr394
+endif392:                                         ; preds = %then391, %then386
+  %numstr396 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr396
 
-then398:                                          ; preds = %endif385
-  %loop_cond_bb400 = load i8*, i8** @g_loop_cond_bb, align 8
-  %s2d401 = call double @strtod(i8* %loop_cond_bb400, i8** null)
-  %cmp402 = fcmp one double %s2d401, 0.000000e+00
-  br i1 %cmp402, label %then403, label %endif404
+then400:                                          ; preds = %endif387
+  %loop_cond_bb402 = load i8*, i8** @g_loop_cond_bb, align 8
+  %s2d403 = call double @strtod(i8* %loop_cond_bb402, i8** null)
+  %cmp404 = fcmp one double %s2d403, 0.000000e+00
+  br i1 %cmp404, label %then405, label %endif406
 
-endif399:                                         ; preds = %endif385
-  %tipo409 = load i8*, i8** %tipo, align 8
-  %s2d410 = call double @strtod(i8* %tipo409, i8** null)
-  %cmp411 = fcmp oeq double %s2d410, 3.000000e+01
-  br i1 %cmp411, label %then412, label %endif413
+endif401:                                         ; preds = %endif387
+  %tipo411 = load i8*, i8** %tipo, align 8
+  %s2d412 = call double @strtod(i8* %tipo411, i8** null)
+  %cmp413 = fcmp oeq double %s2d412, 3.000000e+01
+  br i1 %cmp413, label %then414, label %endif415
 
-then403:                                          ; preds = %then398
-  %b405 = load i8*, i8** %b, align 8
-  %loop_cond_bb406 = load i8*, i8** @g_loop_cond_bb, align 8
-  %c_call407 = call i8* @LLVMBuildBr(i8* %b405, i8* %loop_cond_bb406)
-  br label %endif404
+then405:                                          ; preds = %then400
+  %b407 = load i8*, i8** %b, align 8
+  %loop_cond_bb408 = load i8*, i8** @g_loop_cond_bb, align 8
+  %c_call409 = call i8* @zen_br(i8* %b407, i8* %loop_cond_bb408)
+  br label %endif406
 
-endif404:                                         ; preds = %then403, %then398
-  %numstr408 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr408
+endif406:                                         ; preds = %then405, %then400
+  %numstr410 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr410
 
-then412:                                          ; preds = %endif399
-  %numstr414 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr414
+then414:                                          ; preds = %endif401
+  %numstr416 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr416
 
-endif413:                                         ; preds = %endif399
-  %numstr415 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  ret i8* %numstr415
+endif415:                                         ; preds = %endif401
+  %numstr417 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr417
 }
 
 define i8* @codegen_struct_lit(i8* %estado, i8* %nodo) {
@@ -7748,15 +7754,15 @@ entry:
   %estado6 = load i8*, i8** %estado1, align 8
   %call = call i8* @estado_modulo(i8* %estado6)
   %main_type7 = load i8*, i8** %main_type, align 8
-  %c_call8 = call i8* @LLVMAddFunction(i8* %call, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @299, i32 0, i32 0), i8* %main_type7)
+  %c_call8 = call i8* @zen_addfunction(i8* %call, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @299, i32 0, i32 0), i8* %main_type7)
   store i8* %c_call8, i8** %main_func, align 8
   %main_func9 = load i8*, i8** %main_func, align 8
-  %c_call10 = call i8* @LLVMAppendBasicBlock(i8* %main_func9, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @300, i32 0, i32 0))
+  %c_call10 = call i8* @zen_appendbasicblock(i8* %main_func9, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @300, i32 0, i32 0))
   store i8* %c_call10, i8** %entry11, align 8
   %estado12 = load i8*, i8** %estado1, align 8
   %call13 = call i8* @estado_builder(i8* %estado12)
   %entry14 = load i8*, i8** %entry11, align 8
-  call void @LLVMPositionBuilderAtEnd(i8* %call13, i8* %entry14)
+  call void @zen_positionbuilder(i8* %call13, i8* %entry14)
   %programa15 = load i8*, i8** %programa2, align 8
   %len = call i64 @__zen_list_len(i8* %programa15)
   %i = alloca i64, align 8
@@ -7787,8 +7793,8 @@ fe.end:                                           ; preds = %fe.cond
   %estado20 = load i8*, i8** %estado1, align 8
   %call21 = call i8* @estado_builder(i8* %estado20)
   %i3222 = load i8*, i8** %i32, align 8
-  %c_call23 = call i8* @LLVMConstInt(i8* %i3222, i32 0, i32 0)
-  %c_call24 = call i8* @LLVMBuildRet(i8* %call21, i8* %c_call23)
+  %c_call23 = call i8* @zen_constint(i8* %i3222, i32 0, i32 0)
+  %c_call24 = call i8* @zen_ret(i8* %call21, i8* %c_call23)
   ret i8* null
 }
 

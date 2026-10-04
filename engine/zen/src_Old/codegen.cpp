@@ -134,6 +134,77 @@ void zen_assign_double(LLVMModuleRef M, LLVMBuilderRef B, const char* Name, doub
 }
 
 
+
+// === Wrappers adicionales ===
+
+LLVMValueRef zen_constint(LLVMTypeRef Ty, int N, int SignExtend) {
+    return LLVMConstInt(Ty, (unsigned long long)N, SignExtend);
+}
+
+LLVMValueRef zen_conststring(const char* Str, int NullTerminate, int DontNullTerminate) {
+    return LLVMConstString(Str, NullTerminate, DontNullTerminate);
+}
+
+LLVMValueRef zen_addglobal(LLVMModuleRef M, LLVMTypeRef Ty, const char* Name) {
+    return LLVMAddGlobal(M, Ty, Name);
+}
+
+void zen_setinitializer(LLVMValueRef GlobalVar, LLVMValueRef Val) {
+    LLVMSetInitializer(GlobalVar, Val);
+}
+
+void zen_setglobalconstant(LLVMValueRef GlobalVar, int IsConst) {
+    LLVMSetGlobalConstant(GlobalVar, IsConst);
+}
+
+void zen_setlinkage(LLVMValueRef GlobalVar, int Linkage) {
+    LLVMSetLinkage(GlobalVar, (LLVMLinkage)Linkage);
+}
+
+LLVMValueRef zen_bitcast(LLVMBuilderRef B, LLVMValueRef Val, LLVMTypeRef DestTy, const char* Name) {
+    return LLVMBuildBitCast(B, Val, DestTy, Name);
+}
+
+LLVMValueRef zen_getnamedfunction(LLVMModuleRef M, const char* Name) {
+    return LLVMGetNamedFunction(M, Name);
+}
+
+LLVMValueRef zen_addfunction(LLVMModuleRef M, const char* Name, LLVMTypeRef Ty) {
+    return LLVMAddFunction(M, Name, Ty);
+}
+
+LLVMValueRef zen_appendbasicblock(LLVMValueRef Fn, const char* Name) {
+    return (LLVMValueRef)LLVMAppendBasicBlock(Fn, Name);
+}
+
+void zen_positionbuilder(LLVMBuilderRef B, LLVMValueRef BB) {
+    LLVMPositionBuilderAtEnd(B, (LLVMBasicBlockRef)BB);
+}
+
+LLVMValueRef zen_retval(LLVMBuilderRef B, LLVMValueRef Val) {
+    return LLVMBuildRet(B, Val);
+}
+
+LLVMValueRef zen_retvoid(LLVMBuilderRef B) {
+    return LLVMBuildRetVoid(B);
+}
+
+LLVMValueRef zen_br(LLVMBuilderRef B, LLVMValueRef Dest) {
+    return LLVMBuildBr(B, (LLVMBasicBlockRef)Dest);
+}
+
+LLVMValueRef zen_condbr(LLVMBuilderRef B, LLVMValueRef Cond, LLVMValueRef Then, LLVMValueRef Else) {
+    return LLVMBuildCondBr(B, Cond, (LLVMBasicBlockRef)Then, (LLVMBasicBlockRef)Else);
+}
+
+LLVMValueRef zen_fcmp(LLVMBuilderRef B, int Pred, LLVMValueRef L, LLVMValueRef R, const char* Name) {
+    return LLVMBuildFCmp(B, (LLVMRealPredicate)Pred, L, R, Name);
+}
+
+LLVMValueRef zen_neg(LLVMBuilderRef B, LLVMValueRef V, const char* Name) {
+    return LLVMBuildNeg(B, V, Name);
+}
+
 } // extern "C"
 
 // ============================================================
@@ -2570,7 +2641,13 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateExternCall(ExternCall* node) {
             auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
             converted = builder.CreateFPToUI(d, llvm::Type::getInt32Ty(context), "tou32");
         } else if (paramInfo.type == CType::Long) {
-            auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
+            // FORZAR conversion i8* -> double -> i64
+            if (val->getType() == llvm::Type::getInt8PtrTy(context)) {
+                auto* nullPtr = llvm::ConstantPointerNull::get(
+                    llvm::Type::getInt8PtrTy(context)->getPointerTo());
+                val = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {val, nullPtr}, "s2d_long");
+            }
+            auto* d = (val->getType() == llvm::Type::getDoubleTy(context)) ? val : toDouble(val, type);
             converted = builder.CreateFPToSI(d, llvm::Type::getInt64Ty(context), "toi64");
         } else if (paramInfo.type == CType::Char) {
             auto* d = (type == ZenType::Number) ? val : toDouble(val, type);

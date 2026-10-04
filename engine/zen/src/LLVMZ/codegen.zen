@@ -380,14 +380,16 @@ funcion codegen_statement(estado, nodo)
                 romper
         double_ty = LLVMDoubleType()
         func_type = LLVMFunctionType(double_ty, 0, 0, 0)
-        func = LLVMAddFunction(mod, nombre, func_type)
-        entry_bb = LLVMAppendBasicBlock(func, "entry")
-        LLVMPositionBuilderAtEnd(b, entry_bb)
+        func = zen_addfunction(mod, nombre, func_type)
+        entry_bb = zen_appendbasicblock(func, "entry")
+        zen_positionbuilder(b, entry_bb)
         body_idx = num_params
         mientras body_idx < num_hijos
             codegen_statement(estado, hijos[body_idx])
             body_idx = body_idx + 1
-        LLVMPositionBuilderAtEnd(b, LLVMAppendBasicBlock(LLVMGetNamedFunction(mod, "main"), "resume"))
+        main_fn2 = zen_getnamedfunction(mod, "main")
+        resume_bb = zen_appendbasicblock(main_fn2, "resume")
+        zen_positionbuilder(b, resume_bb)
         retorna 0
     si tipo == 22
         hijos = nodo.hijos
@@ -396,12 +398,12 @@ funcion codegen_statement(estado, nodo)
     si tipo == 13
         hijos = nodo.hijos
         cond = codegen_expresion(estado, hijos[0])
-        main_fn = LLVMGetNamedFunction(mod, "main")
-        then_bb = LLVMAppendBasicBlock(main_fn, "then")
-        else_bb = LLVMAppendBasicBlock(main_fn, "else")
-        merge_bb = LLVMAppendBasicBlock(main_fn, "merge")
-        LLVMBuildCondBr(b, cond, then_bb, else_bb)
-        LLVMPositionBuilderAtEnd(b, then_bb)
+        main_fn = zen_getnamedfunction(mod, "main")
+        then_bb = zen_appendbasicblock(main_fn, "then")
+        else_bb = zen_appendbasicblock(main_fn, "else")
+        merge_bb = zen_appendbasicblock(main_fn, "merge")
+        zen_condbr(b, cond, then_bb, else_bb)
+        zen_positionbuilder(b, then_bb)
         idx = 1
         num_hijos = longitud(hijos)
         mientras idx < num_hijos
@@ -410,36 +412,36 @@ funcion codegen_statement(estado, nodo)
                 romper
             codegen_statement(estado, stmt)
             idx = idx + 1
-        LLVMBuildBr(b, merge_bb)
-        LLVMPositionBuilderAtEnd(b, else_bb)
+        zen_br(b, merge_bb)
+        zen_positionbuilder(b, else_bb)
         mientras idx < num_hijos
             codegen_statement(estado, hijos[idx])
             idx = idx + 1
-        LLVMBuildBr(b, merge_bb)
-        LLVMPositionBuilderAtEnd(b, merge_bb)
+        zen_br(b, merge_bb)
+        zen_positionbuilder(b, merge_bb)
         retorna 0
     si tipo == 16
         hijos = nodo.hijos
-        main_fn = LLVMGetNamedFunction(mod, "main")
-        cond_bb = LLVMAppendBasicBlock(main_fn, "while.cond")
-        body_bb = LLVMAppendBasicBlock(main_fn, "while.body")
-        end_bb = LLVMAppendBasicBlock(main_fn, "while.end")
+        main_fn = zen_getnamedfunction(mod, "main")
+        cond_bb = zen_appendbasicblock(main_fn, "while.cond")
+        body_bb = zen_appendbasicblock(main_fn, "while.body")
+        end_bb = zen_appendbasicblock(main_fn, "while.end")
         old_end = loop_end_bb
         old_cond = loop_cond_bb
         loop_end_bb = end_bb
         loop_cond_bb = cond_bb
-        LLVMBuildBr(b, cond_bb)
-        LLVMPositionBuilderAtEnd(b, cond_bb)
+        zen_br(b, cond_bb)
+        zen_positionbuilder(b, cond_bb)
         cond = codegen_expresion(estado, hijos[0])
-        LLVMBuildCondBr(b, cond, body_bb, end_bb)
-        LLVMPositionBuilderAtEnd(b, body_bb)
+        zen_condbr(b, cond, body_bb, end_bb)
+        zen_positionbuilder(b, body_bb)
         idx = 1
         num_hijos = longitud(hijos)
         mientras idx < num_hijos
             codegen_statement(estado, hijos[idx])
             idx = idx + 1
-        LLVMBuildBr(b, cond_bb)
-        LLVMPositionBuilderAtEnd(b, end_bb)
+        zen_br(b, cond_bb)
+        zen_positionbuilder(b, end_bb)
         loop_end_bb = old_end
         loop_cond_bb = old_cond
         retorna 0
@@ -448,31 +450,31 @@ funcion codegen_statement(estado, nodo)
         hijos = nodo.hijos
         desde_val = codegen_expresion(estado, hijos[0])
         hasta_val = codegen_expresion(estado, hijos[1])
-        main_fn = LLVMGetNamedFunction(mod, "main")
-        loop_var = LLVMBuildAlloca(b, LLVMDoubleType(), nombre)
-        LLVMBuildStore(b, desde_val, loop_var)
-        cond_bb = LLVMAppendBasicBlock(main_fn, "for.cond")
-        body_bb = LLVMAppendBasicBlock(main_fn, "for.body")
-        end_bb = LLVMAppendBasicBlock(main_fn, "for.end")
+        main_fn = zen_getnamedfunction(mod, "main")
+        loop_var = zen_alloca(b, LLVMDoubleType(), nombre)
+        zen_store(b, desde_val, loop_var)
+        cond_bb = zen_appendbasicblock(main_fn, "for.cond")
+        body_bb = zen_appendbasicblock(main_fn, "for.body")
+        end_bb = zen_appendbasicblock(main_fn, "for.end")
         old_end = loop_end_bb
         old_cond = loop_cond_bb
         loop_end_bb = end_bb
         loop_cond_bb = cond_bb
-        LLVMBuildBr(b, cond_bb)
-        LLVMPositionBuilderAtEnd(b, cond_bb)
-        cur_val = LLVMBuildLoad(b, loop_var, nombre)
-        cmp = LLVMBuildFCmp(b, 4, cur_val, hasta_val, "forcmp")
-        LLVMBuildCondBr(b, cmp, body_bb, end_bb)
-        LLVMPositionBuilderAtEnd(b, body_bb)
+        zen_br(b, cond_bb)
+        zen_positionbuilder(b, cond_bb)
+        cur_val = zen_load(b, loop_var, nombre)
+        cmp = zen_fcmp(b, 4, cur_val, hasta_val, "forcmp")
+        zen_condbr(b, cmp, body_bb, end_bb)
+        zen_positionbuilder(b, body_bb)
         idx = 2
         num_hijos = longitud(hijos)
         mientras idx < num_hijos
             codegen_statement(estado, hijos[idx])
             idx = idx + 1
-        next_val = LLVMBuildFAdd(b, cur_val, LLVMConstReal(LLVMDoubleType(), 1), "forinc")
-        LLVMBuildStore(b, next_val, loop_var)
-        LLVMBuildBr(b, cond_bb)
-        LLVMPositionBuilderAtEnd(b, end_bb)
+        next_val = zen_fadd(b, cur_val, zen_constreal(LLVMDoubleType(), 1), "forinc")
+        zen_store(b, next_val, loop_var)
+        zen_br(b, cond_bb)
+        zen_positionbuilder(b, end_bb)
         loop_end_bb = old_end
         loop_cond_bb = old_cond
         retorna 0
@@ -488,11 +490,11 @@ funcion codegen_statement(estado, nodo)
         retorna 0
     si tipo == 18
         si loop_end_bb != 0
-            LLVMBuildBr(b, loop_end_bb)
+            zen_br(b, loop_end_bb)
         retorna 0
     si tipo == 19
         si loop_cond_bb != 0
-            LLVMBuildBr(b, loop_cond_bb)
+            zen_br(b, loop_cond_bb)
         retorna 0
     si tipo == 30
         retorna 0
@@ -596,12 +598,12 @@ funcion codegen_programa(estado, programa)
     # Truco: LLVMAddFunction ya declara main con su tipo, y LLVM no valida
     # que paramTypes sea NULL si paramCount=0. Usamos cualquier ptr.
     main_type = LLVMFunctionType(i32, i32, 0, 0)
-    main_func = LLVMAddFunction(estado_modulo(estado), "main", main_type)
-    entry = LLVMAppendBasicBlock(main_func, "entry")
-    LLVMPositionBuilderAtEnd(estado_builder(estado), entry)
+    main_func = zen_addfunction(estado_modulo(estado), "main", main_type)
+    entry = zen_appendbasicblock(main_func, "entry")
+    zen_positionbuilder(estado_builder(estado), entry)
     para cada stmt en programa
         codegen_statement(estado, stmt)
-    LLVMBuildRet(estado_builder(estado), LLVMConstInt(i32, 0, 0))
+    zen_ret(estado_builder(estado), zen_constint(i32, 0, 0))
 
 funcion codegen_compilar(estado, ruta_salida)
     LLVMPrintModuleToFile(estado_modulo(estado), ruta_salida, nada)
