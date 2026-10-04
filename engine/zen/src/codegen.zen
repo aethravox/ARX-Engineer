@@ -86,7 +86,6 @@ extern "libLLVM" zen_call4(ptr, ptr, ptr, ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" zen_alloca(ptr, ptr, str) -> ptr
 extern "libLLVM" zen_store(ptr, ptr, ptr) -> ptr
 extern "libLLVM" zen_load(ptr, ptr, str) -> ptr
-extern "libLLVM" zen_load2(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" zen_ret(ptr, ptr) -> ptr
 extern "libLLVM" zen_fadd(ptr, ptr, ptr, str) -> ptr
 extern "libLLVM" zen_fsub(ptr, ptr, ptr, str) -> ptr
@@ -206,7 +205,7 @@ funcion codegen_expresion(estado, nodo)
         nombre = nodo_valor(nodo)
         gvar = zen_getnamedglobal(estado_modulo(estado), nombre)
         si gvar != 0
-            retorna zen_load2(estado_builder(estado), LLVMDoubleType(), gvar, nombre)
+            retorna zen_load(estado_builder(estado), gvar, nombre)
         retorna 0
     si tipo == 6
         op = nodo_op(nodo)
@@ -339,13 +338,7 @@ funcion codegen_expresion(estado, nodo)
 # ============================================================
 
 funcion codegen_statement(estado, nodo)
-    printf("CS
-")
     tipo = nodo_tipo(nodo)
-    printf("tipo=")
-    printf(tipo)
-    printf("
-")
     b = estado_builder(estado)
     mod = estado_modulo(estado)
     si tipo == 12
