@@ -70,6 +70,10 @@ LLVMValueRef zen_load(LLVMBuilderRef B, LLVMValueRef Ptr, const char* Name) {
     return LLVMBuildLoad(B, Ptr, Name);
 }
 
+LLVMValueRef zen_load2(LLVMBuilderRef B, LLVMTypeRef Ty, LLVMValueRef Ptr, const char* Name) {
+    return LLVMBuildLoad2(B, Ty, Ptr, Name);
+}
+
 LLVMValueRef zen_ret(LLVMBuilderRef B, LLVMValueRef Val) {
     return LLVMBuildRet(B, Val);
 }
