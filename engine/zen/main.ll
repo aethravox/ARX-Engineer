@@ -3770,9 +3770,9 @@ endif:                                            ; preds = %then, %entry
   %tokens_parser4 = load i8*, i8** @g_tokens_parser, align 8
   %idx5 = load i8*, i8** %idx, align 8
   %s2d6 = call double @strtod(i8* %idx5, i8** null)
-  %idx7 = fptosi double %s2d6 to i64
-  %elem = call i8* @__zen_list_get(i8* %tokens_parser4, i64 %idx7)
-  ret i8* %elem
+  %toi64 = fptosi double %s2d6 to i64
+  %c_call7 = call i8* @__zen_list_get(i8* %tokens_parser4, i64 %toi64)
+  ret i8* %c_call7
 }
 
 define i8* @avanzar() {
@@ -3803,9 +3803,9 @@ endif:                                            ; preds = %then, %entry
   %tokens_parser4 = load i8*, i8** @g_tokens_parser, align 8
   %idx5 = load i8*, i8** %idx, align 8
   %s2d6 = call double @strtod(i8* %idx5, i8** null)
-  %idx7 = fptosi double %s2d6 to i64
-  %elem = call i8* @__zen_list_get(i8* %tokens_parser4, i64 %idx7)
-  store i8* %elem, i8** %t, align 8
+  %toi64 = fptosi double %s2d6 to i64
+  %c_call7 = call i8* @__zen_list_get(i8* %tokens_parser4, i64 %toi64)
+  store i8* %c_call7, i8** %t, align 8
   %pos_parser8 = load i8*, i8** @g_pos_parser, align 8
   %n9 = load double, double* %n, align 8
   %sub10 = fsub double %n9, 1.000000e+00
@@ -5728,6 +5728,8 @@ define i8* @parsear(i8* %lista_tokens) {
 entry:
   %saltar = alloca i1, align 1
   %s = alloca i8*, align 8
+  %iter = alloca double, align 8
+  %max_iter = alloca double, align 8
   %programa = alloca i8*, align 8
   %lista_tokens1 = alloca i8*, align 8
   store i8* %lista_tokens, i8** %lista_tokens1, align 8
@@ -5737,9 +5739,11 @@ entry:
   store i8* %numstr, i8** @g_pos_parser, align 8
   %list = call i8* @__zen_list_create(i64 4)
   store i8* %list, i8** %programa, align 8
+  store double 5.000000e+02, double* %max_iter, align 8
+  store double 0.000000e+00, double* %iter, align 8
   br label %while.cond
 
-while.cond:                                       ; preds = %while.end19, %entry
+while.cond:                                       ; preds = %while.end25, %entry
   %call = call i8* @peek()
   %call3 = call i8* @token_tipo(i8* %call)
   %s2d = call double @strtod(i8* %call3, i8** null)
@@ -5747,31 +5751,32 @@ while.cond:                                       ; preds = %while.end19, %entry
   br i1 %cmp, label %while.body, label %while.end
 
 while.body:                                       ; preds = %while.cond
-  %call4 = call i8* @parsear_statement()
-  store i8* %call4, i8** %s, align 8
-  %programa5 = load i8*, i8** %programa, align 8
-  %s6 = load i8*, i8** %s, align 8
-  call void @__zen_list_push(i8* %programa5, i8* %s6)
-  store i1 false, i1* %saltar, align 1
-  %call7 = call i8* @peek()
-  %call8 = call i8* @token_tipo(i8* %call7)
-  %s2d9 = call double @strtod(i8* %call8, i8** null)
-  %cmp10 = fcmp oeq double %s2d9, 6.700000e+01
-  br i1 %cmp10, label %then, label %endif
+  %iter4 = load double, double* %iter, align 8
+  %add = fadd double %iter4, 1.000000e+00
+  store double %add, double* %iter, align 8
+  %iter5 = load double, double* %iter, align 8
+  %max_iter6 = load double, double* %max_iter, align 8
+  %cmp7 = fcmp ogt double %iter5, %max_iter6
+  br i1 %cmp7, label %then, label %endif
 
-while.end:                                        ; preds = %while.cond
-  %programa35 = load i8*, i8** %programa, align 8
-  ret i8* %programa35
+while.end:                                        ; preds = %then, %while.cond
+  %programa41 = load i8*, i8** %programa, align 8
+  ret i8* %programa41
 
 then:                                             ; preds = %while.body
-  store i1 true, i1* %saltar, align 1
-  br label %endif
+  br label %while.end
 
-endif:                                            ; preds = %then, %while.body
+endif:                                            ; preds = %while.body
+  %call8 = call i8* @parsear_statement()
+  store i8* %call8, i8** %s, align 8
+  %programa9 = load i8*, i8** %programa, align 8
+  %s10 = load i8*, i8** %s, align 8
+  call void @__zen_list_push(i8* %programa9, i8* %s10)
+  store i1 false, i1* %saltar, align 1
   %call11 = call i8* @peek()
   %call12 = call i8* @token_tipo(i8* %call11)
   %s2d13 = call double @strtod(i8* %call12, i8** null)
-  %cmp14 = fcmp oeq double %s2d13, 6.900000e+01
+  %cmp14 = fcmp oeq double %s2d13, 6.700000e+01
   br i1 %cmp14, label %then15, label %endif16
 
 then15:                                           ; preds = %endif
@@ -5779,43 +5784,54 @@ then15:                                           ; preds = %endif
   br label %endif16
 
 endif16:                                          ; preds = %then15, %endif
-  br label %while.cond17
+  %call17 = call i8* @peek()
+  %call18 = call i8* @token_tipo(i8* %call17)
+  %s2d19 = call double @strtod(i8* %call18, i8** null)
+  %cmp20 = fcmp oeq double %s2d19, 6.900000e+01
+  br i1 %cmp20, label %then21, label %endif22
 
-while.cond17:                                     ; preds = %endif34, %endif16
-  %saltar20 = load i1, i1* %saltar, align 1
-  %tof = uitofp i1 %saltar20 to double
-  %cmp21 = fcmp oeq double %tof, 1.000000e+00
-  br i1 %cmp21, label %while.body18, label %while.end19
-
-while.body18:                                     ; preds = %while.cond17
-  %call22 = call i8* @avanzar()
-  store i1 false, i1* %saltar, align 1
-  %call23 = call i8* @peek()
-  %call24 = call i8* @token_tipo(i8* %call23)
-  %s2d25 = call double @strtod(i8* %call24, i8** null)
-  %cmp26 = fcmp oeq double %s2d25, 6.700000e+01
-  br i1 %cmp26, label %then27, label %endif28
-
-while.end19:                                      ; preds = %while.cond17
-  br label %while.cond
-
-then27:                                           ; preds = %while.body18
+then21:                                           ; preds = %endif16
   store i1 true, i1* %saltar, align 1
-  br label %endif28
+  br label %endif22
 
-endif28:                                          ; preds = %then27, %while.body18
+endif22:                                          ; preds = %then21, %endif16
+  br label %while.cond23
+
+while.cond23:                                     ; preds = %endif40, %endif22
+  %saltar26 = load i1, i1* %saltar, align 1
+  %tof = uitofp i1 %saltar26 to double
+  %cmp27 = fcmp oeq double %tof, 1.000000e+00
+  br i1 %cmp27, label %while.body24, label %while.end25
+
+while.body24:                                     ; preds = %while.cond23
+  %call28 = call i8* @avanzar()
+  store i1 false, i1* %saltar, align 1
   %call29 = call i8* @peek()
   %call30 = call i8* @token_tipo(i8* %call29)
   %s2d31 = call double @strtod(i8* %call30, i8** null)
-  %cmp32 = fcmp oeq double %s2d31, 6.900000e+01
+  %cmp32 = fcmp oeq double %s2d31, 6.700000e+01
   br i1 %cmp32, label %then33, label %endif34
 
-then33:                                           ; preds = %endif28
+while.end25:                                      ; preds = %while.cond23
+  br label %while.cond
+
+then33:                                           ; preds = %while.body24
   store i1 true, i1* %saltar, align 1
   br label %endif34
 
-endif34:                                          ; preds = %then33, %endif28
-  br label %while.cond17
+endif34:                                          ; preds = %then33, %while.body24
+  %call35 = call i8* @peek()
+  %call36 = call i8* @token_tipo(i8* %call35)
+  %s2d37 = call double @strtod(i8* %call36, i8** null)
+  %cmp38 = fcmp oeq double %s2d37, 6.900000e+01
+  br i1 %cmp38, label %then39, label %endif40
+
+then39:                                           ; preds = %endif34
+  store i1 true, i1* %saltar, align 1
+  br label %endif40
+
+endif40:                                          ; preds = %then39, %endif34
+  br label %while.cond23
 }
 
 define i8* @estado_modulo(i8* %e) {

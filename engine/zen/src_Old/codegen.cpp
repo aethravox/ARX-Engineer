@@ -2023,16 +2023,40 @@ std::pair<llvm::Value*, ZenType> CodeGen::generateFuncCallExpr(FuncCall* node) {
                 auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
                 converted = builder.CreateFPTrunc(d, llvm::Type::getFloatTy(context), "tof32");
             } else if (paramInfo.type == CType::Int) {
-                auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
+                // FORZAR conversion i8* -> double con strtod
+                if (val->getType() == llvm::Type::getInt8PtrTy(context)) {
+                    auto* nullPtr = llvm::ConstantPointerNull::get(
+                        llvm::Type::getInt8PtrTy(context)->getPointerTo());
+                    val = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {val, nullPtr}, "s2d");
+                }
+                auto* d = (val->getType() == llvm::Type::getDoubleTy(context)) ? val : toDouble(val, type);
                 converted = builder.CreateFPToSI(d, llvm::Type::getInt32Ty(context), "toi32");
             } else if (paramInfo.type == CType::UInt) {
-                auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
+                // FORZAR conversion i8* -> double con strtod
+                if (val->getType() == llvm::Type::getInt8PtrTy(context)) {
+                    auto* nullPtr = llvm::ConstantPointerNull::get(
+                        llvm::Type::getInt8PtrTy(context)->getPointerTo());
+                    val = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {val, nullPtr}, "s2d");
+                }
+                auto* d = (val->getType() == llvm::Type::getDoubleTy(context)) ? val : toDouble(val, type);
                 converted = builder.CreateFPToUI(d, llvm::Type::getInt32Ty(context), "tou32");
             } else if (paramInfo.type == CType::Long) {
-                auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
+                // FORZAR conversion i8* -> double con strtod
+                if (val->getType() == llvm::Type::getInt8PtrTy(context)) {
+                    auto* nullPtr = llvm::ConstantPointerNull::get(
+                        llvm::Type::getInt8PtrTy(context)->getPointerTo());
+                    val = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {val, nullPtr}, "s2d");
+                }
+                auto* d = (val->getType() == llvm::Type::getDoubleTy(context)) ? val : toDouble(val, type);
                 converted = builder.CreateFPToSI(d, llvm::Type::getInt64Ty(context), "toi64");
             } else if (paramInfo.type == CType::Char) {
-                auto* d = (type == ZenType::Number) ? val : toDouble(val, type);
+                // FORZAR conversion i8* -> double con strtod
+                if (val->getType() == llvm::Type::getInt8PtrTy(context)) {
+                    auto* nullPtr = llvm::ConstantPointerNull::get(
+                        llvm::Type::getInt8PtrTy(context)->getPointerTo());
+                    val = builder.CreateCall(llvm::FunctionCallee(strtodFunc), {val, nullPtr}, "s2d");
+                }
+                auto* d = (val->getType() == llvm::Type::getDoubleTy(context)) ? val : toDouble(val, type);
                 converted = builder.CreateFPToSI(d, llvm::Type::getInt8Ty(context), "toi8");
             } else if (paramInfo.type == CType::Ptr) {
                 converted = toString(val, type);

@@ -10,6 +10,7 @@ importar "lexer"
 
 extern "libLLVM" __zen_list_len(ptr) -> long
 extern "libLLVM" __zen_list_get(ptr, long) -> ptr
+extern "libc" printf(str) -> int
 
 # ============================================================
 # Estado del parser (modulo-level)
@@ -461,7 +462,12 @@ funcion parsear(lista_tokens)
     tokens_parser = lista_tokens
     pos_parser = 0
     programa = []
+    max_iter = 500
+    iter = 0
     mientras token_tipo(peek()) != 0
+        iter = iter + 1
+        si iter > max_iter
+            romper
         s = parsear_statement()
         agregar(programa, s)
         # saltar newlines (67) y dedents (69)
