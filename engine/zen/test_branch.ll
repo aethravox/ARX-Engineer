@@ -7,10 +7,12 @@ source_filename = "zen"
 @2 = private unnamed_addr constant [6 x i8] c"linux\00", align 1
 @__zen_argc = internal global i32 0
 @__zen_argv = internal global i8** null
-@3 = private unnamed_addr constant [7 x i8] c"argc: \00", align 1
+@3 = private unnamed_addr constant [3 x i8] c"c=\00", align 1
 @4 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@5 = private unnamed_addr constant [7 x i8] c"arg1: \00", align 1
+@5 = private unnamed_addr constant [3 x i8] c"r=\00", align 1
 @6 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@7 = private unnamed_addr constant [17 x i8] c"ENTRO AL BRANCH\0A\00", align 1
+@8 = private unnamed_addr constant [10 x i8] c"NO ENTRO\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -342,47 +344,109 @@ entry:
   ret i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0)
 }
 
-define i8* @principal() {
+define i8* @es_letra(i8* %c) {
 entry:
-  %arg1 = alloca i8*, align 8
-  %argc1 = alloca double, align 8
-  %argc = load i32, i32* @__zen_argc, align 4
-  %argcd = sitofp i32 %argc to double
-  store double %argcd, double* %argc1, align 8
-  %c_call = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0))
-  %c2d = sitofp i32 %c_call to double
-  %argc2 = load double, double* %argc1, align 8
-  %numstr = call i8* @__zen_num_to_str(double %argc2)
-  %c_call3 = call i32 (i8*, ...) @printf(i8* %numstr)
-  %c2d4 = sitofp i32 %c_call3 to double
-  %c_call5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @4, i32 0, i32 0))
-  %c2d6 = sitofp i32 %c_call5 to double
-  %argc7 = load double, double* %argc1, align 8
-  %cmp = fcmp oge double %argc7, 2.000000e+00
+  %c1 = alloca i8*, align 8
+  store i8* %c, i8** %c1, align 8
+  %c2 = load i8*, i8** %c1, align 8
+  %s2d = call double @strtod(i8* %c2, i8** null)
+  %cmp = fcmp oge double %s2d, 9.700000e+01
   br i1 %cmp, label %then, label %endif
 
 then:                                             ; preds = %entry
-  %argv = load i8**, i8*** @__zen_argv, align 8
-  %arggep = getelementptr i8*, i8** %argv, i32 1
-  %argval = load i8*, i8** %arggep, align 8
-  store i8* %argval, i8** %arg1, align 8
-  %c_call8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @5, i32 0, i32 0))
+  %c3 = load i8*, i8** %c1, align 8
+  %s2d4 = call double @strtod(i8* %c3, i8** null)
+  %cmp5 = fcmp ole double %s2d4, 1.220000e+02
+  br i1 %cmp5, label %then6, label %endif7
+
+endif:                                            ; preds = %endif7, %entry
+  %c8 = load i8*, i8** %c1, align 8
+  %s2d9 = call double @strtod(i8* %c8, i8** null)
+  %cmp10 = fcmp oge double %s2d9, 6.500000e+01
+  br i1 %cmp10, label %then11, label %endif12
+
+then6:                                            ; preds = %then
+  %numstr = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr
+
+endif7:                                           ; preds = %then
+  br label %endif
+
+then11:                                           ; preds = %endif
+  %c13 = load i8*, i8** %c1, align 8
+  %s2d14 = call double @strtod(i8* %c13, i8** null)
+  %cmp15 = fcmp ole double %s2d14, 9.000000e+01
+  br i1 %cmp15, label %then16, label %endif17
+
+endif12:                                          ; preds = %endif17, %endif
+  %c19 = load i8*, i8** %c1, align 8
+  %s2d20 = call double @strtod(i8* %c19, i8** null)
+  %cmp21 = fcmp oeq double %s2d20, 9.500000e+01
+  br i1 %cmp21, label %then22, label %endif23
+
+then16:                                           ; preds = %then11
+  %numstr18 = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr18
+
+endif17:                                          ; preds = %then11
+  br label %endif12
+
+then22:                                           ; preds = %endif12
+  %numstr24 = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr24
+
+endif23:                                          ; preds = %endif12
+  %numstr25 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr25
+}
+
+define i8* @main() {
+entry:
+  %r = alloca i8*, align 8
+  %c = alloca double, align 8
+  store double 1.090000e+02, double* %c, align 8
+  %c_call = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @3, i32 0, i32 0))
+  %c2d = sitofp i32 %c_call to double
+  %c1 = load double, double* %c, align 8
+  %numstr = call i8* @__zen_num_to_str(double %c1)
+  %c_call2 = call i32 (i8*, ...) @printf(i8* %numstr)
+  %c2d3 = sitofp i32 %c_call2 to double
+  %c_call4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @4, i32 0, i32 0))
+  %c2d5 = sitofp i32 %c_call4 to double
+  %c6 = load double, double* %c, align 8
+  %numstr7 = call i8* @__zen_num_to_str(double %c6)
+  %call = call i8* @es_letra(i8* %numstr7)
+  store i8* %call, i8** %r, align 8
+  %c_call8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @5, i32 0, i32 0))
   %c2d9 = sitofp i32 %c_call8 to double
-  %arg110 = load i8*, i8** %arg1, align 8
-  %c_call11 = call i32 (i8*, ...) @printf(i8* %arg110)
+  %r10 = load i8*, i8** %r, align 8
+  %c_call11 = call i32 (i8*, ...) @printf(i8* %r10)
   %c2d12 = sitofp i32 %c_call11 to double
   %c_call13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @6, i32 0, i32 0))
   %c2d14 = sitofp i32 %c_call13 to double
+  %r15 = load i8*, i8** %r, align 8
+  %s2d = call double @strtod(i8* %r15, i8** null)
+  %cmp = fcmp oeq double %s2d, 1.000000e+00
+  br i1 %cmp, label %then, label %else
+
+then:                                             ; preds = %entry
+  %c_call16 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @7, i32 0, i32 0))
+  %c2d17 = sitofp i32 %c_call16 to double
   br label %endif
 
-endif:                                            ; preds = %then, %entry
+else:                                             ; preds = %entry
+  %c_call18 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @8, i32 0, i32 0))
+  %c2d19 = sitofp i32 %c_call18 to double
+  br label %endif
+
+endif:                                            ; preds = %else, %then
   ret i8* null
 }
 
-define i32 @main(i32 %argc, i8** %argv) {
+define i32 @main.1(i32 %argc, i8** %argv) {
 entry:
   store i32 %argc, i32* @__zen_argc, align 4
   store i8** %argv, i8*** @__zen_argv, align 8
-  %call = call i8* @principal()
+  %call = call i8* @main()
   ret i32 0
 }

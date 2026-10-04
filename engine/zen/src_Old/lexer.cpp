@@ -124,13 +124,12 @@ LexResult Lexer::tokenize() {
         col = 1;
         pos = 0;
 
-        // Calcular y manejar indentacion
+        // Calcular indentacion
         int indent = countIndent(currentLine);
         col = indent + 1;
         pos = indent;
-        handleIndent(indent, this->line);
 
-        // Saltar lineas vacias y comentarios
+        // VERIFICAR si la linea es vacia ANTES de handleIndent
         bool isEmpty = true;
         for (int j = indent; j < (int)currentLine.size(); j++) {
             if (currentLine[j] != ' ' && currentLine[j] != '\t') {
@@ -143,6 +142,9 @@ LexResult Lexer::tokenize() {
                 tokens.push_back({TokenType::NEWLINE, "\\n", this->line, col});
             continue;
         }
+
+        // Solo manejar indentacion si la linea NO es vacia
+        handleIndent(indent, this->line);
 
         // Verificar si es #lang directive (debe ser el primer token)
         if (pos < (int)currentLine.size() && currentLine[pos] == '#') {

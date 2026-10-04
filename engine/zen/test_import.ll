@@ -121,59 +121,56 @@ source_filename = "zen"
 @77 = private unnamed_addr constant [10 x i8] c"StructLit\00", align 1
 @78 = private unnamed_addr constant [6 x i8] c"Match\00", align 1
 @79 = private unnamed_addr constant [6 x i8] c"Tipo_\00", align 1
-@80 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@81 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@82 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@83 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@84 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@85 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@86 = private unnamed_addr constant [3 x i8] c"si\00", align 1
-@87 = private unnamed_addr constant [3 x i8] c"if\00", align 1
-@88 = private unnamed_addr constant [5 x i8] c"sino\00", align 1
-@89 = private unnamed_addr constant [5 x i8] c"else\00", align 1
-@90 = private unnamed_addr constant [9 x i8] c"mientras\00", align 1
-@91 = private unnamed_addr constant [6 x i8] c"while\00", align 1
-@92 = private unnamed_addr constant [5 x i8] c"para\00", align 1
-@93 = private unnamed_addr constant [4 x i8] c"for\00", align 1
-@94 = private unnamed_addr constant [8 x i8] c"funcion\00", align 1
-@95 = private unnamed_addr constant [9 x i8] c"function\00", align 1
-@96 = private unnamed_addr constant [8 x i8] c"retorna\00", align 1
-@97 = private unnamed_addr constant [7 x i8] c"return\00", align 1
-@98 = private unnamed_addr constant [8 x i8] c"muestra\00", align 1
-@99 = private unnamed_addr constant [5 x i8] c"show\00", align 1
-@100 = private unnamed_addr constant [6 x i8] c"print\00", align 1
-@101 = private unnamed_addr constant [7 x i8] c"verdad\00", align 1
-@102 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
-@103 = private unnamed_addr constant [6 x i8] c"falso\00", align 1
-@104 = private unnamed_addr constant [3 x i8] c"no\00", align 1
-@105 = private unnamed_addr constant [5 x i8] c"nada\00", align 1
-@106 = private unnamed_addr constant [8 x i8] c"nothing\00", align 1
-@107 = private unnamed_addr constant [8 x i8] c"NEWLINE\00", align 1
-@108 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@109 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@110 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
-@111 = private unnamed_addr constant [3 x i8] c"==\00", align 1
-@112 = private unnamed_addr constant [3 x i8] c"!=\00", align 1
-@113 = private unnamed_addr constant [3 x i8] c"<=\00", align 1
-@114 = private unnamed_addr constant [3 x i8] c">=\00", align 1
-@115 = private unnamed_addr constant [3 x i8] c"->\00", align 1
-@116 = private unnamed_addr constant [2 x i8] c"+\00", align 1
-@117 = private unnamed_addr constant [2 x i8] c"-\00", align 1
-@118 = private unnamed_addr constant [2 x i8] c"*\00", align 1
-@119 = private unnamed_addr constant [2 x i8] c"/\00", align 1
-@120 = private unnamed_addr constant [2 x i8] c"=\00", align 1
-@121 = private unnamed_addr constant [2 x i8] c"<\00", align 1
-@122 = private unnamed_addr constant [2 x i8] c">\00", align 1
-@123 = private unnamed_addr constant [2 x i8] c"(\00", align 1
-@124 = private unnamed_addr constant [2 x i8] c")\00", align 1
-@125 = private unnamed_addr constant [2 x i8] c",\00", align 1
-@126 = private unnamed_addr constant [2 x i8] c".\00", align 1
-@127 = private unnamed_addr constant [2 x i8] c":\00", align 1
-@128 = private unnamed_addr constant [2 x i8] c"[\00", align 1
-@129 = private unnamed_addr constant [2 x i8] c"]\00", align 1
-@130 = private unnamed_addr constant [2 x i8] c"{\00", align 1
-@131 = private unnamed_addr constant [2 x i8] c"}\00", align 1
-@132 = private unnamed_addr constant [4 x i8] c"EOF\00", align 1
+@80 = private unnamed_addr constant [3 x i8] c"si\00", align 1
+@81 = private unnamed_addr constant [3 x i8] c"if\00", align 1
+@82 = private unnamed_addr constant [5 x i8] c"sino\00", align 1
+@83 = private unnamed_addr constant [5 x i8] c"else\00", align 1
+@84 = private unnamed_addr constant [9 x i8] c"mientras\00", align 1
+@85 = private unnamed_addr constant [6 x i8] c"while\00", align 1
+@86 = private unnamed_addr constant [5 x i8] c"para\00", align 1
+@87 = private unnamed_addr constant [4 x i8] c"for\00", align 1
+@88 = private unnamed_addr constant [8 x i8] c"funcion\00", align 1
+@89 = private unnamed_addr constant [9 x i8] c"function\00", align 1
+@90 = private unnamed_addr constant [8 x i8] c"retorna\00", align 1
+@91 = private unnamed_addr constant [7 x i8] c"return\00", align 1
+@92 = private unnamed_addr constant [8 x i8] c"muestra\00", align 1
+@93 = private unnamed_addr constant [5 x i8] c"show\00", align 1
+@94 = private unnamed_addr constant [6 x i8] c"print\00", align 1
+@95 = private unnamed_addr constant [7 x i8] c"verdad\00", align 1
+@96 = private unnamed_addr constant [4 x i8] c"yes\00", align 1
+@97 = private unnamed_addr constant [6 x i8] c"falso\00", align 1
+@98 = private unnamed_addr constant [3 x i8] c"no\00", align 1
+@99 = private unnamed_addr constant [5 x i8] c"nada\00", align 1
+@100 = private unnamed_addr constant [8 x i8] c"nothing\00", align 1
+@101 = private unnamed_addr constant [8 x i8] c"NEWLINE\00", align 1
+@102 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@103 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@104 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@105 = private unnamed_addr constant [3 x i8] c"==\00", align 1
+@106 = private unnamed_addr constant [3 x i8] c"!=\00", align 1
+@107 = private unnamed_addr constant [3 x i8] c"<=\00", align 1
+@108 = private unnamed_addr constant [3 x i8] c">=\00", align 1
+@109 = private unnamed_addr constant [3 x i8] c"->\00", align 1
+@110 = private unnamed_addr constant [2 x i8] c"+\00", align 1
+@111 = private unnamed_addr constant [2 x i8] c"-\00", align 1
+@112 = private unnamed_addr constant [2 x i8] c"*\00", align 1
+@113 = private unnamed_addr constant [2 x i8] c"/\00", align 1
+@114 = private unnamed_addr constant [2 x i8] c"=\00", align 1
+@115 = private unnamed_addr constant [2 x i8] c"<\00", align 1
+@116 = private unnamed_addr constant [2 x i8] c">\00", align 1
+@117 = private unnamed_addr constant [2 x i8] c"(\00", align 1
+@118 = private unnamed_addr constant [2 x i8] c")\00", align 1
+@119 = private unnamed_addr constant [2 x i8] c",\00", align 1
+@120 = private unnamed_addr constant [2 x i8] c".\00", align 1
+@121 = private unnamed_addr constant [2 x i8] c":\00", align 1
+@122 = private unnamed_addr constant [2 x i8] c"[\00", align 1
+@123 = private unnamed_addr constant [2 x i8] c"]\00", align 1
+@124 = private unnamed_addr constant [2 x i8] c"{\00", align 1
+@125 = private unnamed_addr constant [2 x i8] c"}\00", align 1
+@126 = private unnamed_addr constant [4 x i8] c"EOF\00", align 1
+@127 = private unnamed_addr constant [11 x i8] c"muestra 42\00", align 1
+@128 = private unnamed_addr constant [9 x i8] c"tokens: \00", align 1
+@129 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -504,6 +501,22 @@ define internal i8* @__zen_platform() {
 entry:
   ret i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0)
 }
+
+declare i32 @puts(i8*)
+
+declare i32 @system(i8*)
+
+declare double @sqrt(double)
+
+declare double @sin(double)
+
+declare double @cos(double)
+
+declare double @floor(double)
+
+declare double @ceil(double)
+
+declare double @fabs(double)
 
 define i8* @nodo_number(i8* %valor, i8* %linea) {
 entry:
@@ -1501,12 +1514,24 @@ entry:
   %c2 = load i8*, i8** %c1, align 8
   %s2d = call double @strtod(i8* %c2, i8** null)
   %cmp = fcmp oge double %s2d, 4.800000e+01
+  br i1 %cmp, label %then, label %endif
+
+then:                                             ; preds = %entry
   %c3 = load i8*, i8** %c1, align 8
   %s2d4 = call double @strtod(i8* %c3, i8** null)
   %cmp5 = fcmp ole double %s2d4, 5.700000e+01
-  %and = and i1 %cmp, %cmp5
-  %boolstr = select i1 %and, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @80, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @81, i32 0, i32 0)
-  ret i8* %boolstr
+  br i1 %cmp5, label %then6, label %endif7
+
+endif:                                            ; preds = %endif7, %entry
+  %numstr8 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr8
+
+then6:                                            ; preds = %then
+  %numstr = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr
+
+endif7:                                           ; preds = %then
+  br label %endif
 }
 
 define i8* @es_letra(i8* %c) {
@@ -1516,24 +1541,53 @@ entry:
   %c2 = load i8*, i8** %c1, align 8
   %s2d = call double @strtod(i8* %c2, i8** null)
   %cmp = fcmp oge double %s2d, 9.700000e+01
+  br i1 %cmp, label %then, label %endif
+
+then:                                             ; preds = %entry
   %c3 = load i8*, i8** %c1, align 8
   %s2d4 = call double @strtod(i8* %c3, i8** null)
   %cmp5 = fcmp ole double %s2d4, 1.220000e+02
-  %and = and i1 %cmp, %cmp5
-  %c6 = load i8*, i8** %c1, align 8
-  %s2d7 = call double @strtod(i8* %c6, i8** null)
-  %cmp8 = fcmp oge double %s2d7, 6.500000e+01
-  %c9 = load i8*, i8** %c1, align 8
-  %s2d10 = call double @strtod(i8* %c9, i8** null)
-  %cmp11 = fcmp ole double %s2d10, 9.000000e+01
-  %and12 = and i1 %cmp8, %cmp11
-  %or = or i1 %and, %and12
+  br i1 %cmp5, label %then6, label %endif7
+
+endif:                                            ; preds = %endif7, %entry
+  %c8 = load i8*, i8** %c1, align 8
+  %s2d9 = call double @strtod(i8* %c8, i8** null)
+  %cmp10 = fcmp oge double %s2d9, 6.500000e+01
+  br i1 %cmp10, label %then11, label %endif12
+
+then6:                                            ; preds = %then
+  %numstr = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr
+
+endif7:                                           ; preds = %then
+  br label %endif
+
+then11:                                           ; preds = %endif
   %c13 = load i8*, i8** %c1, align 8
   %s2d14 = call double @strtod(i8* %c13, i8** null)
-  %cmp15 = fcmp oeq double %s2d14, 9.500000e+01
-  %or16 = or i1 %or, %cmp15
-  %boolstr = select i1 %or16, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @82, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @83, i32 0, i32 0)
-  ret i8* %boolstr
+  %cmp15 = fcmp ole double %s2d14, 9.000000e+01
+  br i1 %cmp15, label %then16, label %endif17
+
+endif12:                                          ; preds = %endif17, %endif
+  %c19 = load i8*, i8** %c1, align 8
+  %s2d20 = call double @strtod(i8* %c19, i8** null)
+  %cmp21 = fcmp oeq double %s2d20, 9.500000e+01
+  br i1 %cmp21, label %then22, label %endif23
+
+then16:                                           ; preds = %then11
+  %numstr18 = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr18
+
+endif17:                                          ; preds = %then11
+  br label %endif12
+
+then22:                                           ; preds = %endif12
+  %numstr24 = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr24
+
+endif23:                                          ; preds = %endif12
+  %numstr25 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr25
 }
 
 define i8* @es_alfa_num(i8* %c) {
@@ -1542,13 +1596,28 @@ entry:
   store i8* %c, i8** %c1, align 8
   %c2 = load i8*, i8** %c1, align 8
   %call = call i8* @es_letra(i8* %c2)
+  %s2d = call double @strtod(i8* %call, i8** null)
+  %cmp = fcmp oeq double %s2d, 1.000000e+00
+  br i1 %cmp, label %then, label %endif
+
+then:                                             ; preds = %entry
+  %numstr = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr
+
+endif:                                            ; preds = %entry
   %c3 = load i8*, i8** %c1, align 8
   %call4 = call i8* @es_digito(i8* %c3)
-  %tobool = icmp ne i8* %call4, null
-  %tobool5 = icmp ne i8* %call, null
-  %or = or i1 %tobool5, %tobool
-  %boolstr = select i1 %or, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @84, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @85, i32 0, i32 0)
-  ret i8* %boolstr
+  %s2d5 = call double @strtod(i8* %call4, i8** null)
+  %cmp6 = fcmp oeq double %s2d5, 1.000000e+00
+  br i1 %cmp6, label %then7, label %endif8
+
+then7:                                            ; preds = %endif
+  %numstr9 = call i8* @__zen_num_to_str(double 1.000000e+00)
+  ret i8* %numstr9
+
+endif8:                                           ; preds = %endif
+  %numstr10 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  ret i8* %numstr10
 }
 
 define i8* @token_tipo(i8* %t) {
@@ -1592,10 +1661,10 @@ entry:
   %palabra1 = alloca i8*, align 8
   store i8* %palabra, i8** %palabra1, align 8
   %palabra2 = load i8*, i8** %palabra1, align 8
-  %strcmp = call i32 @strcmp(i8* %palabra2, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @86, i32 0, i32 0))
+  %strcmp = call i32 @strcmp(i8* %palabra2, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @80, i32 0, i32 0))
   %scmp = icmp eq i32 %strcmp, 0
   %palabra3 = load i8*, i8** %palabra1, align 8
-  %strcmp4 = call i32 @strcmp(i8* %palabra3, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @87, i32 0, i32 0))
+  %strcmp4 = call i32 @strcmp(i8* %palabra3, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @81, i32 0, i32 0))
   %scmp5 = icmp eq i32 %strcmp4, 0
   %or = or i1 %scmp, %scmp5
   br i1 %or, label %then, label %endif
@@ -1606,10 +1675,10 @@ then:                                             ; preds = %entry
 
 endif:                                            ; preds = %entry
   %palabra6 = load i8*, i8** %palabra1, align 8
-  %strcmp7 = call i32 @strcmp(i8* %palabra6, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @88, i32 0, i32 0))
+  %strcmp7 = call i32 @strcmp(i8* %palabra6, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @82, i32 0, i32 0))
   %scmp8 = icmp eq i32 %strcmp7, 0
   %palabra9 = load i8*, i8** %palabra1, align 8
-  %strcmp10 = call i32 @strcmp(i8* %palabra9, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @89, i32 0, i32 0))
+  %strcmp10 = call i32 @strcmp(i8* %palabra9, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @83, i32 0, i32 0))
   %scmp11 = icmp eq i32 %strcmp10, 0
   %or12 = or i1 %scmp8, %scmp11
   br i1 %or12, label %then13, label %endif14
@@ -1620,10 +1689,10 @@ then13:                                           ; preds = %endif
 
 endif14:                                          ; preds = %endif
   %palabra16 = load i8*, i8** %palabra1, align 8
-  %strcmp17 = call i32 @strcmp(i8* %palabra16, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @90, i32 0, i32 0))
+  %strcmp17 = call i32 @strcmp(i8* %palabra16, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @84, i32 0, i32 0))
   %scmp18 = icmp eq i32 %strcmp17, 0
   %palabra19 = load i8*, i8** %palabra1, align 8
-  %strcmp20 = call i32 @strcmp(i8* %palabra19, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @91, i32 0, i32 0))
+  %strcmp20 = call i32 @strcmp(i8* %palabra19, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @85, i32 0, i32 0))
   %scmp21 = icmp eq i32 %strcmp20, 0
   %or22 = or i1 %scmp18, %scmp21
   br i1 %or22, label %then23, label %endif24
@@ -1634,10 +1703,10 @@ then23:                                           ; preds = %endif14
 
 endif24:                                          ; preds = %endif14
   %palabra26 = load i8*, i8** %palabra1, align 8
-  %strcmp27 = call i32 @strcmp(i8* %palabra26, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @92, i32 0, i32 0))
+  %strcmp27 = call i32 @strcmp(i8* %palabra26, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @86, i32 0, i32 0))
   %scmp28 = icmp eq i32 %strcmp27, 0
   %palabra29 = load i8*, i8** %palabra1, align 8
-  %strcmp30 = call i32 @strcmp(i8* %palabra29, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @93, i32 0, i32 0))
+  %strcmp30 = call i32 @strcmp(i8* %palabra29, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @87, i32 0, i32 0))
   %scmp31 = icmp eq i32 %strcmp30, 0
   %or32 = or i1 %scmp28, %scmp31
   br i1 %or32, label %then33, label %endif34
@@ -1648,10 +1717,10 @@ then33:                                           ; preds = %endif24
 
 endif34:                                          ; preds = %endif24
   %palabra36 = load i8*, i8** %palabra1, align 8
-  %strcmp37 = call i32 @strcmp(i8* %palabra36, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @94, i32 0, i32 0))
+  %strcmp37 = call i32 @strcmp(i8* %palabra36, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @88, i32 0, i32 0))
   %scmp38 = icmp eq i32 %strcmp37, 0
   %palabra39 = load i8*, i8** %palabra1, align 8
-  %strcmp40 = call i32 @strcmp(i8* %palabra39, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @95, i32 0, i32 0))
+  %strcmp40 = call i32 @strcmp(i8* %palabra39, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @89, i32 0, i32 0))
   %scmp41 = icmp eq i32 %strcmp40, 0
   %or42 = or i1 %scmp38, %scmp41
   br i1 %or42, label %then43, label %endif44
@@ -1662,10 +1731,10 @@ then43:                                           ; preds = %endif34
 
 endif44:                                          ; preds = %endif34
   %palabra46 = load i8*, i8** %palabra1, align 8
-  %strcmp47 = call i32 @strcmp(i8* %palabra46, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @96, i32 0, i32 0))
+  %strcmp47 = call i32 @strcmp(i8* %palabra46, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @90, i32 0, i32 0))
   %scmp48 = icmp eq i32 %strcmp47, 0
   %palabra49 = load i8*, i8** %palabra1, align 8
-  %strcmp50 = call i32 @strcmp(i8* %palabra49, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @97, i32 0, i32 0))
+  %strcmp50 = call i32 @strcmp(i8* %palabra49, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @91, i32 0, i32 0))
   %scmp51 = icmp eq i32 %strcmp50, 0
   %or52 = or i1 %scmp48, %scmp51
   br i1 %or52, label %then53, label %endif54
@@ -1676,14 +1745,14 @@ then53:                                           ; preds = %endif44
 
 endif54:                                          ; preds = %endif44
   %palabra56 = load i8*, i8** %palabra1, align 8
-  %strcmp57 = call i32 @strcmp(i8* %palabra56, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @98, i32 0, i32 0))
+  %strcmp57 = call i32 @strcmp(i8* %palabra56, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @92, i32 0, i32 0))
   %scmp58 = icmp eq i32 %strcmp57, 0
   %palabra59 = load i8*, i8** %palabra1, align 8
-  %strcmp60 = call i32 @strcmp(i8* %palabra59, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @99, i32 0, i32 0))
+  %strcmp60 = call i32 @strcmp(i8* %palabra59, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @93, i32 0, i32 0))
   %scmp61 = icmp eq i32 %strcmp60, 0
   %or62 = or i1 %scmp58, %scmp61
   %palabra63 = load i8*, i8** %palabra1, align 8
-  %strcmp64 = call i32 @strcmp(i8* %palabra63, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @100, i32 0, i32 0))
+  %strcmp64 = call i32 @strcmp(i8* %palabra63, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @94, i32 0, i32 0))
   %scmp65 = icmp eq i32 %strcmp64, 0
   %or66 = or i1 %or62, %scmp65
   br i1 %or66, label %then67, label %endif68
@@ -1694,10 +1763,10 @@ then67:                                           ; preds = %endif54
 
 endif68:                                          ; preds = %endif54
   %palabra70 = load i8*, i8** %palabra1, align 8
-  %strcmp71 = call i32 @strcmp(i8* %palabra70, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @101, i32 0, i32 0))
+  %strcmp71 = call i32 @strcmp(i8* %palabra70, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @95, i32 0, i32 0))
   %scmp72 = icmp eq i32 %strcmp71, 0
   %palabra73 = load i8*, i8** %palabra1, align 8
-  %strcmp74 = call i32 @strcmp(i8* %palabra73, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @102, i32 0, i32 0))
+  %strcmp74 = call i32 @strcmp(i8* %palabra73, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @96, i32 0, i32 0))
   %scmp75 = icmp eq i32 %strcmp74, 0
   %or76 = or i1 %scmp72, %scmp75
   br i1 %or76, label %then77, label %endif78
@@ -1708,10 +1777,10 @@ then77:                                           ; preds = %endif68
 
 endif78:                                          ; preds = %endif68
   %palabra80 = load i8*, i8** %palabra1, align 8
-  %strcmp81 = call i32 @strcmp(i8* %palabra80, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @103, i32 0, i32 0))
+  %strcmp81 = call i32 @strcmp(i8* %palabra80, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @97, i32 0, i32 0))
   %scmp82 = icmp eq i32 %strcmp81, 0
   %palabra83 = load i8*, i8** %palabra1, align 8
-  %strcmp84 = call i32 @strcmp(i8* %palabra83, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @104, i32 0, i32 0))
+  %strcmp84 = call i32 @strcmp(i8* %palabra83, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @98, i32 0, i32 0))
   %scmp85 = icmp eq i32 %strcmp84, 0
   %or86 = or i1 %scmp82, %scmp85
   br i1 %or86, label %then87, label %endif88
@@ -1722,10 +1791,10 @@ then87:                                           ; preds = %endif78
 
 endif88:                                          ; preds = %endif78
   %palabra90 = load i8*, i8** %palabra1, align 8
-  %strcmp91 = call i32 @strcmp(i8* %palabra90, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @105, i32 0, i32 0))
+  %strcmp91 = call i32 @strcmp(i8* %palabra90, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @99, i32 0, i32 0))
   %scmp92 = icmp eq i32 %strcmp91, 0
   %palabra93 = load i8*, i8** %palabra1, align 8
-  %strcmp94 = call i32 @strcmp(i8* %palabra93, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @106, i32 0, i32 0))
+  %strcmp94 = call i32 @strcmp(i8* %palabra93, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @100, i32 0, i32 0))
   %scmp95 = icmp eq i32 %strcmp94, 0
   %or96 = or i1 %scmp92, %scmp95
   br i1 %or96, label %then97, label %endif98
@@ -1763,7 +1832,7 @@ entry:
   store double 1.000000e+00, double* %linea, align 8
   br label %while.cond
 
-while.cond:                                       ; preds = %endif268, %then253, %then237, %then221, %then205, %then189, %while.end136, %while.end93, %while.end57, %while.end32, %then15, %then, %entry
+while.cond:                                       ; preds = %endif269, %then254, %then238, %then222, %then206, %then190, %while.end136, %while.end93, %while.end57, %while.end32, %then15, %then, %entry
   %pos4 = load double, double* %pos, align 8
   %len5 = load double, double* %len3, align 8
   %cmp = fcmp olt double %pos4, %len5
@@ -1785,20 +1854,20 @@ while.body:                                       ; preds = %while.cond
   br i1 %or, label %then, label %endif
 
 while.end:                                        ; preds = %while.cond
-  %tokens457 = load i8*, i8** %tokens, align 8
-  %struct458 = call i8* @__zen_struct_create(i64 4)
-  %numstr459 = call i8* @__zen_num_to_str(double 0.000000e+00)
-  call void @__zen_struct_set(i8* %struct458, i64 0, i8* %numstr459)
-  call void @__zen_struct_set(i8* %struct458, i64 1, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @132, i32 0, i32 0))
-  %linea460 = load double, double* %linea, align 8
-  %numstr461 = call i8* @__zen_num_to_str(double %linea460)
-  call void @__zen_struct_set(i8* %struct458, i64 2, i8* %numstr461)
-  %pos462 = load double, double* %pos, align 8
-  %numstr463 = call i8* @__zen_num_to_str(double %pos462)
-  call void @__zen_struct_set(i8* %struct458, i64 3, i8* %numstr463)
-  call void @__zen_list_push(i8* %tokens457, i8* %struct458)
-  %tokens464 = load i8*, i8** %tokens, align 8
-  ret i8* %tokens464
+  %tokens458 = load i8*, i8** %tokens, align 8
+  %struct459 = call i8* @__zen_struct_create(i64 4)
+  %numstr460 = call i8* @__zen_num_to_str(double 0.000000e+00)
+  call void @__zen_struct_set(i8* %struct459, i64 0, i8* %numstr460)
+  call void @__zen_struct_set(i8* %struct459, i64 1, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @126, i32 0, i32 0))
+  %linea461 = load double, double* %linea, align 8
+  %numstr462 = call i8* @__zen_num_to_str(double %linea461)
+  call void @__zen_struct_set(i8* %struct459, i64 2, i8* %numstr462)
+  %pos463 = load double, double* %pos, align 8
+  %numstr464 = call i8* @__zen_num_to_str(double %pos463)
+  call void @__zen_struct_set(i8* %struct459, i64 3, i8* %numstr464)
+  call void @__zen_list_push(i8* %tokens458, i8* %struct459)
+  %tokens465 = load i8*, i8** %tokens, align 8
+  ret i8* %tokens465
 
 then:                                             ; preds = %while.body
   %pos12 = load double, double* %pos, align 8
@@ -1816,7 +1885,7 @@ then15:                                           ; preds = %endif
   %struct = call i8* @__zen_struct_create(i64 4)
   %numstr = call i8* @__zen_num_to_str(double 6.700000e+01)
   call void @__zen_struct_set(i8* %struct, i64 0, i8* %numstr)
-  call void @__zen_struct_set(i8* %struct, i64 1, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @107, i32 0, i32 0))
+  call void @__zen_struct_set(i8* %struct, i64 1, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @101, i32 0, i32 0))
   %linea18 = load double, double* %linea, align 8
   %numstr19 = call i8* @__zen_num_to_str(double %linea18)
   call void @__zen_struct_set(i8* %struct, i64 2, i8* %numstr19)
@@ -1877,7 +1946,7 @@ then50:                                           ; preds = %endif29
   %pos53 = load double, double* %pos, align 8
   %add54 = fadd double %pos53, 1.000000e+00
   store double %add54, double* %pos, align 8
-  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @108, i32 0, i32 0), i8** %valor, align 8
+  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @102, i32 0, i32 0), i8** %valor, align 8
   br label %while.cond55
 
 endif51:                                          ; preds = %endif29
@@ -1944,15 +2013,16 @@ endif72:                                          ; preds = %while.body56
   br label %while.cond55
 
 then89:                                           ; preds = %endif51
-  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @109, i32 0, i32 0), i8** %valor, align 8
+  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @103, i32 0, i32 0), i8** %valor, align 8
   br label %while.cond91
 
 endif90:                                          ; preds = %endif51
   %c128 = load double, double* %c, align 8
   %numstr129 = call i8* @__zen_num_to_str(double %c128)
   %call130 = call i8* @es_letra(i8* %numstr129)
-  %tobool131 = icmp ne i8* %call130, null
-  br i1 %tobool131, label %then132, label %endif133
+  %s2d = call double @strtod(i8* %call130, i8** null)
+  %cmp131 = fcmp oeq double %s2d, 1.000000e+00
+  br i1 %cmp131, label %then132, label %endif133
 
 while.cond91:                                     ; preds = %endif111, %then89
   %pos94 = load double, double* %pos, align 8
@@ -2015,17 +2085,17 @@ endif111:                                         ; preds = %then110
   br label %while.cond91
 
 then132:                                          ; preds = %endif90
-  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @110, i32 0, i32 0), i8** %valor, align 8
+  store i8* getelementptr inbounds ([1 x i8], [1 x i8]* @104, i32 0, i32 0), i8** %valor, align 8
   br label %while.cond134
 
 endif133:                                         ; preds = %endif90
-  %pos171 = load double, double* %pos, align 8
-  %add172 = fadd double %pos171, 1.000000e+00
-  %len173 = load double, double* %len3, align 8
-  %cmp174 = fcmp olt double %add172, %len173
-  br i1 %cmp174, label %then175, label %endif176
+  %pos172 = load double, double* %pos, align 8
+  %add173 = fadd double %pos172, 1.000000e+00
+  %len174 = load double, double* %len3, align 8
+  %cmp175 = fcmp olt double %add173, %len174
+  br i1 %cmp175, label %then176, label %endif177
 
-while.cond134:                                    ; preds = %endif152, %then132
+while.cond134:                                    ; preds = %endif153, %then132
   %pos137 = load double, double* %pos, align 8
   %len138 = load double, double* %len3, align 8
   %cmp139 = fcmp olt double %pos137, %len138
@@ -2042,563 +2112,588 @@ while.body135:                                    ; preds = %while.cond134
   %ch146 = load double, double* %ch67, align 8
   %numstr147 = call i8* @__zen_num_to_str(double %ch146)
   %call148 = call i8* @es_alfa_num(i8* %numstr147)
-  %tobool149 = icmp ne i8* %call148, null
-  br i1 %tobool149, label %then150, label %else151
+  %s2d149 = call double @strtod(i8* %call148, i8** null)
+  %cmp150 = fcmp oeq double %s2d149, 1.000000e+00
+  br i1 %cmp150, label %then151, label %else152
 
-while.end136:                                     ; preds = %else151, %while.cond134
-  %valor161 = load i8*, i8** %valor, align 8
-  %call162 = call i8* @tipo_keyword(i8* %valor161)
-  store i8* %call162, i8** %tipo, align 8
-  %tokens163 = load i8*, i8** %tokens, align 8
-  %struct164 = call i8* @__zen_struct_create(i64 4)
-  %tipo165 = load i8*, i8** %tipo, align 8
-  call void @__zen_struct_set(i8* %struct164, i64 0, i8* %tipo165)
-  %valor166 = load i8*, i8** %valor, align 8
-  call void @__zen_struct_set(i8* %struct164, i64 1, i8* %valor166)
-  %linea167 = load double, double* %linea, align 8
-  %numstr168 = call i8* @__zen_num_to_str(double %linea167)
-  call void @__zen_struct_set(i8* %struct164, i64 2, i8* %numstr168)
-  %pos169 = load double, double* %pos, align 8
-  %numstr170 = call i8* @__zen_num_to_str(double %pos169)
-  call void @__zen_struct_set(i8* %struct164, i64 3, i8* %numstr170)
-  call void @__zen_list_push(i8* %tokens163, i8* %struct164)
+while.end136:                                     ; preds = %else152, %while.cond134
+  %valor162 = load i8*, i8** %valor, align 8
+  %call163 = call i8* @tipo_keyword(i8* %valor162)
+  store i8* %call163, i8** %tipo, align 8
+  %tokens164 = load i8*, i8** %tokens, align 8
+  %struct165 = call i8* @__zen_struct_create(i64 4)
+  %tipo166 = load i8*, i8** %tipo, align 8
+  call void @__zen_struct_set(i8* %struct165, i64 0, i8* %tipo166)
+  %valor167 = load i8*, i8** %valor, align 8
+  call void @__zen_struct_set(i8* %struct165, i64 1, i8* %valor167)
+  %linea168 = load double, double* %linea, align 8
+  %numstr169 = call i8* @__zen_num_to_str(double %linea168)
+  call void @__zen_struct_set(i8* %struct165, i64 2, i8* %numstr169)
+  %pos170 = load double, double* %pos, align 8
+  %numstr171 = call i8* @__zen_num_to_str(double %pos170)
+  call void @__zen_struct_set(i8* %struct165, i64 3, i8* %numstr171)
+  call void @__zen_list_push(i8* %tokens164, i8* %struct165)
   br label %while.cond
 
-then150:                                          ; preds = %while.body135
-  %valor153 = load i8*, i8** %valor, align 8
-  %ch154 = load double, double* %ch67, align 8
-  %chr155 = fptosi double %ch154 to i8
-  %chrbuf156 = call i8* @malloc(i64 2)
-  store i8 %chr155, i8* %chrbuf156, align 1
-  %nullptr157 = getelementptr i8, i8* %chrbuf156, i64 1
-  store i8 0, i8* %nullptr157, align 1
-  %concat158 = call i8* @zen_concat(i8* %valor153, i8* %chrbuf156)
-  store i8* %concat158, i8** %valor, align 8
-  %pos159 = load double, double* %pos, align 8
-  %add160 = fadd double %pos159, 1.000000e+00
-  store double %add160, double* %pos, align 8
-  br label %endif152
+then151:                                          ; preds = %while.body135
+  %valor154 = load i8*, i8** %valor, align 8
+  %ch155 = load double, double* %ch67, align 8
+  %chr156 = fptosi double %ch155 to i8
+  %chrbuf157 = call i8* @malloc(i64 2)
+  store i8 %chr156, i8* %chrbuf157, align 1
+  %nullptr158 = getelementptr i8, i8* %chrbuf157, i64 1
+  store i8 0, i8* %nullptr158, align 1
+  %concat159 = call i8* @zen_concat(i8* %valor154, i8* %chrbuf157)
+  store i8* %concat159, i8** %valor, align 8
+  %pos160 = load double, double* %pos, align 8
+  %add161 = fadd double %pos160, 1.000000e+00
+  store double %add161, double* %pos, align 8
+  br label %endif153
 
-else151:                                          ; preds = %while.body135
+else152:                                          ; preds = %while.body135
   br label %while.end136
 
-endif152:                                         ; preds = %then150
+endif153:                                         ; preds = %then151
   br label %while.cond134
 
-then175:                                          ; preds = %endif133
-  %codigo177 = load i8*, i8** %codigo1, align 8
-  %pos178 = load double, double* %pos, align 8
-  %add179 = fadd double %pos178, 1.000000e+00
-  %idx180 = fptosi double %add179 to i64
-  %charptr181 = getelementptr i8, i8* %codigo177, i64 %idx180
-  %ch182 = load i8, i8* %charptr181, align 1
-  %chd183 = sitofp i8 %ch182 to double
-  store double %chd183, double* %c2, align 8
-  %c184 = load double, double* %c, align 8
-  %cmp185 = fcmp oeq double %c184, 6.100000e+01
-  %c2186 = load double, double* %c2, align 8
-  %cmp187 = fcmp oeq double %c2186, 6.100000e+01
-  %and188 = and i1 %cmp185, %cmp187
-  br i1 %and188, label %then189, label %endif190
+then176:                                          ; preds = %endif133
+  %codigo178 = load i8*, i8** %codigo1, align 8
+  %pos179 = load double, double* %pos, align 8
+  %add180 = fadd double %pos179, 1.000000e+00
+  %idx181 = fptosi double %add180 to i64
+  %charptr182 = getelementptr i8, i8* %codigo178, i64 %idx181
+  %ch183 = load i8, i8* %charptr182, align 1
+  %chd184 = sitofp i8 %ch183 to double
+  store double %chd184, double* %c2, align 8
+  %c185 = load double, double* %c, align 8
+  %cmp186 = fcmp oeq double %c185, 6.100000e+01
+  %c2187 = load double, double* %c2, align 8
+  %cmp188 = fcmp oeq double %c2187, 6.100000e+01
+  %and189 = and i1 %cmp186, %cmp188
+  br i1 %and189, label %then190, label %endif191
 
-endif176:                                         ; preds = %endif254, %endif133
-  %c264 = load double, double* %c, align 8
-  %cmp265 = fcmp oeq double %c264, 4.300000e+01
-  br i1 %cmp265, label %then266, label %else267
+endif177:                                         ; preds = %endif255, %endif133
+  %c265 = load double, double* %c, align 8
+  %cmp266 = fcmp oeq double %c265, 4.300000e+01
+  br i1 %cmp266, label %then267, label %else268
 
-then189:                                          ; preds = %then175
-  %tokens191 = load i8*, i8** %tokens, align 8
-  %struct192 = call i8* @__zen_struct_create(i64 4)
-  %numstr193 = call i8* @__zen_num_to_str(double 4.300000e+01)
-  call void @__zen_struct_set(i8* %struct192, i64 0, i8* %numstr193)
-  call void @__zen_struct_set(i8* %struct192, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @111, i32 0, i32 0))
-  %linea194 = load double, double* %linea, align 8
-  %numstr195 = call i8* @__zen_num_to_str(double %linea194)
-  call void @__zen_struct_set(i8* %struct192, i64 2, i8* %numstr195)
-  %pos196 = load double, double* %pos, align 8
-  %numstr197 = call i8* @__zen_num_to_str(double %pos196)
-  call void @__zen_struct_set(i8* %struct192, i64 3, i8* %numstr197)
-  call void @__zen_list_push(i8* %tokens191, i8* %struct192)
-  %pos198 = load double, double* %pos, align 8
-  %add199 = fadd double %pos198, 2.000000e+00
-  store double %add199, double* %pos, align 8
+then190:                                          ; preds = %then176
+  %tokens192 = load i8*, i8** %tokens, align 8
+  %struct193 = call i8* @__zen_struct_create(i64 4)
+  %numstr194 = call i8* @__zen_num_to_str(double 4.300000e+01)
+  call void @__zen_struct_set(i8* %struct193, i64 0, i8* %numstr194)
+  call void @__zen_struct_set(i8* %struct193, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @105, i32 0, i32 0))
+  %linea195 = load double, double* %linea, align 8
+  %numstr196 = call i8* @__zen_num_to_str(double %linea195)
+  call void @__zen_struct_set(i8* %struct193, i64 2, i8* %numstr196)
+  %pos197 = load double, double* %pos, align 8
+  %numstr198 = call i8* @__zen_num_to_str(double %pos197)
+  call void @__zen_struct_set(i8* %struct193, i64 3, i8* %numstr198)
+  call void @__zen_list_push(i8* %tokens192, i8* %struct193)
+  %pos199 = load double, double* %pos, align 8
+  %add200 = fadd double %pos199, 2.000000e+00
+  store double %add200, double* %pos, align 8
   br label %while.cond
 
-endif190:                                         ; preds = %then175
-  %c200 = load double, double* %c, align 8
-  %cmp201 = fcmp oeq double %c200, 3.300000e+01
-  %c2202 = load double, double* %c2, align 8
-  %cmp203 = fcmp oeq double %c2202, 6.100000e+01
-  %and204 = and i1 %cmp201, %cmp203
-  br i1 %and204, label %then205, label %endif206
+endif191:                                         ; preds = %then176
+  %c201 = load double, double* %c, align 8
+  %cmp202 = fcmp oeq double %c201, 3.300000e+01
+  %c2203 = load double, double* %c2, align 8
+  %cmp204 = fcmp oeq double %c2203, 6.100000e+01
+  %and205 = and i1 %cmp202, %cmp204
+  br i1 %and205, label %then206, label %endif207
 
-then205:                                          ; preds = %endif190
-  %tokens207 = load i8*, i8** %tokens, align 8
-  %struct208 = call i8* @__zen_struct_create(i64 4)
-  %numstr209 = call i8* @__zen_num_to_str(double 4.400000e+01)
-  call void @__zen_struct_set(i8* %struct208, i64 0, i8* %numstr209)
-  call void @__zen_struct_set(i8* %struct208, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @112, i32 0, i32 0))
-  %linea210 = load double, double* %linea, align 8
-  %numstr211 = call i8* @__zen_num_to_str(double %linea210)
-  call void @__zen_struct_set(i8* %struct208, i64 2, i8* %numstr211)
-  %pos212 = load double, double* %pos, align 8
-  %numstr213 = call i8* @__zen_num_to_str(double %pos212)
-  call void @__zen_struct_set(i8* %struct208, i64 3, i8* %numstr213)
-  call void @__zen_list_push(i8* %tokens207, i8* %struct208)
-  %pos214 = load double, double* %pos, align 8
-  %add215 = fadd double %pos214, 2.000000e+00
-  store double %add215, double* %pos, align 8
+then206:                                          ; preds = %endif191
+  %tokens208 = load i8*, i8** %tokens, align 8
+  %struct209 = call i8* @__zen_struct_create(i64 4)
+  %numstr210 = call i8* @__zen_num_to_str(double 4.400000e+01)
+  call void @__zen_struct_set(i8* %struct209, i64 0, i8* %numstr210)
+  call void @__zen_struct_set(i8* %struct209, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @106, i32 0, i32 0))
+  %linea211 = load double, double* %linea, align 8
+  %numstr212 = call i8* @__zen_num_to_str(double %linea211)
+  call void @__zen_struct_set(i8* %struct209, i64 2, i8* %numstr212)
+  %pos213 = load double, double* %pos, align 8
+  %numstr214 = call i8* @__zen_num_to_str(double %pos213)
+  call void @__zen_struct_set(i8* %struct209, i64 3, i8* %numstr214)
+  call void @__zen_list_push(i8* %tokens208, i8* %struct209)
+  %pos215 = load double, double* %pos, align 8
+  %add216 = fadd double %pos215, 2.000000e+00
+  store double %add216, double* %pos, align 8
   br label %while.cond
 
-endif206:                                         ; preds = %endif190
-  %c216 = load double, double* %c, align 8
-  %cmp217 = fcmp oeq double %c216, 6.000000e+01
-  %c2218 = load double, double* %c2, align 8
-  %cmp219 = fcmp oeq double %c2218, 6.100000e+01
-  %and220 = and i1 %cmp217, %cmp219
-  br i1 %and220, label %then221, label %endif222
+endif207:                                         ; preds = %endif191
+  %c217 = load double, double* %c, align 8
+  %cmp218 = fcmp oeq double %c217, 6.000000e+01
+  %c2219 = load double, double* %c2, align 8
+  %cmp220 = fcmp oeq double %c2219, 6.100000e+01
+  %and221 = and i1 %cmp218, %cmp220
+  br i1 %and221, label %then222, label %endif223
 
-then221:                                          ; preds = %endif206
-  %tokens223 = load i8*, i8** %tokens, align 8
-  %struct224 = call i8* @__zen_struct_create(i64 4)
-  %numstr225 = call i8* @__zen_num_to_str(double 4.700000e+01)
-  call void @__zen_struct_set(i8* %struct224, i64 0, i8* %numstr225)
-  call void @__zen_struct_set(i8* %struct224, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @113, i32 0, i32 0))
-  %linea226 = load double, double* %linea, align 8
-  %numstr227 = call i8* @__zen_num_to_str(double %linea226)
-  call void @__zen_struct_set(i8* %struct224, i64 2, i8* %numstr227)
-  %pos228 = load double, double* %pos, align 8
-  %numstr229 = call i8* @__zen_num_to_str(double %pos228)
-  call void @__zen_struct_set(i8* %struct224, i64 3, i8* %numstr229)
-  call void @__zen_list_push(i8* %tokens223, i8* %struct224)
-  %pos230 = load double, double* %pos, align 8
-  %add231 = fadd double %pos230, 2.000000e+00
-  store double %add231, double* %pos, align 8
+then222:                                          ; preds = %endif207
+  %tokens224 = load i8*, i8** %tokens, align 8
+  %struct225 = call i8* @__zen_struct_create(i64 4)
+  %numstr226 = call i8* @__zen_num_to_str(double 4.700000e+01)
+  call void @__zen_struct_set(i8* %struct225, i64 0, i8* %numstr226)
+  call void @__zen_struct_set(i8* %struct225, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @107, i32 0, i32 0))
+  %linea227 = load double, double* %linea, align 8
+  %numstr228 = call i8* @__zen_num_to_str(double %linea227)
+  call void @__zen_struct_set(i8* %struct225, i64 2, i8* %numstr228)
+  %pos229 = load double, double* %pos, align 8
+  %numstr230 = call i8* @__zen_num_to_str(double %pos229)
+  call void @__zen_struct_set(i8* %struct225, i64 3, i8* %numstr230)
+  call void @__zen_list_push(i8* %tokens224, i8* %struct225)
+  %pos231 = load double, double* %pos, align 8
+  %add232 = fadd double %pos231, 2.000000e+00
+  store double %add232, double* %pos, align 8
   br label %while.cond
 
-endif222:                                         ; preds = %endif206
-  %c232 = load double, double* %c, align 8
-  %cmp233 = fcmp oeq double %c232, 6.200000e+01
-  %c2234 = load double, double* %c2, align 8
-  %cmp235 = fcmp oeq double %c2234, 6.100000e+01
-  %and236 = and i1 %cmp233, %cmp235
-  br i1 %and236, label %then237, label %endif238
+endif223:                                         ; preds = %endif207
+  %c233 = load double, double* %c, align 8
+  %cmp234 = fcmp oeq double %c233, 6.200000e+01
+  %c2235 = load double, double* %c2, align 8
+  %cmp236 = fcmp oeq double %c2235, 6.100000e+01
+  %and237 = and i1 %cmp234, %cmp236
+  br i1 %and237, label %then238, label %endif239
 
-then237:                                          ; preds = %endif222
-  %tokens239 = load i8*, i8** %tokens, align 8
-  %struct240 = call i8* @__zen_struct_create(i64 4)
-  %numstr241 = call i8* @__zen_num_to_str(double 4.800000e+01)
-  call void @__zen_struct_set(i8* %struct240, i64 0, i8* %numstr241)
-  call void @__zen_struct_set(i8* %struct240, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @114, i32 0, i32 0))
-  %linea242 = load double, double* %linea, align 8
-  %numstr243 = call i8* @__zen_num_to_str(double %linea242)
-  call void @__zen_struct_set(i8* %struct240, i64 2, i8* %numstr243)
-  %pos244 = load double, double* %pos, align 8
-  %numstr245 = call i8* @__zen_num_to_str(double %pos244)
-  call void @__zen_struct_set(i8* %struct240, i64 3, i8* %numstr245)
-  call void @__zen_list_push(i8* %tokens239, i8* %struct240)
-  %pos246 = load double, double* %pos, align 8
-  %add247 = fadd double %pos246, 2.000000e+00
-  store double %add247, double* %pos, align 8
+then238:                                          ; preds = %endif223
+  %tokens240 = load i8*, i8** %tokens, align 8
+  %struct241 = call i8* @__zen_struct_create(i64 4)
+  %numstr242 = call i8* @__zen_num_to_str(double 4.800000e+01)
+  call void @__zen_struct_set(i8* %struct241, i64 0, i8* %numstr242)
+  call void @__zen_struct_set(i8* %struct241, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @108, i32 0, i32 0))
+  %linea243 = load double, double* %linea, align 8
+  %numstr244 = call i8* @__zen_num_to_str(double %linea243)
+  call void @__zen_struct_set(i8* %struct241, i64 2, i8* %numstr244)
+  %pos245 = load double, double* %pos, align 8
+  %numstr246 = call i8* @__zen_num_to_str(double %pos245)
+  call void @__zen_struct_set(i8* %struct241, i64 3, i8* %numstr246)
+  call void @__zen_list_push(i8* %tokens240, i8* %struct241)
+  %pos247 = load double, double* %pos, align 8
+  %add248 = fadd double %pos247, 2.000000e+00
+  store double %add248, double* %pos, align 8
   br label %while.cond
 
-endif238:                                         ; preds = %endif222
-  %c248 = load double, double* %c, align 8
-  %cmp249 = fcmp oeq double %c248, 4.500000e+01
-  %c2250 = load double, double* %c2, align 8
-  %cmp251 = fcmp oeq double %c2250, 6.200000e+01
-  %and252 = and i1 %cmp249, %cmp251
-  br i1 %and252, label %then253, label %endif254
+endif239:                                         ; preds = %endif223
+  %c249 = load double, double* %c, align 8
+  %cmp250 = fcmp oeq double %c249, 4.500000e+01
+  %c2251 = load double, double* %c2, align 8
+  %cmp252 = fcmp oeq double %c2251, 6.200000e+01
+  %and253 = and i1 %cmp250, %cmp252
+  br i1 %and253, label %then254, label %endif255
 
-then253:                                          ; preds = %endif238
-  %tokens255 = load i8*, i8** %tokens, align 8
-  %struct256 = call i8* @__zen_struct_create(i64 4)
-  %numstr257 = call i8* @__zen_num_to_str(double 5.600000e+01)
-  call void @__zen_struct_set(i8* %struct256, i64 0, i8* %numstr257)
-  call void @__zen_struct_set(i8* %struct256, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @115, i32 0, i32 0))
-  %linea258 = load double, double* %linea, align 8
-  %numstr259 = call i8* @__zen_num_to_str(double %linea258)
-  call void @__zen_struct_set(i8* %struct256, i64 2, i8* %numstr259)
-  %pos260 = load double, double* %pos, align 8
-  %numstr261 = call i8* @__zen_num_to_str(double %pos260)
-  call void @__zen_struct_set(i8* %struct256, i64 3, i8* %numstr261)
-  call void @__zen_list_push(i8* %tokens255, i8* %struct256)
-  %pos262 = load double, double* %pos, align 8
-  %add263 = fadd double %pos262, 2.000000e+00
-  store double %add263, double* %pos, align 8
+then254:                                          ; preds = %endif239
+  %tokens256 = load i8*, i8** %tokens, align 8
+  %struct257 = call i8* @__zen_struct_create(i64 4)
+  %numstr258 = call i8* @__zen_num_to_str(double 5.600000e+01)
+  call void @__zen_struct_set(i8* %struct257, i64 0, i8* %numstr258)
+  call void @__zen_struct_set(i8* %struct257, i64 1, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @109, i32 0, i32 0))
+  %linea259 = load double, double* %linea, align 8
+  %numstr260 = call i8* @__zen_num_to_str(double %linea259)
+  call void @__zen_struct_set(i8* %struct257, i64 2, i8* %numstr260)
+  %pos261 = load double, double* %pos, align 8
+  %numstr262 = call i8* @__zen_num_to_str(double %pos261)
+  call void @__zen_struct_set(i8* %struct257, i64 3, i8* %numstr262)
+  call void @__zen_list_push(i8* %tokens256, i8* %struct257)
+  %pos263 = load double, double* %pos, align 8
+  %add264 = fadd double %pos263, 2.000000e+00
+  store double %add264, double* %pos, align 8
   br label %while.cond
 
-endif254:                                         ; preds = %endif238
-  br label %endif176
+endif255:                                         ; preds = %endif239
+  br label %endif177
 
-then266:                                          ; preds = %endif176
-  %tokens269 = load i8*, i8** %tokens, align 8
-  %struct270 = call i8* @__zen_struct_create(i64 4)
-  %numstr271 = call i8* @__zen_num_to_str(double 3.700000e+01)
-  call void @__zen_struct_set(i8* %struct270, i64 0, i8* %numstr271)
-  call void @__zen_struct_set(i8* %struct270, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @116, i32 0, i32 0))
-  %linea272 = load double, double* %linea, align 8
-  %numstr273 = call i8* @__zen_num_to_str(double %linea272)
-  call void @__zen_struct_set(i8* %struct270, i64 2, i8* %numstr273)
-  %pos274 = load double, double* %pos, align 8
-  %numstr275 = call i8* @__zen_num_to_str(double %pos274)
-  call void @__zen_struct_set(i8* %struct270, i64 3, i8* %numstr275)
-  call void @__zen_list_push(i8* %tokens269, i8* %struct270)
-  br label %endif268
+then267:                                          ; preds = %endif177
+  %tokens270 = load i8*, i8** %tokens, align 8
+  %struct271 = call i8* @__zen_struct_create(i64 4)
+  %numstr272 = call i8* @__zen_num_to_str(double 3.700000e+01)
+  call void @__zen_struct_set(i8* %struct271, i64 0, i8* %numstr272)
+  call void @__zen_struct_set(i8* %struct271, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @110, i32 0, i32 0))
+  %linea273 = load double, double* %linea, align 8
+  %numstr274 = call i8* @__zen_num_to_str(double %linea273)
+  call void @__zen_struct_set(i8* %struct271, i64 2, i8* %numstr274)
+  %pos275 = load double, double* %pos, align 8
+  %numstr276 = call i8* @__zen_num_to_str(double %pos275)
+  call void @__zen_struct_set(i8* %struct271, i64 3, i8* %numstr276)
+  call void @__zen_list_push(i8* %tokens270, i8* %struct271)
+  br label %endif269
 
-else267:                                          ; preds = %endif176
-  %c276 = load double, double* %c, align 8
-  %cmp277 = fcmp oeq double %c276, 4.500000e+01
-  br i1 %cmp277, label %then278, label %else279
+else268:                                          ; preds = %endif177
+  %c277 = load double, double* %c, align 8
+  %cmp278 = fcmp oeq double %c277, 4.500000e+01
+  br i1 %cmp278, label %then279, label %else280
 
-endif268:                                         ; preds = %endif280, %then266
-  %pos455 = load double, double* %pos, align 8
-  %add456 = fadd double %pos455, 1.000000e+00
-  store double %add456, double* %pos, align 8
+endif269:                                         ; preds = %endif281, %then267
+  %pos456 = load double, double* %pos, align 8
+  %add457 = fadd double %pos456, 1.000000e+00
+  store double %add457, double* %pos, align 8
   br label %while.cond
 
-then278:                                          ; preds = %else267
-  %tokens281 = load i8*, i8** %tokens, align 8
-  %struct282 = call i8* @__zen_struct_create(i64 4)
-  %numstr283 = call i8* @__zen_num_to_str(double 3.800000e+01)
-  call void @__zen_struct_set(i8* %struct282, i64 0, i8* %numstr283)
-  call void @__zen_struct_set(i8* %struct282, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @117, i32 0, i32 0))
-  %linea284 = load double, double* %linea, align 8
-  %numstr285 = call i8* @__zen_num_to_str(double %linea284)
-  call void @__zen_struct_set(i8* %struct282, i64 2, i8* %numstr285)
-  %pos286 = load double, double* %pos, align 8
-  %numstr287 = call i8* @__zen_num_to_str(double %pos286)
-  call void @__zen_struct_set(i8* %struct282, i64 3, i8* %numstr287)
-  call void @__zen_list_push(i8* %tokens281, i8* %struct282)
-  br label %endif280
+then279:                                          ; preds = %else268
+  %tokens282 = load i8*, i8** %tokens, align 8
+  %struct283 = call i8* @__zen_struct_create(i64 4)
+  %numstr284 = call i8* @__zen_num_to_str(double 3.800000e+01)
+  call void @__zen_struct_set(i8* %struct283, i64 0, i8* %numstr284)
+  call void @__zen_struct_set(i8* %struct283, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @111, i32 0, i32 0))
+  %linea285 = load double, double* %linea, align 8
+  %numstr286 = call i8* @__zen_num_to_str(double %linea285)
+  call void @__zen_struct_set(i8* %struct283, i64 2, i8* %numstr286)
+  %pos287 = load double, double* %pos, align 8
+  %numstr288 = call i8* @__zen_num_to_str(double %pos287)
+  call void @__zen_struct_set(i8* %struct283, i64 3, i8* %numstr288)
+  call void @__zen_list_push(i8* %tokens282, i8* %struct283)
+  br label %endif281
 
-else279:                                          ; preds = %else267
-  %c288 = load double, double* %c, align 8
-  %cmp289 = fcmp oeq double %c288, 4.200000e+01
-  br i1 %cmp289, label %then290, label %else291
+else280:                                          ; preds = %else268
+  %c289 = load double, double* %c, align 8
+  %cmp290 = fcmp oeq double %c289, 4.200000e+01
+  br i1 %cmp290, label %then291, label %else292
 
-endif280:                                         ; preds = %endif292, %then278
-  br label %endif268
+endif281:                                         ; preds = %endif293, %then279
+  br label %endif269
 
-then290:                                          ; preds = %else279
-  %tokens293 = load i8*, i8** %tokens, align 8
-  %struct294 = call i8* @__zen_struct_create(i64 4)
-  %numstr295 = call i8* @__zen_num_to_str(double 3.900000e+01)
-  call void @__zen_struct_set(i8* %struct294, i64 0, i8* %numstr295)
-  call void @__zen_struct_set(i8* %struct294, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @118, i32 0, i32 0))
-  %linea296 = load double, double* %linea, align 8
-  %numstr297 = call i8* @__zen_num_to_str(double %linea296)
-  call void @__zen_struct_set(i8* %struct294, i64 2, i8* %numstr297)
-  %pos298 = load double, double* %pos, align 8
-  %numstr299 = call i8* @__zen_num_to_str(double %pos298)
-  call void @__zen_struct_set(i8* %struct294, i64 3, i8* %numstr299)
-  call void @__zen_list_push(i8* %tokens293, i8* %struct294)
-  br label %endif292
+then291:                                          ; preds = %else280
+  %tokens294 = load i8*, i8** %tokens, align 8
+  %struct295 = call i8* @__zen_struct_create(i64 4)
+  %numstr296 = call i8* @__zen_num_to_str(double 3.900000e+01)
+  call void @__zen_struct_set(i8* %struct295, i64 0, i8* %numstr296)
+  call void @__zen_struct_set(i8* %struct295, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @112, i32 0, i32 0))
+  %linea297 = load double, double* %linea, align 8
+  %numstr298 = call i8* @__zen_num_to_str(double %linea297)
+  call void @__zen_struct_set(i8* %struct295, i64 2, i8* %numstr298)
+  %pos299 = load double, double* %pos, align 8
+  %numstr300 = call i8* @__zen_num_to_str(double %pos299)
+  call void @__zen_struct_set(i8* %struct295, i64 3, i8* %numstr300)
+  call void @__zen_list_push(i8* %tokens294, i8* %struct295)
+  br label %endif293
 
-else291:                                          ; preds = %else279
-  %c300 = load double, double* %c, align 8
-  %cmp301 = fcmp oeq double %c300, 4.700000e+01
-  br i1 %cmp301, label %then302, label %else303
+else292:                                          ; preds = %else280
+  %c301 = load double, double* %c, align 8
+  %cmp302 = fcmp oeq double %c301, 4.700000e+01
+  br i1 %cmp302, label %then303, label %else304
 
-endif292:                                         ; preds = %endif304, %then290
-  br label %endif280
+endif293:                                         ; preds = %endif305, %then291
+  br label %endif281
 
-then302:                                          ; preds = %else291
-  %tokens305 = load i8*, i8** %tokens, align 8
-  %struct306 = call i8* @__zen_struct_create(i64 4)
-  %numstr307 = call i8* @__zen_num_to_str(double 4.000000e+01)
-  call void @__zen_struct_set(i8* %struct306, i64 0, i8* %numstr307)
-  call void @__zen_struct_set(i8* %struct306, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @119, i32 0, i32 0))
-  %linea308 = load double, double* %linea, align 8
-  %numstr309 = call i8* @__zen_num_to_str(double %linea308)
-  call void @__zen_struct_set(i8* %struct306, i64 2, i8* %numstr309)
-  %pos310 = load double, double* %pos, align 8
-  %numstr311 = call i8* @__zen_num_to_str(double %pos310)
-  call void @__zen_struct_set(i8* %struct306, i64 3, i8* %numstr311)
-  call void @__zen_list_push(i8* %tokens305, i8* %struct306)
-  br label %endif304
+then303:                                          ; preds = %else292
+  %tokens306 = load i8*, i8** %tokens, align 8
+  %struct307 = call i8* @__zen_struct_create(i64 4)
+  %numstr308 = call i8* @__zen_num_to_str(double 4.000000e+01)
+  call void @__zen_struct_set(i8* %struct307, i64 0, i8* %numstr308)
+  call void @__zen_struct_set(i8* %struct307, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @113, i32 0, i32 0))
+  %linea309 = load double, double* %linea, align 8
+  %numstr310 = call i8* @__zen_num_to_str(double %linea309)
+  call void @__zen_struct_set(i8* %struct307, i64 2, i8* %numstr310)
+  %pos311 = load double, double* %pos, align 8
+  %numstr312 = call i8* @__zen_num_to_str(double %pos311)
+  call void @__zen_struct_set(i8* %struct307, i64 3, i8* %numstr312)
+  call void @__zen_list_push(i8* %tokens306, i8* %struct307)
+  br label %endif305
 
-else303:                                          ; preds = %else291
-  %c312 = load double, double* %c, align 8
-  %cmp313 = fcmp oeq double %c312, 6.100000e+01
-  br i1 %cmp313, label %then314, label %else315
+else304:                                          ; preds = %else292
+  %c313 = load double, double* %c, align 8
+  %cmp314 = fcmp oeq double %c313, 6.100000e+01
+  br i1 %cmp314, label %then315, label %else316
 
-endif304:                                         ; preds = %endif316, %then302
-  br label %endif292
+endif305:                                         ; preds = %endif317, %then303
+  br label %endif293
 
-then314:                                          ; preds = %else303
-  %tokens317 = load i8*, i8** %tokens, align 8
-  %struct318 = call i8* @__zen_struct_create(i64 4)
-  %numstr319 = call i8* @__zen_num_to_str(double 4.900000e+01)
-  call void @__zen_struct_set(i8* %struct318, i64 0, i8* %numstr319)
-  call void @__zen_struct_set(i8* %struct318, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @120, i32 0, i32 0))
-  %linea320 = load double, double* %linea, align 8
-  %numstr321 = call i8* @__zen_num_to_str(double %linea320)
-  call void @__zen_struct_set(i8* %struct318, i64 2, i8* %numstr321)
-  %pos322 = load double, double* %pos, align 8
-  %numstr323 = call i8* @__zen_num_to_str(double %pos322)
-  call void @__zen_struct_set(i8* %struct318, i64 3, i8* %numstr323)
-  call void @__zen_list_push(i8* %tokens317, i8* %struct318)
-  br label %endif316
+then315:                                          ; preds = %else304
+  %tokens318 = load i8*, i8** %tokens, align 8
+  %struct319 = call i8* @__zen_struct_create(i64 4)
+  %numstr320 = call i8* @__zen_num_to_str(double 4.900000e+01)
+  call void @__zen_struct_set(i8* %struct319, i64 0, i8* %numstr320)
+  call void @__zen_struct_set(i8* %struct319, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @114, i32 0, i32 0))
+  %linea321 = load double, double* %linea, align 8
+  %numstr322 = call i8* @__zen_num_to_str(double %linea321)
+  call void @__zen_struct_set(i8* %struct319, i64 2, i8* %numstr322)
+  %pos323 = load double, double* %pos, align 8
+  %numstr324 = call i8* @__zen_num_to_str(double %pos323)
+  call void @__zen_struct_set(i8* %struct319, i64 3, i8* %numstr324)
+  call void @__zen_list_push(i8* %tokens318, i8* %struct319)
+  br label %endif317
 
-else315:                                          ; preds = %else303
-  %c324 = load double, double* %c, align 8
-  %cmp325 = fcmp oeq double %c324, 6.000000e+01
-  br i1 %cmp325, label %then326, label %else327
+else316:                                          ; preds = %else304
+  %c325 = load double, double* %c, align 8
+  %cmp326 = fcmp oeq double %c325, 6.000000e+01
+  br i1 %cmp326, label %then327, label %else328
 
-endif316:                                         ; preds = %endif328, %then314
-  br label %endif304
+endif317:                                         ; preds = %endif329, %then315
+  br label %endif305
 
-then326:                                          ; preds = %else315
-  %tokens329 = load i8*, i8** %tokens, align 8
-  %struct330 = call i8* @__zen_struct_create(i64 4)
-  %numstr331 = call i8* @__zen_num_to_str(double 4.500000e+01)
-  call void @__zen_struct_set(i8* %struct330, i64 0, i8* %numstr331)
-  call void @__zen_struct_set(i8* %struct330, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @121, i32 0, i32 0))
-  %linea332 = load double, double* %linea, align 8
-  %numstr333 = call i8* @__zen_num_to_str(double %linea332)
-  call void @__zen_struct_set(i8* %struct330, i64 2, i8* %numstr333)
-  %pos334 = load double, double* %pos, align 8
-  %numstr335 = call i8* @__zen_num_to_str(double %pos334)
-  call void @__zen_struct_set(i8* %struct330, i64 3, i8* %numstr335)
-  call void @__zen_list_push(i8* %tokens329, i8* %struct330)
-  br label %endif328
+then327:                                          ; preds = %else316
+  %tokens330 = load i8*, i8** %tokens, align 8
+  %struct331 = call i8* @__zen_struct_create(i64 4)
+  %numstr332 = call i8* @__zen_num_to_str(double 4.500000e+01)
+  call void @__zen_struct_set(i8* %struct331, i64 0, i8* %numstr332)
+  call void @__zen_struct_set(i8* %struct331, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @115, i32 0, i32 0))
+  %linea333 = load double, double* %linea, align 8
+  %numstr334 = call i8* @__zen_num_to_str(double %linea333)
+  call void @__zen_struct_set(i8* %struct331, i64 2, i8* %numstr334)
+  %pos335 = load double, double* %pos, align 8
+  %numstr336 = call i8* @__zen_num_to_str(double %pos335)
+  call void @__zen_struct_set(i8* %struct331, i64 3, i8* %numstr336)
+  call void @__zen_list_push(i8* %tokens330, i8* %struct331)
+  br label %endif329
 
-else327:                                          ; preds = %else315
-  %c336 = load double, double* %c, align 8
-  %cmp337 = fcmp oeq double %c336, 6.200000e+01
-  br i1 %cmp337, label %then338, label %else339
+else328:                                          ; preds = %else316
+  %c337 = load double, double* %c, align 8
+  %cmp338 = fcmp oeq double %c337, 6.200000e+01
+  br i1 %cmp338, label %then339, label %else340
 
-endif328:                                         ; preds = %endif340, %then326
-  br label %endif316
+endif329:                                         ; preds = %endif341, %then327
+  br label %endif317
 
-then338:                                          ; preds = %else327
-  %tokens341 = load i8*, i8** %tokens, align 8
-  %struct342 = call i8* @__zen_struct_create(i64 4)
-  %numstr343 = call i8* @__zen_num_to_str(double 4.600000e+01)
-  call void @__zen_struct_set(i8* %struct342, i64 0, i8* %numstr343)
-  call void @__zen_struct_set(i8* %struct342, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @122, i32 0, i32 0))
-  %linea344 = load double, double* %linea, align 8
-  %numstr345 = call i8* @__zen_num_to_str(double %linea344)
-  call void @__zen_struct_set(i8* %struct342, i64 2, i8* %numstr345)
-  %pos346 = load double, double* %pos, align 8
-  %numstr347 = call i8* @__zen_num_to_str(double %pos346)
-  call void @__zen_struct_set(i8* %struct342, i64 3, i8* %numstr347)
-  call void @__zen_list_push(i8* %tokens341, i8* %struct342)
-  br label %endif340
+then339:                                          ; preds = %else328
+  %tokens342 = load i8*, i8** %tokens, align 8
+  %struct343 = call i8* @__zen_struct_create(i64 4)
+  %numstr344 = call i8* @__zen_num_to_str(double 4.600000e+01)
+  call void @__zen_struct_set(i8* %struct343, i64 0, i8* %numstr344)
+  call void @__zen_struct_set(i8* %struct343, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @116, i32 0, i32 0))
+  %linea345 = load double, double* %linea, align 8
+  %numstr346 = call i8* @__zen_num_to_str(double %linea345)
+  call void @__zen_struct_set(i8* %struct343, i64 2, i8* %numstr346)
+  %pos347 = load double, double* %pos, align 8
+  %numstr348 = call i8* @__zen_num_to_str(double %pos347)
+  call void @__zen_struct_set(i8* %struct343, i64 3, i8* %numstr348)
+  call void @__zen_list_push(i8* %tokens342, i8* %struct343)
+  br label %endif341
 
-else339:                                          ; preds = %else327
-  %c348 = load double, double* %c, align 8
-  %cmp349 = fcmp oeq double %c348, 4.000000e+01
-  br i1 %cmp349, label %then350, label %else351
+else340:                                          ; preds = %else328
+  %c349 = load double, double* %c, align 8
+  %cmp350 = fcmp oeq double %c349, 4.000000e+01
+  br i1 %cmp350, label %then351, label %else352
 
-endif340:                                         ; preds = %endif352, %then338
-  br label %endif328
+endif341:                                         ; preds = %endif353, %then339
+  br label %endif329
 
-then350:                                          ; preds = %else339
-  %tokens353 = load i8*, i8** %tokens, align 8
-  %struct354 = call i8* @__zen_struct_create(i64 4)
-  %numstr355 = call i8* @__zen_num_to_str(double 5.700000e+01)
-  call void @__zen_struct_set(i8* %struct354, i64 0, i8* %numstr355)
-  call void @__zen_struct_set(i8* %struct354, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @123, i32 0, i32 0))
-  %linea356 = load double, double* %linea, align 8
-  %numstr357 = call i8* @__zen_num_to_str(double %linea356)
-  call void @__zen_struct_set(i8* %struct354, i64 2, i8* %numstr357)
-  %pos358 = load double, double* %pos, align 8
-  %numstr359 = call i8* @__zen_num_to_str(double %pos358)
-  call void @__zen_struct_set(i8* %struct354, i64 3, i8* %numstr359)
-  call void @__zen_list_push(i8* %tokens353, i8* %struct354)
-  br label %endif352
+then351:                                          ; preds = %else340
+  %tokens354 = load i8*, i8** %tokens, align 8
+  %struct355 = call i8* @__zen_struct_create(i64 4)
+  %numstr356 = call i8* @__zen_num_to_str(double 5.700000e+01)
+  call void @__zen_struct_set(i8* %struct355, i64 0, i8* %numstr356)
+  call void @__zen_struct_set(i8* %struct355, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @117, i32 0, i32 0))
+  %linea357 = load double, double* %linea, align 8
+  %numstr358 = call i8* @__zen_num_to_str(double %linea357)
+  call void @__zen_struct_set(i8* %struct355, i64 2, i8* %numstr358)
+  %pos359 = load double, double* %pos, align 8
+  %numstr360 = call i8* @__zen_num_to_str(double %pos359)
+  call void @__zen_struct_set(i8* %struct355, i64 3, i8* %numstr360)
+  call void @__zen_list_push(i8* %tokens354, i8* %struct355)
+  br label %endif353
 
-else351:                                          ; preds = %else339
-  %c360 = load double, double* %c, align 8
-  %cmp361 = fcmp oeq double %c360, 4.100000e+01
-  br i1 %cmp361, label %then362, label %else363
+else352:                                          ; preds = %else340
+  %c361 = load double, double* %c, align 8
+  %cmp362 = fcmp oeq double %c361, 4.100000e+01
+  br i1 %cmp362, label %then363, label %else364
 
-endif352:                                         ; preds = %endif364, %then350
-  br label %endif340
+endif353:                                         ; preds = %endif365, %then351
+  br label %endif341
 
-then362:                                          ; preds = %else351
-  %tokens365 = load i8*, i8** %tokens, align 8
-  %struct366 = call i8* @__zen_struct_create(i64 4)
-  %numstr367 = call i8* @__zen_num_to_str(double 5.800000e+01)
-  call void @__zen_struct_set(i8* %struct366, i64 0, i8* %numstr367)
-  call void @__zen_struct_set(i8* %struct366, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @124, i32 0, i32 0))
-  %linea368 = load double, double* %linea, align 8
-  %numstr369 = call i8* @__zen_num_to_str(double %linea368)
-  call void @__zen_struct_set(i8* %struct366, i64 2, i8* %numstr369)
-  %pos370 = load double, double* %pos, align 8
-  %numstr371 = call i8* @__zen_num_to_str(double %pos370)
-  call void @__zen_struct_set(i8* %struct366, i64 3, i8* %numstr371)
-  call void @__zen_list_push(i8* %tokens365, i8* %struct366)
-  br label %endif364
+then363:                                          ; preds = %else352
+  %tokens366 = load i8*, i8** %tokens, align 8
+  %struct367 = call i8* @__zen_struct_create(i64 4)
+  %numstr368 = call i8* @__zen_num_to_str(double 5.800000e+01)
+  call void @__zen_struct_set(i8* %struct367, i64 0, i8* %numstr368)
+  call void @__zen_struct_set(i8* %struct367, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @118, i32 0, i32 0))
+  %linea369 = load double, double* %linea, align 8
+  %numstr370 = call i8* @__zen_num_to_str(double %linea369)
+  call void @__zen_struct_set(i8* %struct367, i64 2, i8* %numstr370)
+  %pos371 = load double, double* %pos, align 8
+  %numstr372 = call i8* @__zen_num_to_str(double %pos371)
+  call void @__zen_struct_set(i8* %struct367, i64 3, i8* %numstr372)
+  call void @__zen_list_push(i8* %tokens366, i8* %struct367)
+  br label %endif365
 
-else363:                                          ; preds = %else351
-  %c372 = load double, double* %c, align 8
-  %cmp373 = fcmp oeq double %c372, 4.400000e+01
-  br i1 %cmp373, label %then374, label %else375
+else364:                                          ; preds = %else352
+  %c373 = load double, double* %c, align 8
+  %cmp374 = fcmp oeq double %c373, 4.400000e+01
+  br i1 %cmp374, label %then375, label %else376
 
-endif364:                                         ; preds = %endif376, %then362
-  br label %endif352
+endif365:                                         ; preds = %endif377, %then363
+  br label %endif353
 
-then374:                                          ; preds = %else363
-  %tokens377 = load i8*, i8** %tokens, align 8
-  %struct378 = call i8* @__zen_struct_create(i64 4)
-  %numstr379 = call i8* @__zen_num_to_str(double 6.300000e+01)
-  call void @__zen_struct_set(i8* %struct378, i64 0, i8* %numstr379)
-  call void @__zen_struct_set(i8* %struct378, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @125, i32 0, i32 0))
-  %linea380 = load double, double* %linea, align 8
-  %numstr381 = call i8* @__zen_num_to_str(double %linea380)
-  call void @__zen_struct_set(i8* %struct378, i64 2, i8* %numstr381)
-  %pos382 = load double, double* %pos, align 8
-  %numstr383 = call i8* @__zen_num_to_str(double %pos382)
-  call void @__zen_struct_set(i8* %struct378, i64 3, i8* %numstr383)
-  call void @__zen_list_push(i8* %tokens377, i8* %struct378)
-  br label %endif376
+then375:                                          ; preds = %else364
+  %tokens378 = load i8*, i8** %tokens, align 8
+  %struct379 = call i8* @__zen_struct_create(i64 4)
+  %numstr380 = call i8* @__zen_num_to_str(double 6.300000e+01)
+  call void @__zen_struct_set(i8* %struct379, i64 0, i8* %numstr380)
+  call void @__zen_struct_set(i8* %struct379, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @119, i32 0, i32 0))
+  %linea381 = load double, double* %linea, align 8
+  %numstr382 = call i8* @__zen_num_to_str(double %linea381)
+  call void @__zen_struct_set(i8* %struct379, i64 2, i8* %numstr382)
+  %pos383 = load double, double* %pos, align 8
+  %numstr384 = call i8* @__zen_num_to_str(double %pos383)
+  call void @__zen_struct_set(i8* %struct379, i64 3, i8* %numstr384)
+  call void @__zen_list_push(i8* %tokens378, i8* %struct379)
+  br label %endif377
 
-else375:                                          ; preds = %else363
-  %c384 = load double, double* %c, align 8
-  %cmp385 = fcmp oeq double %c384, 4.600000e+01
-  br i1 %cmp385, label %then386, label %else387
+else376:                                          ; preds = %else364
+  %c385 = load double, double* %c, align 8
+  %cmp386 = fcmp oeq double %c385, 4.600000e+01
+  br i1 %cmp386, label %then387, label %else388
 
-endif376:                                         ; preds = %endif388, %then374
-  br label %endif364
+endif377:                                         ; preds = %endif389, %then375
+  br label %endif365
 
-then386:                                          ; preds = %else375
-  %tokens389 = load i8*, i8** %tokens, align 8
-  %struct390 = call i8* @__zen_struct_create(i64 4)
-  %numstr391 = call i8* @__zen_num_to_str(double 6.400000e+01)
-  call void @__zen_struct_set(i8* %struct390, i64 0, i8* %numstr391)
-  call void @__zen_struct_set(i8* %struct390, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @126, i32 0, i32 0))
-  %linea392 = load double, double* %linea, align 8
-  %numstr393 = call i8* @__zen_num_to_str(double %linea392)
-  call void @__zen_struct_set(i8* %struct390, i64 2, i8* %numstr393)
-  %pos394 = load double, double* %pos, align 8
-  %numstr395 = call i8* @__zen_num_to_str(double %pos394)
-  call void @__zen_struct_set(i8* %struct390, i64 3, i8* %numstr395)
-  call void @__zen_list_push(i8* %tokens389, i8* %struct390)
-  br label %endif388
+then387:                                          ; preds = %else376
+  %tokens390 = load i8*, i8** %tokens, align 8
+  %struct391 = call i8* @__zen_struct_create(i64 4)
+  %numstr392 = call i8* @__zen_num_to_str(double 6.400000e+01)
+  call void @__zen_struct_set(i8* %struct391, i64 0, i8* %numstr392)
+  call void @__zen_struct_set(i8* %struct391, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @120, i32 0, i32 0))
+  %linea393 = load double, double* %linea, align 8
+  %numstr394 = call i8* @__zen_num_to_str(double %linea393)
+  call void @__zen_struct_set(i8* %struct391, i64 2, i8* %numstr394)
+  %pos395 = load double, double* %pos, align 8
+  %numstr396 = call i8* @__zen_num_to_str(double %pos395)
+  call void @__zen_struct_set(i8* %struct391, i64 3, i8* %numstr396)
+  call void @__zen_list_push(i8* %tokens390, i8* %struct391)
+  br label %endif389
 
-else387:                                          ; preds = %else375
-  %c396 = load double, double* %c, align 8
-  %cmp397 = fcmp oeq double %c396, 5.800000e+01
-  br i1 %cmp397, label %then398, label %else399
+else388:                                          ; preds = %else376
+  %c397 = load double, double* %c, align 8
+  %cmp398 = fcmp oeq double %c397, 5.800000e+01
+  br i1 %cmp398, label %then399, label %else400
 
-endif388:                                         ; preds = %endif400, %then386
-  br label %endif376
+endif389:                                         ; preds = %endif401, %then387
+  br label %endif377
 
-then398:                                          ; preds = %else387
-  %tokens401 = load i8*, i8** %tokens, align 8
-  %struct402 = call i8* @__zen_struct_create(i64 4)
-  %numstr403 = call i8* @__zen_num_to_str(double 6.500000e+01)
-  call void @__zen_struct_set(i8* %struct402, i64 0, i8* %numstr403)
-  call void @__zen_struct_set(i8* %struct402, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @127, i32 0, i32 0))
-  %linea404 = load double, double* %linea, align 8
-  %numstr405 = call i8* @__zen_num_to_str(double %linea404)
-  call void @__zen_struct_set(i8* %struct402, i64 2, i8* %numstr405)
-  %pos406 = load double, double* %pos, align 8
-  %numstr407 = call i8* @__zen_num_to_str(double %pos406)
-  call void @__zen_struct_set(i8* %struct402, i64 3, i8* %numstr407)
-  call void @__zen_list_push(i8* %tokens401, i8* %struct402)
-  br label %endif400
+then399:                                          ; preds = %else388
+  %tokens402 = load i8*, i8** %tokens, align 8
+  %struct403 = call i8* @__zen_struct_create(i64 4)
+  %numstr404 = call i8* @__zen_num_to_str(double 6.500000e+01)
+  call void @__zen_struct_set(i8* %struct403, i64 0, i8* %numstr404)
+  call void @__zen_struct_set(i8* %struct403, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @121, i32 0, i32 0))
+  %linea405 = load double, double* %linea, align 8
+  %numstr406 = call i8* @__zen_num_to_str(double %linea405)
+  call void @__zen_struct_set(i8* %struct403, i64 2, i8* %numstr406)
+  %pos407 = load double, double* %pos, align 8
+  %numstr408 = call i8* @__zen_num_to_str(double %pos407)
+  call void @__zen_struct_set(i8* %struct403, i64 3, i8* %numstr408)
+  call void @__zen_list_push(i8* %tokens402, i8* %struct403)
+  br label %endif401
 
-else399:                                          ; preds = %else387
-  %c408 = load double, double* %c, align 8
-  %cmp409 = fcmp oeq double %c408, 9.100000e+01
-  br i1 %cmp409, label %then410, label %else411
+else400:                                          ; preds = %else388
+  %c409 = load double, double* %c, align 8
+  %cmp410 = fcmp oeq double %c409, 9.100000e+01
+  br i1 %cmp410, label %then411, label %else412
 
-endif400:                                         ; preds = %endif412, %then398
-  br label %endif388
+endif401:                                         ; preds = %endif413, %then399
+  br label %endif389
 
-then410:                                          ; preds = %else399
-  %tokens413 = load i8*, i8** %tokens, align 8
-  %struct414 = call i8* @__zen_struct_create(i64 4)
-  %numstr415 = call i8* @__zen_num_to_str(double 5.900000e+01)
-  call void @__zen_struct_set(i8* %struct414, i64 0, i8* %numstr415)
-  call void @__zen_struct_set(i8* %struct414, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @128, i32 0, i32 0))
-  %linea416 = load double, double* %linea, align 8
-  %numstr417 = call i8* @__zen_num_to_str(double %linea416)
-  call void @__zen_struct_set(i8* %struct414, i64 2, i8* %numstr417)
-  %pos418 = load double, double* %pos, align 8
-  %numstr419 = call i8* @__zen_num_to_str(double %pos418)
-  call void @__zen_struct_set(i8* %struct414, i64 3, i8* %numstr419)
-  call void @__zen_list_push(i8* %tokens413, i8* %struct414)
-  br label %endif412
+then411:                                          ; preds = %else400
+  %tokens414 = load i8*, i8** %tokens, align 8
+  %struct415 = call i8* @__zen_struct_create(i64 4)
+  %numstr416 = call i8* @__zen_num_to_str(double 5.900000e+01)
+  call void @__zen_struct_set(i8* %struct415, i64 0, i8* %numstr416)
+  call void @__zen_struct_set(i8* %struct415, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @122, i32 0, i32 0))
+  %linea417 = load double, double* %linea, align 8
+  %numstr418 = call i8* @__zen_num_to_str(double %linea417)
+  call void @__zen_struct_set(i8* %struct415, i64 2, i8* %numstr418)
+  %pos419 = load double, double* %pos, align 8
+  %numstr420 = call i8* @__zen_num_to_str(double %pos419)
+  call void @__zen_struct_set(i8* %struct415, i64 3, i8* %numstr420)
+  call void @__zen_list_push(i8* %tokens414, i8* %struct415)
+  br label %endif413
 
-else411:                                          ; preds = %else399
-  %c420 = load double, double* %c, align 8
-  %cmp421 = fcmp oeq double %c420, 9.300000e+01
-  br i1 %cmp421, label %then422, label %else423
+else412:                                          ; preds = %else400
+  %c421 = load double, double* %c, align 8
+  %cmp422 = fcmp oeq double %c421, 9.300000e+01
+  br i1 %cmp422, label %then423, label %else424
 
-endif412:                                         ; preds = %endif424, %then410
-  br label %endif400
+endif413:                                         ; preds = %endif425, %then411
+  br label %endif401
 
-then422:                                          ; preds = %else411
-  %tokens425 = load i8*, i8** %tokens, align 8
-  %struct426 = call i8* @__zen_struct_create(i64 4)
-  %numstr427 = call i8* @__zen_num_to_str(double 6.000000e+01)
-  call void @__zen_struct_set(i8* %struct426, i64 0, i8* %numstr427)
-  call void @__zen_struct_set(i8* %struct426, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @129, i32 0, i32 0))
-  %linea428 = load double, double* %linea, align 8
-  %numstr429 = call i8* @__zen_num_to_str(double %linea428)
-  call void @__zen_struct_set(i8* %struct426, i64 2, i8* %numstr429)
-  %pos430 = load double, double* %pos, align 8
-  %numstr431 = call i8* @__zen_num_to_str(double %pos430)
-  call void @__zen_struct_set(i8* %struct426, i64 3, i8* %numstr431)
-  call void @__zen_list_push(i8* %tokens425, i8* %struct426)
-  br label %endif424
+then423:                                          ; preds = %else412
+  %tokens426 = load i8*, i8** %tokens, align 8
+  %struct427 = call i8* @__zen_struct_create(i64 4)
+  %numstr428 = call i8* @__zen_num_to_str(double 6.000000e+01)
+  call void @__zen_struct_set(i8* %struct427, i64 0, i8* %numstr428)
+  call void @__zen_struct_set(i8* %struct427, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @123, i32 0, i32 0))
+  %linea429 = load double, double* %linea, align 8
+  %numstr430 = call i8* @__zen_num_to_str(double %linea429)
+  call void @__zen_struct_set(i8* %struct427, i64 2, i8* %numstr430)
+  %pos431 = load double, double* %pos, align 8
+  %numstr432 = call i8* @__zen_num_to_str(double %pos431)
+  call void @__zen_struct_set(i8* %struct427, i64 3, i8* %numstr432)
+  call void @__zen_list_push(i8* %tokens426, i8* %struct427)
+  br label %endif425
 
-else423:                                          ; preds = %else411
-  %c432 = load double, double* %c, align 8
-  %cmp433 = fcmp oeq double %c432, 1.230000e+02
-  br i1 %cmp433, label %then434, label %else435
+else424:                                          ; preds = %else412
+  %c433 = load double, double* %c, align 8
+  %cmp434 = fcmp oeq double %c433, 1.230000e+02
+  br i1 %cmp434, label %then435, label %else436
 
-endif424:                                         ; preds = %endif436, %then422
-  br label %endif412
+endif425:                                         ; preds = %endif437, %then423
+  br label %endif413
 
-then434:                                          ; preds = %else423
-  %tokens437 = load i8*, i8** %tokens, align 8
-  %struct438 = call i8* @__zen_struct_create(i64 4)
-  %numstr439 = call i8* @__zen_num_to_str(double 6.100000e+01)
-  call void @__zen_struct_set(i8* %struct438, i64 0, i8* %numstr439)
-  call void @__zen_struct_set(i8* %struct438, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @130, i32 0, i32 0))
-  %linea440 = load double, double* %linea, align 8
-  %numstr441 = call i8* @__zen_num_to_str(double %linea440)
-  call void @__zen_struct_set(i8* %struct438, i64 2, i8* %numstr441)
-  %pos442 = load double, double* %pos, align 8
-  %numstr443 = call i8* @__zen_num_to_str(double %pos442)
-  call void @__zen_struct_set(i8* %struct438, i64 3, i8* %numstr443)
-  call void @__zen_list_push(i8* %tokens437, i8* %struct438)
-  br label %endif436
+then435:                                          ; preds = %else424
+  %tokens438 = load i8*, i8** %tokens, align 8
+  %struct439 = call i8* @__zen_struct_create(i64 4)
+  %numstr440 = call i8* @__zen_num_to_str(double 6.100000e+01)
+  call void @__zen_struct_set(i8* %struct439, i64 0, i8* %numstr440)
+  call void @__zen_struct_set(i8* %struct439, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @124, i32 0, i32 0))
+  %linea441 = load double, double* %linea, align 8
+  %numstr442 = call i8* @__zen_num_to_str(double %linea441)
+  call void @__zen_struct_set(i8* %struct439, i64 2, i8* %numstr442)
+  %pos443 = load double, double* %pos, align 8
+  %numstr444 = call i8* @__zen_num_to_str(double %pos443)
+  call void @__zen_struct_set(i8* %struct439, i64 3, i8* %numstr444)
+  call void @__zen_list_push(i8* %tokens438, i8* %struct439)
+  br label %endif437
 
-else435:                                          ; preds = %else423
-  %c444 = load double, double* %c, align 8
-  %cmp445 = fcmp oeq double %c444, 1.250000e+02
-  br i1 %cmp445, label %then446, label %endif447
+else436:                                          ; preds = %else424
+  %c445 = load double, double* %c, align 8
+  %cmp446 = fcmp oeq double %c445, 1.250000e+02
+  br i1 %cmp446, label %then447, label %endif448
 
-endif436:                                         ; preds = %endif447, %then434
-  br label %endif424
+endif437:                                         ; preds = %endif448, %then435
+  br label %endif425
 
-then446:                                          ; preds = %else435
-  %tokens448 = load i8*, i8** %tokens, align 8
-  %struct449 = call i8* @__zen_struct_create(i64 4)
-  %numstr450 = call i8* @__zen_num_to_str(double 6.200000e+01)
-  call void @__zen_struct_set(i8* %struct449, i64 0, i8* %numstr450)
-  call void @__zen_struct_set(i8* %struct449, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @131, i32 0, i32 0))
-  %linea451 = load double, double* %linea, align 8
-  %numstr452 = call i8* @__zen_num_to_str(double %linea451)
-  call void @__zen_struct_set(i8* %struct449, i64 2, i8* %numstr452)
-  %pos453 = load double, double* %pos, align 8
-  %numstr454 = call i8* @__zen_num_to_str(double %pos453)
-  call void @__zen_struct_set(i8* %struct449, i64 3, i8* %numstr454)
-  call void @__zen_list_push(i8* %tokens448, i8* %struct449)
-  br label %endif447
+then447:                                          ; preds = %else436
+  %tokens449 = load i8*, i8** %tokens, align 8
+  %struct450 = call i8* @__zen_struct_create(i64 4)
+  %numstr451 = call i8* @__zen_num_to_str(double 6.200000e+01)
+  call void @__zen_struct_set(i8* %struct450, i64 0, i8* %numstr451)
+  call void @__zen_struct_set(i8* %struct450, i64 1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @125, i32 0, i32 0))
+  %linea452 = load double, double* %linea, align 8
+  %numstr453 = call i8* @__zen_num_to_str(double %linea452)
+  call void @__zen_struct_set(i8* %struct450, i64 2, i8* %numstr453)
+  %pos454 = load double, double* %pos, align 8
+  %numstr455 = call i8* @__zen_num_to_str(double %pos454)
+  call void @__zen_struct_set(i8* %struct450, i64 3, i8* %numstr455)
+  call void @__zen_list_push(i8* %tokens449, i8* %struct450)
+  br label %endif448
 
-endif447:                                         ; preds = %then446, %else435
-  br label %endif436
+endif448:                                         ; preds = %then447, %else436
+  br label %endif437
 }
 
-define i32 @main(i32 %argc, i8** %argv) {
+define i8* @main() {
+entry:
+  %n = alloca double, align 8
+  %tokens = alloca i8*, align 8
+  %codigo = alloca i8*, align 8
+  store i8* getelementptr inbounds ([11 x i8], [11 x i8]* @127, i32 0, i32 0), i8** %codigo, align 8
+  %codigo1 = load i8*, i8** %codigo, align 8
+  %call = call i8* @tokenizar(i8* %codigo1)
+  store i8* %call, i8** %tokens, align 8
+  %tokens2 = load i8*, i8** %tokens, align 8
+  %c_call = call i64 @__zen_list_len(i8* %tokens2)
+  %c2d = sitofp i64 %c_call to double
+  store double %c2d, double* %n, align 8
+  %c_call3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @128, i32 0, i32 0))
+  %c2d4 = sitofp i32 %c_call3 to double
+  %n5 = load double, double* %n, align 8
+  %numstr = call i8* @__zen_num_to_str(double %n5)
+  %c_call6 = call i32 (i8*, ...) @printf(i8* %numstr)
+  %c2d7 = sitofp i32 %c_call6 to double
+  %c_call8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @129, i32 0, i32 0))
+  %c2d9 = sitofp i32 %c_call8 to double
+  ret i8* null
+}
+
+define i32 @main.1(i32 %argc, i8** %argv) {
 entry:
   store i32 %argc, i32* @__zen_argc, align 4
   store i8** %argv, i8*** @__zen_argv, align 8
@@ -2676,5 +2771,6 @@ entry:
   store i8* %numstr35, i8** @g_TIPO_LIST, align 8
   %numstr36 = call i8* @__zen_num_to_str(double 7.000000e+00)
   store i8* %numstr36, i8** @g_TIPO_STRUCT, align 8
+  %call = call i8* @main()
   ret i32 0
 }

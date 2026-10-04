@@ -116,7 +116,7 @@ std::string resolveImports(const std::string& source, const std::string& baseDir
                 result += "# Import: " + tryPath + "\n";
                 std::cerr << "DEBUG: trying " << tryPath << std::endl;
                 result += resolveImports(impSource, impDir);
-                result += "\n";
+                result += "\n# --- end of import ---\n\n";
             }
         } else {
             result += line + "\n";

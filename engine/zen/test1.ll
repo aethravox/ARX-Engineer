@@ -7,10 +7,7 @@ source_filename = "zen"
 @2 = private unnamed_addr constant [6 x i8] c"linux\00", align 1
 @__zen_argc = internal global i32 0
 @__zen_argv = internal global i8** null
-@3 = private unnamed_addr constant [7 x i8] c"argc: \00", align 1
-@4 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@5 = private unnamed_addr constant [7 x i8] c"arg1: \00", align 1
-@6 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@3 = private unnamed_addr constant [4 x i8] c"%g\0A\00", align 1
 
 declare i32 @printf(i8*, ...)
 
@@ -342,47 +339,10 @@ entry:
   ret i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0)
 }
 
-define i8* @principal() {
-entry:
-  %arg1 = alloca i8*, align 8
-  %argc1 = alloca double, align 8
-  %argc = load i32, i32* @__zen_argc, align 4
-  %argcd = sitofp i32 %argc to double
-  store double %argcd, double* %argc1, align 8
-  %c_call = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0))
-  %c2d = sitofp i32 %c_call to double
-  %argc2 = load double, double* %argc1, align 8
-  %numstr = call i8* @__zen_num_to_str(double %argc2)
-  %c_call3 = call i32 (i8*, ...) @printf(i8* %numstr)
-  %c2d4 = sitofp i32 %c_call3 to double
-  %c_call5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @4, i32 0, i32 0))
-  %c2d6 = sitofp i32 %c_call5 to double
-  %argc7 = load double, double* %argc1, align 8
-  %cmp = fcmp oge double %argc7, 2.000000e+00
-  br i1 %cmp, label %then, label %endif
-
-then:                                             ; preds = %entry
-  %argv = load i8**, i8*** @__zen_argv, align 8
-  %arggep = getelementptr i8*, i8** %argv, i32 1
-  %argval = load i8*, i8** %arggep, align 8
-  store i8* %argval, i8** %arg1, align 8
-  %c_call8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @5, i32 0, i32 0))
-  %c2d9 = sitofp i32 %c_call8 to double
-  %arg110 = load i8*, i8** %arg1, align 8
-  %c_call11 = call i32 (i8*, ...) @printf(i8* %arg110)
-  %c2d12 = sitofp i32 %c_call11 to double
-  %c_call13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @6, i32 0, i32 0))
-  %c2d14 = sitofp i32 %c_call13 to double
-  br label %endif
-
-endif:                                            ; preds = %then, %entry
-  ret i8* null
-}
-
 define i32 @main(i32 %argc, i8** %argv) {
 entry:
   store i32 %argc, i32* @__zen_argc, align 4
   store i8** %argv, i8*** @__zen_argv, align 8
-  %call = call i8* @principal()
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @3, i32 0, i32 0), double 4.200000e+01)
   ret i32 0
 }

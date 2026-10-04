@@ -4,6 +4,19 @@
 #
 # Importa: ast (para el struct Token)
 # No contiene statements de nivel superior.
+#
+# Numeracion de tokens (la misma que usa parser.zen):
+#   0 EOF   1 NUMERO   2 STRING   3 IDENTIFICADOR
+#   4 si  5 sino  6 sino_si  7 para  8 desde  9 hasta  10 mientras
+#   11 en  12 cada  13 repetir  14 veces  15 romper  16 continuar
+#   17 funcion  18 retorna  19 muestra
+#   20 y  21 o  22 no  23 es
+#   34 verdad  35 falso  36 nada
+#   37 +  38 -  39 *  40 /  41 %  42 ^
+#   43 ==  44 !=  45 <  46 >  47 <=  48 >=
+#   49 =  50 +=  51 -=  52 *=  53 /=  54 %=  55 ^=  56 ->
+#   57 (  58 )  59 [  60 ]  61 {  62 }  63 ,  64 .  65 :  66 ?
+#   67 NEWLINE  68 INDENT  69 DEDENT
 
 importar "ast"
 
@@ -12,6 +25,14 @@ importar "ast"
 # ============================================================
 
 extern "libc" printf(str) -> int
+
+# ============================================================
+# Errores
+# ============================================================
+
+funcion error_lexico(msg, linea)
+    muestra "ERROR: " + msg + " en la linea " + texto(linea)
+    salir(1)
 
 # ============================================================
 # Helpers de caracteres (ASCII)
@@ -23,6 +44,7 @@ funcion es_digito(c)
             retorna 1
     retorna 0
 
+# Bytes >= 128 cuentan como letra para permitir acentos y ñ en identificadores
 funcion es_letra(c)
     si c >= 97
         si c <= 122
@@ -31,6 +53,8 @@ funcion es_letra(c)
         si c <= 90
             retorna 1
     si c == 95
+        retorna 1
+    si c >= 128
         retorna 1
     retorna 0
 
@@ -41,8 +65,19 @@ funcion es_alfa_num(c)
         retorna 1
     retorna 0
 
+# Un numero empieza con un digito, o con '.' seguido de un digito (.5)
+funcion empieza_numero(codigo, pos, n)
+    c = char_at(codigo, pos)
+    si es_digito(c) == 1
+        retorna 1
+    si c == 46
+        si pos + 1 < n
+            si es_digito(char_at(codigo, pos + 1)) == 1
+                retorna 1
+    retorna 0
+
 # ============================================================
-# Token accessors (FIX: antes habia recursion infinita)
+# Token accessors
 # ============================================================
 
 funcion token_tipo(t)
@@ -58,31 +93,139 @@ funcion token_col(t)
     retorna t.col
 
 # ============================================================
-# Mapa keyword -> tipo de token
+# Mapa keyword -> tipo de token (bilingue ES/EN)
 # ============================================================
 
 funcion tipo_keyword(palabra)
+    # Condicionales
     si palabra == "si" o palabra == "if"
         retorna 4
     si palabra == "sino" o palabra == "else"
         retorna 5
-    si palabra == "mientras" o palabra == "while"
-        retorna 10
+    si palabra == "sino_si" o palabra == "elif"
+        retorna 6
+    # Bucles
     si palabra == "para" o palabra == "for"
         retorna 7
+    si palabra == "desde" o palabra == "from"
+        retorna 8
+    si palabra == "hasta" o palabra == "to"
+        retorna 9
+    si palabra == "mientras" o palabra == "while"
+        retorna 10
+    si palabra == "en" o palabra == "in"
+        retorna 11
+    si palabra == "cada" o palabra == "each"
+        retorna 12
+    si palabra == "repetir" o palabra == "repeat"
+        retorna 13
+    si palabra == "veces" o palabra == "times"
+        retorna 14
+    si palabra == "romper" o palabra == "break"
+        retorna 15
+    si palabra == "continuar" o palabra == "continue" o palabra == "siguiente"
+        retorna 16
+    # Funciones
     si palabra == "funcion" o palabra == "function"
         retorna 17
     si palabra == "retorna" o palabra == "return"
         retorna 18
+    # Imprimir
     si palabra == "muestra" o palabra == "show" o palabra == "print"
         retorna 19
+    si palabra == "mostrar" o palabra == "imprime"
+        retorna 19
+    # Logica
+    si palabra == "y" o palabra == "and"
+        retorna 20
+    si palabra == "o" o palabra == "or"
+        retorna 21
+    si palabra == "no" o palabra == "not"
+        retorna 22
+    si palabra == "es" o palabra == "is"
+        retorna 23
+    # Constantes
     si palabra == "verdad" o palabra == "yes"
         retorna 34
-    si palabra == "falso" o palabra == "no"
+    si palabra == "falso"
         retorna 35
     si palabra == "nada" o palabra == "nothing"
         retorna 36
     retorna 3
+
+# ============================================================
+# Operadores
+# ============================================================
+
+# Operador de 2 caracteres (devuelve 0 si no es ninguno)
+funcion tipo_op2(c, c2)
+    si c2 == 61
+        si c == 61
+            retorna 43
+        si c == 33
+            retorna 44
+        si c == 60
+            retorna 47
+        si c == 62
+            retorna 48
+        si c == 43
+            retorna 50
+        si c == 45
+            retorna 51
+        si c == 42
+            retorna 52
+        si c == 47
+            retorna 53
+        si c == 37
+            retorna 54
+        si c == 94
+            retorna 55
+    si c == 45
+        si c2 == 62
+            retorna 56
+    retorna 0
+
+# Operador / delimitador de 1 caracter (devuelve 0 si no es ninguno)
+funcion tipo_op1(c)
+    si c == 43
+        retorna 37
+    si c == 45
+        retorna 38
+    si c == 42
+        retorna 39
+    si c == 47
+        retorna 40
+    si c == 37
+        retorna 41
+    si c == 94
+        retorna 42
+    si c == 61
+        retorna 49
+    si c == 60
+        retorna 45
+    si c == 62
+        retorna 46
+    si c == 40
+        retorna 57
+    si c == 41
+        retorna 58
+    si c == 91
+        retorna 59
+    si c == 93
+        retorna 60
+    si c == 123
+        retorna 61
+    si c == 125
+        retorna 62
+    si c == 44
+        retorna 63
+    si c == 46
+        retorna 64
+    si c == 58
+        retorna 65
+    si c == 63
+        retorna 66
+    retorna 0
 
 # ============================================================
 # Tokenizador principal
@@ -90,78 +233,125 @@ funcion tipo_keyword(palabra)
 
 funcion tokenizar(codigo)
     tokens = []
-    len = longitud(codigo)
+    pila = [0]
+    n = longitud(codigo)
     pos = 0
     linea = 1
-    mientras pos < len
-        c = char_at(codigo, pos)
-        # Espacio
-        si c == 32
-            pos = pos + 1
+    ini_linea = 0
+    al_inicio = verdad
+    mientras pos < n
+        # ---- Inicio de linea: medir indentacion ----
+        si al_inicio == verdad
+            al_inicio = falso
+            indent = 0
+            mientras pos < n
+                c = char_at(codigo, pos)
+                si c == 32
+                    indent = indent + 1
+                    pos = pos + 1
+                sino
+                    si c == 9
+                        indent = indent + 4
+                        pos = pos + 1
+                    sino
+                        romper
+            # Las lineas vacias o con solo comentario no cambian la indentacion
+            si pos < n
+                c = char_at(codigo, pos)
+                es_vacia = falso
+                si c == 10 o c == 13 o c == 35
+                    es_vacia = verdad
+                si es_vacia == falso
+                    # Indentacion: INDENT / DEDENT con la pila de niveles.
+                    # (inline a proposito: quitar() y longitud() necesitan saber
+                    # en compilacion que pila es una lista, y un parametro no lo es)
+                    tope = pila[longitud(pila) - 1]
+                    si indent > tope
+                        agregar(pila, indent)
+                        agregar(tokens, Token {tipo: 68, valor: "INDENT", linea: linea, col: 1})
+                    sino
+                        si indent < tope
+                            mientras longitud(pila) > 1 y pila[longitud(pila) - 1] > indent
+                                quitar(pila)
+                                agregar(tokens, Token {tipo: 69, valor: "DEDENT", linea: linea, col: 1})
+                            si pila[longitud(pila) - 1] != indent
+                                error_lexico("Indentacion inesperada", linea)
             continuar
-        # Tab
-        si c == 9
+        c = char_at(codigo, pos)
+        col_ini = pos - ini_linea + 1
+        # Espacio, tab, retorno de carro (CRLF)
+        si c == 32 o c == 9 o c == 13
             pos = pos + 1
             continuar
         # Newline
         si c == 10
-            agregar(tokens, Token {tipo: 67, valor: "NEWLINE", linea: linea, col: pos})
+            agregar(tokens, Token {tipo: 67, valor: "NEWLINE", linea: linea, col: col_ini})
             pos = pos + 1
             linea = linea + 1
+            ini_linea = pos
+            al_inicio = verdad
             continuar
-        # Comentario (#...)
+        # Comentario (#...) hasta fin de linea
         si c == 35
-            mientras pos < len
+            mientras pos < n
                 si char_at(codigo, pos) == 10
                     romper
                 pos = pos + 1
             continuar
-        # String literal comilla doble
-        si c == 34
+        # String literal (comilla doble o simple) con escapes \n \t \\ \" etc.
+        si c == 34 o c == 39
+            comilla = c
             pos = pos + 1
             valor = ""
-            mientras pos < len
+            cerrada = falso
+            mientras pos < n y cerrada == falso
                 ch = char_at(codigo, pos)
-                si ch == 34
+                si ch == 10
+                    error_lexico("Cadena sin cerrar", linea)
+                si ch == comilla
+                    cerrada = verdad
                     pos = pos + 1
-                    romper
-                valor = valor + char_to_str(ch)
-                pos = pos + 1
-            agregar(tokens, Token {tipo: 2, valor: valor, linea: linea, col: pos})
+                sino
+                    si ch == 92 y pos + 1 < n
+                        pos = pos + 1
+                        sig = char_at(codigo, pos)
+                        si sig == 110
+                            valor = valor + char_to_str(10)
+                        sino
+                            si sig == 116
+                                valor = valor + char_to_str(9)
+                            sino
+                                valor = valor + char_to_str(sig)
+                        pos = pos + 1
+                    sino
+                        valor = valor + char_to_str(ch)
+                        pos = pos + 1
+            si cerrada == falso
+                error_lexico("Cadena sin cerrar", linea)
+            agregar(tokens, Token {tipo: 2, valor: valor, linea: linea, col: col_ini})
             continuar
-        # String literal comilla simple
-        si c == 39
-            pos = pos + 1
+        # Numero (enteros y decimales)
+        si empieza_numero(codigo, pos, n) == 1
             valor = ""
-            mientras pos < len
-                ch = char_at(codigo, pos)
-                si ch == 39
-                    pos = pos + 1
-                    romper
-                valor = valor + char_to_str(ch)
-                pos = pos + 1
-            agregar(tokens, Token {tipo: 2, valor: valor, linea: linea, col: pos})
-            continuar
-        # Numero
-        si es_digito(c) == 1
-            valor = ""
-            mientras pos < len
+            tiene_punto = falso
+            mientras pos < n
                 ch = char_at(codigo, pos)
                 si es_digito(ch) == 1
                     valor = valor + char_to_str(ch)
                     pos = pos + 1
                 sino
-                    si ch == 46
+                    si ch == 46 y tiene_punto == falso
+                        tiene_punto = verdad
                         valor = valor + char_to_str(ch)
                         pos = pos + 1
                     sino
                         romper
-            agregar(tokens, Token {tipo: 1, valor: valor, linea: linea, col: pos})
+            agregar(tokens, Token {tipo: 1, valor: valor, linea: linea, col: col_ini})
             continuar
         # Identificador / keyword
         si es_letra(c) == 1
             valor = ""
-            mientras pos < len
+            mientras pos < n
                 ch = char_at(codigo, pos)
                 si es_alfa_num(ch) == 1
                     valor = valor + char_to_str(ch)
@@ -169,89 +359,28 @@ funcion tokenizar(codigo)
                 sino
                     romper
             tipo = tipo_keyword(valor)
-            agregar(tokens, Token {tipo: tipo, valor: valor, linea: linea, col: pos})
+            agregar(tokens, Token {tipo: tipo, valor: valor, linea: linea, col: col_ini})
             continuar
         # Operadores de 2 caracteres
-        si pos + 1 < len
+        c2 = 0
+        tipo = 0
+        si pos + 1 < n
             c2 = char_at(codigo, pos + 1)
-            # == (61 61)
-            si c == 61
-                si c2 == 61
-                    agregar(tokens, Token {tipo: 43, valor: "==", linea: linea, col: pos})
-                    pos = pos + 2
-                    continuar
-            # != (33 61)
-            si c == 33
-                si c2 == 61
-                    agregar(tokens, Token {tipo: 44, valor: "!=", linea: linea, col: pos})
-                    pos = pos + 2
-                    continuar
-            # <= (60 61)
-            si c == 60
-                si c2 == 61
-                    agregar(tokens, Token {tipo: 47, valor: "<=", linea: linea, col: pos})
-                    pos = pos + 2
-                    continuar
-            # >= (62 61)
-            si c == 62
-                si c2 == 61
-                    agregar(tokens, Token {tipo: 48, valor: ">=", linea: linea, col: pos})
-                    pos = pos + 2
-                    continuar
-            # -> (45 62)
-            si c == 45
-                si c2 == 62
-                    agregar(tokens, Token {tipo: 56, valor: "->", linea: linea, col: pos})
-                    pos = pos + 2
-                    continuar
-        # Operadores de 1 caracter
-        si c == 43
-            agregar(tokens, Token {tipo: 37, valor: "+", linea: linea, col: pos})
-        sino
-            si c == 45
-                agregar(tokens, Token {tipo: 38, valor: "-", linea: linea, col: pos})
-            sino
-                si c == 42
-                    agregar(tokens, Token {tipo: 39, valor: "*", linea: linea, col: pos})
-                sino
-                    si c == 47
-                        agregar(tokens, Token {tipo: 40, valor: "/", linea: linea, col: pos})
-                    sino
-                        si c == 61
-                            agregar(tokens, Token {tipo: 49, valor: "=", linea: linea, col: pos})
-                        sino
-                            si c == 60
-                                agregar(tokens, Token {tipo: 45, valor: "<", linea: linea, col: pos})
-                            sino
-                                si c == 62
-                                    agregar(tokens, Token {tipo: 46, valor: ">", linea: linea, col: pos})
-                                sino
-                                    si c == 40
-                                        agregar(tokens, Token {tipo: 57, valor: "(", linea: linea, col: pos})
-                                    sino
-                                        si c == 41
-                                            agregar(tokens, Token {tipo: 58, valor: ")", linea: linea, col: pos})
-                                        sino
-                                            si c == 44
-                                                agregar(tokens, Token {tipo: 63, valor: ",", linea: linea, col: pos})
-                                            sino
-                                                si c == 46
-                                                    agregar(tokens, Token {tipo: 64, valor: ".", linea: linea, col: pos})
-                                                sino
-                                                    si c == 58
-                                                        agregar(tokens, Token {tipo: 65, valor: ":", linea: linea, col: pos})
-                                                    sino
-                                                        si c == 91
-                                                            agregar(tokens, Token {tipo: 59, valor: "[", linea: linea, col: pos})
-                                                        sino
-                                                            si c == 93
-                                                                agregar(tokens, Token {tipo: 60, valor: "]", linea: linea, col: pos})
-                                                            sino
-                                                                si c == 123
-                                                                    agregar(tokens, Token {tipo: 61, valor: "{", linea: linea, col: pos})
-                                                                sino
-                                                                    si c == 125
-                                                                        agregar(tokens, Token {tipo: 62, valor: "}", linea: linea, col: pos})
+            tipo = tipo_op2(c, c2)
+        si tipo != 0
+            valor = char_to_str(c) + char_to_str(c2)
+            agregar(tokens, Token {tipo: tipo, valor: valor, linea: linea, col: col_ini})
+            pos = pos + 2
+            continuar
+        # Operadores / delimitadores de 1 caracter
+        tipo = tipo_op1(c)
+        si tipo == 0
+            error_lexico("Caracter desconocido '" + char_to_str(c) + "'", linea)
+        agregar(tokens, Token {tipo: tipo, valor: char_to_str(c), linea: linea, col: col_ini})
         pos = pos + 1
-    agregar(tokens, Token {tipo: 0, valor: "EOF", linea: linea, col: pos})
+    # Cerrar los bloques que sigan abiertos
+    mientras longitud(pila) > 1
+        quitar(pila)
+        agregar(tokens, Token {tipo: 69, valor: "DEDENT", linea: linea, col: 1})
+    agregar(tokens, Token {tipo: 0, valor: "EOF", linea: linea, col: pos - ini_linea + 1})
     retorna tokens

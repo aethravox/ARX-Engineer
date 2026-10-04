@@ -1,0 +1,28 @@
+# probar_lexer.zen — imprime los tokens de un archivo .zen
+#
+# Uso: ./probar_lexer archivo.zen
+# Formato de cada linea: <linea> <tipo> <valor>
+
+importar "ast"
+importar "lexer"
+
+# El valor que devuelve tokenizar() no tiene tipo conocido en compilacion,
+# asi que longitud() lo contaria como string. Usamos el runtime (igual que main.zen).
+extern "libLLVM" __zen_list_len(ptr) -> long
+
+funcion principal()
+    si num_argumentos() < 2
+        muestra "Uso: probar_lexer <archivo.zen>"
+        retorna 1
+    codigo = leer_archivo(argumentos(1))
+    tokens = tokenizar(codigo)
+    n = __zen_list_len(tokens)
+    i = 0
+    mientras i < n
+        t = tokens[i]
+        muestra texto(token_linea(t)) + "  " + texto(token_tipo(t)) + "  " + token_valor(t)
+        i = i + 1
+    muestra "Total: " + texto(n) + " tokens"
+    retorna 0
+
+principal()
