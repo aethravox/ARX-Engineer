@@ -94,6 +94,46 @@ LLVMValueRef zen_constreal(LLVMTypeRef Ty, double Val) {
     return LLVMConstReal(Ty, Val);
 }
 
+LLVMValueRef zen_getnamedglobal(LLVMModuleRef M, const char* Name) {
+    return LLVMGetNamedGlobal(M, Name);
+}
+
+LLVMValueRef zen_printf_call(LLVMBuilderRef B, LLVMModuleRef M, LLVMValueRef Arg) {
+    LLVMValueRef printfFn = LLVMGetNamedFunction(M, "printf");
+    if (!printfFn) {
+        LLVMTypeRef i32 = LLVMInt32Type();
+        LLVMTypeRef i8p = LLVMPointerType(LLVMInt8Type(), 0);
+        LLVMTypeRef paramTypes[] = { i8p };
+        LLVMTypeRef printfType = LLVMFunctionType(i32, paramTypes, 1, 1);
+        printfFn = LLVMAddFunction(M, "printf", printfType);
+    }
+    char fmt[] = {37, 103, 10, 0};
+    LLVMValueRef fmtStr = LLVMConstString(fmt, 0, 0);
+    LLVMValueRef fmtGlobal = LLVMAddGlobal(M, LLVMTypeOf(fmtStr), ".fmt");
+    LLVMSetInitializer(fmtGlobal, fmtStr);
+    LLVMSetGlobalConstant(fmtGlobal, 1);
+    LLVMSetLinkage(fmtGlobal, (LLVMLinkage)0);
+    LLVMValueRef fmtPtr = LLVMBuildBitCast(B, fmtGlobal, LLVMPointerType(LLVMInt8Type(), 0), "fmtptr");
+    LLVMValueRef args[] = { fmtPtr, Arg };
+    return LLVMBuildCall(B, printfFn, args, 2, "print");
+}
+
+void zen_assign_double(LLVMModuleRef M, LLVMBuilderRef B, const char* Name, double Val) {
+    LLVMValueRef existing = LLVMGetNamedGlobal(M, Name);
+    LLVMValueRef gvar;
+    if (existing) {
+        gvar = existing;
+    } else {
+        LLVMTypeRef dty = LLVMDoubleType();
+        gvar = LLVMAddGlobal(M, dty, Name);
+        LLVMSetInitializer(gvar, LLVMConstReal(dty, 0));
+        LLVMSetLinkage(gvar, (LLVMLinkage)0);
+    }
+    LLVMValueRef val = LLVMConstReal(LLVMDoubleType(), Val);
+    LLVMBuildStore(B, val, gvar);
+}
+
+
 } // extern "C"
 
 // ============================================================
