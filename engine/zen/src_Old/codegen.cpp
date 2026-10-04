@@ -108,7 +108,7 @@ LLVMValueRef zen_printf_call(LLVMBuilderRef B, LLVMModuleRef M, LLVMValueRef Arg
         printfFn = LLVMAddFunction(M, "printf", printfType);
     }
     char fmt[] = {37, 103, 10, 0};
-    LLVMValueRef fmtStr = LLVMConstString(fmt, 0, 0);
+    LLVMValueRef fmtStr = LLVMConstString(fmt, 3, 0);
     LLVMValueRef fmtGlobal = LLVMAddGlobal(M, LLVMTypeOf(fmtStr), ".fmt");
     LLVMSetInitializer(fmtGlobal, fmtStr);
     LLVMSetGlobalConstant(fmtGlobal, 1);
