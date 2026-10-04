@@ -79,19 +79,19 @@ funcion consumir(tipo, msg)
 
 funcion es_fin_bloque(tipo)
     si tipo == 69
-        retorna verdad
+        retorna "1"
     si tipo == 0
-        retorna verdad
+        retorna "1"
     si tipo == 5
-        retorna verdad
+        retorna "1"
     si tipo == 6
-        retorna verdad
-    retorna falso
+        retorna "1"
+    retorna "0"
 
 funcion parsear_bloque()
     stmts = []
     saltar_nuevas_lineas()
-    mientras es_fin_bloque(token_tipo(peek())) == falso
+    mientras es_fin_bloque(token_tipo(peek())) == "0"
         s = parsear_statement()
         agregar(stmts, s)
         saltar_nuevas_lineas()
@@ -179,6 +179,17 @@ funcion parsear_statement()
     # estructura: detectar con strcmp
     si strcmp(token_valor(t), "estructura") == 0 o strcmp(token_valor(t), "struct") == 0
         retorna parsear_estructura_decl()
+    # importar: detectar con strcmp (importar es keyword pero no tiene tipo fijo en parser)
+    si strcmp(token_valor(t), "importar") == 0 o strcmp(token_valor(t), "import") == 0
+        # Avanzar y consumir el string del nombre del modulo
+        avanzar()
+        # Esperar un string con el nombre del modulo
+        si token_tipo(peek()) == 2
+            nombre_modulo = token_valor(avanzar())
+            # Crear un nodo vacio (los imports se resuelven en main.zen, no en codegen)
+            retorna crear_nodo(NODO_EXPR_STMT, "", token_linea(t))
+        # Si no es string, crear nodo vacio y dejar que continue
+        retorna crear_nodo(NODO_EXPR_STMT, "", token_linea(t))
     # estructura implicita: Nombre { campo, campo, ... }
     si token_tipo(t) == 3
         # lookahead: si el siguiente es '{'
@@ -200,18 +211,18 @@ funcion parsear_si()
     cuerpo = parsear_bloque()
     sino_cuerpo = []
     # sino / else
-    es_sino = falso
+    es_sino = "0"
     si token_tipo(peek()) == 5
-        es_sino = verdad
-    si es_sino == verdad
+        es_sino = "1"
+    si es_sino == "1"
         avanzar()
         # sino si / elif
-        es_elif = falso
+        es_elif = "0"
         si token_tipo(peek()) == 4
-            es_elif = verdad
+            es_elif = "1"
         si token_tipo(peek()) == 6
-            es_elif = verdad
-        si es_elif == verdad
+            es_elif = "1"
+        si es_elif == "1"
             # Generar un if anidado como cuerpo del sino
             elif_stmt = parsear_si()
             agregar(sino_cuerpo, elif_stmt)

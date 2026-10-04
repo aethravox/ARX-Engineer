@@ -296,8 +296,38 @@ void zen_add_incoming_2(LLVMValueRef Phi, LLVMValueRef v0, LLVMValueRef bb0, LLV
     LLVMAddIncoming(Phi, vals, bbs, 2);
 }
 
-extern "C" int zen_is_null(LLVMValueRef val) {
-    return val == NULL ? 1 : 0;
+extern "C" const char* zen_is_null(LLVMValueRef val) {
+    // Retorna string "1" (es NULL) o "0" (no es NULL)
+    // Para que Zen pueda comparar con == "1" sin crashear (strtod(NULL) = segfault)
+    return val == NULL ? "1" : "0";
+}
+
+// zen_strtod_safe: version segura de strtod que no crashea con NULL
+// Mismo signature que strtod para poder reemplazarla directamente
+extern "C" double zen_strtod_safe(const char* s, char** endptr) {
+    if (s == NULL) return 0.0;
+    return strtod(s, endptr);
+}
+
+// zen_concat(a, b) -> char* — concatena dos strings (runtime C)
+// Necesario para que el codegen Zen-on-Zen pueda linkear sin generar IR inline
+extern "C" char* zen_concat(const char* a, const char* b) {
+    if (a == NULL) a = "";
+    if (b == NULL) b = "";
+    size_t la = strlen(a);
+    size_t lb = strlen(b);
+    char* result = (char*)malloc(la + lb + 1);
+    memcpy(result, a, la);
+    memcpy(result + la, b, lb);
+    result[la + lb] = '\0';
+    return result;
+}
+
+// __zen_num_to_str(double n) -> char* — convierte numero a string (runtime C)
+extern "C" char* __zen_num_to_str(double n) {
+    char* buf = (char*)malloc(32);
+    snprintf(buf, 32, "%g", n);
+    return buf;
 }
 
 extern "C" int zen_bb_has_terminator(LLVMBuilderRef B) {
@@ -425,8 +455,9 @@ void CodeGen::declareExternals() {
     memcpyFunc  = getOrInsertExtern("memcpy",  voidTy, {i8Ptr, i8Ptr, i64Ty});
     toupperFunc = getOrInsertExtern("toupper", i32Ty, {i32Ty});
     tolowerFunc = getOrInsertExtern("tolower", i32Ty, {i32Ty});
-    // strtod(const char* str, char** endptr) -> double
-    strtodFunc  = getOrInsertExtern("strtod",
+    // zen_strtod_safe(const char* str, char** endptr) -> double
+    // Version segura de strtod que no crashea con NULL
+    strtodFunc  = getOrInsertExtern("zen_strtod_safe",
         llvm::Type::getDoubleTy(context),
         {i8Ptr, llvm::Type::getInt8PtrTy(context)->getPointerTo()});
 

@@ -333,12 +333,8 @@ int main(int argc, char* argv[]) {
             }
             // -lm al final para que el linker resuelva dependencias de librerias externas
             linkCmd += " -lm";
-            // Si se uso libLLVM, agregar LLVM del sistema
-            for (const auto& lib : reqLibs) {
-                if (lib == "libLLVM") {
-                    linkCmd += " build/libzen.a -L/usr/lib/llvm-14/lib -lLLVM-14 -lstdc++ -lpthread";
-                }
-            }
+            // Siempre agregar libzen.a (tiene zen_strtod_safe, zen_concat, __zen_num_to_str, zen_callN, etc.)
+            linkCmd += " build/libzen.a -L/usr/lib/llvm-14/lib -lLLVM-14 -lstdc++ -lpthread";
 
             std::cout << "\033[90mLinkeando: \033[0m" << linkCmd << "\n";
 

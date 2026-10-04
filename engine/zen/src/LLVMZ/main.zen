@@ -24,6 +24,7 @@ importar "builtins"
 # ============================================================
 
 extern "libLLVM" __zen_list_len(ptr) -> long
+extern "libLLVM" LLVMDumpModule(ptr) -> void
 
 # ============================================================
 # Banner y ayuda
@@ -118,48 +119,55 @@ funcion principal()
     estado = codegen_init()
     codegen_programa(estado, ast)
     base = base_name(archivo)
-    ll_file = base + ".ll"
+    # Estructura de carpetas: build/<plat>/{o,ll,bin}/
+    # Plataforma por defecto: linux (cuando se implemente 'plataforma X' tomara de ahi)
+    plat = "linux"
+    dir_build = "build/" + plat
+    dir_o = dir_build + "/o"
+    dir_ll = dir_build + "/ll"
+    dir_bin = dir_build + "/bin"
+    # Crear carpetas si no existen
+    system("mkdir -p " + dir_o + " " + dir_ll + " " + dir_bin)
+    # --- Modo --ir: mostrar IR por stdout (no escribir .ll al disco) ---
     si mostrar_ir
-        codegen_compilar(estado, ll_file)
-        printf("--- LLVM IR generado en ")
-        printf(ll_file)
-        printf(" ---\n")
-        # codegen_finalize(estado)  # comentado: causa segfault
+        printf("--- LLVM IR ---\n")
+        LLVMDumpModule(estado_modulo(estado))
+        printf("--- Fin IR ---\n\n")
         retorna 0
-    codegen_compilar(estado, ll_file)
-    printf("   OK: ")
-    printf(ll_file)
-    printf(" generado\n")
+    # --- Modo --obj: generar .o en build/<plat>/o/ ---
     si emitir_obj
-        obj_file = base + ".o"
+        obj_file = dir_o + "/" + base + ".o"
         printf("Generando codigo objeto nativo...\n")
         codegen_compilar_nativo(estado, obj_file)
         printf("   OK: ")
         printf(obj_file)
         printf(" generado\n")
-        # codegen_finalize(estado)  # comentado: causa segfault
         retorna 0
+    # --- Modo --build / --run: generar .o + ejecutable ---
     si compilar_exe o ejecutar
-        obj_file = base + ".o"
+        obj_file = dir_o + "/" + base + ".o"
         printf("Compilando a codigo objeto nativo...\n")
         codegen_compilar_nativo(estado, obj_file)
         printf("   OK: ")
         printf(obj_file)
         printf(" generado\n")
-        link_cmd = "cc " + obj_file + " -o " + base + " -lm"
+        exe_file = dir_bin + "/" + base
+        # Linkear con libzen.a + LLVM + libc/libm
+        link_cmd = "cc " + obj_file + " -o " + exe_file
+        link_cmd = link_cmd + " build/libzen.a"
+        link_cmd = link_cmd + " -L/usr/lib/llvm-14/lib -lLLVM-14 -lstdc++ -lpthread -lm"
         printf("Linkeando: ")
         printf(link_cmd)
         printf("\n")
         system(link_cmd)
         printf("   Compilado exitosamente: ")
-        printf(base)
+        printf(exe_file)
         printf("\n")
         si ejecutar
             printf("--- Ejecutando ---\n")
-            run_cmd = "./" + base
+            run_cmd = exe_file
             system(run_cmd)
             printf("--- Fin ejecucion ---\n")
-    # codegen_finalize(estado)  # comentado: causa segfault
     retorna 0
 
 # ============================================================

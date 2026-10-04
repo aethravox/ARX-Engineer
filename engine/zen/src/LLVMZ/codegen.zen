@@ -12,7 +12,7 @@ importar "ast"
 # Externs LLVM C API
 # ============================================================
 
-extern "libLLVM" zen_is_null(ptr) -> int
+extern "libLLVM" zen_is_null(ptr) -> str
 extern "libLLVM" LLVMModuleCreateWithName(str) -> ptr
 extern "libLLVM" LLVMCreateBuilder() -> ptr
 extern "libLLVM" LLVMDisposeBuilder(ptr) -> void
@@ -254,18 +254,13 @@ funcion to_double_val(estado, val, tipo)
     si tipo == TIPO_BOOL
         retorna LLVMBuildUIToFP(b, val, LLVMDoubleType(), "tof")
     si tipo == TIPO_STRING
-        # Si es i8*, usar strtod
-        strtod_fn = LLVMGetNamedFunction(mod, "strtod")
+        # Si es i8*, usar zen_strtod_safe (no crashea con NULL)
+        strtod_fn = LLVMGetNamedFunction(mod, "zen_strtod_safe")
         si strtod_fn == 0
-            # Declarar strtod: double strtod(const char*, char**)
             i8p = i8ptr_type()
-            i8pp = LLVMPointerType(i8p, 0)
-            param_tys = [i8p, i8pp]
-            fty = zen_function_type_1(LLVMDoubleType(), LLVMInt1Type(), 0)
-            strtod_fn = LLVMAddFunction(mod, "strtod", fty)
-        nullp = LLVMConstPointerNull(LLVMPointerType(i8ptr_type(), 0))
-        args = [val, nullp]
-        retorna LLVMBuildCall(b, strtod_fn, args, 2, "s2d")
+            fty = zen_function_type_1(LLVMDoubleType(), i8p, 0)
+            strtod_fn = LLVMAddFunction(mod, "zen_strtod_safe", fty)
+        retorna zen_call1(b, strtod_fn, val, "s2d")
     retorna zen_constreal(LLVMDoubleType(), 0)
 
 # Convertir cualquier valor a i8* (string)
@@ -278,22 +273,23 @@ funcion to_string_val(estado, val, tipo)
         retorna val
     si tipo == TIPO_NUMBER
         num_str_fn = LLVMGetNamedFunction(mod, "__zen_num_to_str")
-        args = [val]
-        retorna LLVMBuildCall(b, num_str_fn, args, 1, "numstr")
+        retorna zen_call1(b, num_str_fn, val, "numstr")
     si tipo == TIPO_BOOL
-        yes_str = LLVMConstString("yes", 3, 0)
-        yes_g = LLVMAddGlobal(mod, LLVMInt8Type(), ".yes")
-        LLVMSetInitializer(yes_g, yes_str)
-        LLVMSetGlobalConstant(yes_g, 1)
-        LLVMSetLinkage(yes_g, 0)
-        no_str = LLVMConstString("no", 2, 0)
-        no_g = LLVMAddGlobal(mod, LLVMInt8Type(), ".no")
-        LLVMSetInitializer(no_g, no_str)
-        LLVMSetGlobalConstant(no_g, 1)
-        LLVMSetLinkage(no_g, 0)
-        yes_ptr = LLVMBuildBitCast(b, yes_g, i8ptr_type(), "yesptr")
-        no_ptr = LLVMBuildBitCast(b, no_g, i8ptr_type(), "noptr")
-        retorna LLVMBuildSelect(b, val, yes_ptr, no_ptr, "boolstr")
+        # Boxear como "1"/"0" (no "yes"/"no") para que strtod funcione:
+        # strtod("1")=1.0=verdad, strtod("0")=0.0=falso
+        one_str = LLVMConstString("1", 1, 0)
+        one_g = LLVMAddGlobal(mod, LLVMInt8Type(), ".b1")
+        LLVMSetInitializer(one_g, one_str)
+        LLVMSetGlobalConstant(one_g, 1)
+        LLVMSetLinkage(one_g, 0)
+        zero_str = LLVMConstString("0", 1, 0)
+        zero_g = LLVMAddGlobal(mod, LLVMInt8Type(), ".b0")
+        LLVMSetInitializer(zero_g, zero_str)
+        LLVMSetGlobalConstant(zero_g, 1)
+        LLVMSetLinkage(zero_g, 0)
+        one_ptr = LLVMBuildBitCast(b, one_g, i8ptr_type(), "b1ptr")
+        zero_ptr = LLVMBuildBitCast(b, zero_g, i8ptr_type(), "b0ptr")
+        retorna LLVMBuildSelect(b, val, one_ptr, zero_ptr, "boolstr")
     si tipo == TIPO_NULL
         nada_str = LLVMConstString("nada", 4, 0)
         nada_g = LLVMAddGlobal(mod, LLVMInt8Type(), ".nada")
@@ -509,6 +505,9 @@ funcion registrar_struct(nombre, campos)
 # Busca el indice de un campo por nombre en todos los structs registrados
 # Retorna -1 si no encuentra (1:1 con C++ generateMemberAccess)
 funcion buscar_indice_campo(campo)
+    # NULL check defensivo
+    si zen_is_null(campo) == "1"
+        retorna -1
     n = longitud(struct_nombres)
     i = 0
     mientras i < n
@@ -516,8 +515,10 @@ funcion buscar_indice_campo(campo)
         m = longitud(campos)
         j = 0
         mientras j < m
-            si campos[j] == campo
-                retorna j
+            c = campos[j]
+            si zen_is_null(c) == "0"
+                si c == campo
+                    retorna j
             j = j + 1
         i = i + 1
     retorna -1
@@ -527,21 +528,29 @@ funcion buscar_indice_campo(campo)
 # ============================================================
 
 funcion buscar_variable(nombre)
+    # NULL check defensivo
+    si zen_is_null(nombre) == "1"
+        retorna -1
     n = longitud(var_nombres)
     i = 0
     mientras i < n
-        si var_nombres[i] == nombre
-            retorna i
+        v = var_nombres[i]
+        si zen_is_null(v) == "0"
+            si v == nombre
+                retorna i
         i = i + 1
     retorna -1
 
 # Crear o reusar una variable global (para nivel superior)
 # Todas las variables son i8* (boxed) — igual que el runtime
 funcion get_o_crear_global(estado, nombre)
+    # NULL check defensivo
+    si zen_is_null(nombre) == "1"
+        retorna LLVMConstPointerNull(i8ptr_type())
     mod = estado_modulo(estado)
     # Buscar global existente
     gvar = LLVMGetNamedGlobal(mod, "g_" + nombre)
-    si gvar != 0
+    si zen_is_null(gvar) == "0"
         retorna gvar
     # Crear nueva
     i8p = i8ptr_type()
@@ -562,19 +571,19 @@ funcion get_o_crear_global(estado, nombre)
 # ============================================================
 funcion bloque_actual_tiene_terminator(b)
     bb = LLVMGetInsertBlock(b)
-    si zen_is_null(bb) == 1
+    si zen_is_null(bb) == "1"
         retorna falso
     term = LLVMGetBasicBlockTerminator(bb)
-    si zen_is_null(term) == 1
+    si zen_is_null(term) == "1"
         retorna falso
     retorna verdad
 
 funcion codegen_expresion(estado, nodo)
-    si zen_is_null(nodo) == 1
+    si zen_is_null(nodo) == "1"
         last_expr_type = TIPO_NULL
         retorna LLVMConstPointerNull(i8ptr_type())
     tipo = nodo_tipo(nodo)
-    si zen_is_null(tipo) == 1
+    si zen_is_null(tipo) == "1"
         last_expr_type = TIPO_NULL
         retorna LLVMConstPointerNull(i8ptr_type())
     b = estado_builder(estado)
@@ -628,7 +637,7 @@ funcion codegen_expresion(estado, nodo)
             retorna sval
         # Buscar global
         gvar = LLVMGetNamedGlobal(mod, "g_" + nombre)
-        si gvar != 0
+        si zen_is_null(gvar) == "0"
             sval = LLVMBuildLoad(b, gvar, nombre)
             last_expr_type = TIPO_STRING
             retorna sval
@@ -706,8 +715,7 @@ funcion codegen_binary_op(estado, nodo)
         # Comparacion de strings con strcmp
         si lt == TIPO_STRING y rt == TIPO_STRING
             strcmp_fn = LLVMGetNamedFunction(mod, "strcmp")
-            args = [left, right]
-            cmp_res = LLVMBuildCall(b, strcmp_fn, args, 2, "strcmp")
+            cmp_res = zen_call2(b, strcmp_fn, left, right, "strcmp")
             zero = zen_constint(LLVMInt32Type(), 0, 0)
             pred = 32  # ICMP_EQ default
             si op == "=="
@@ -747,9 +755,8 @@ funcion codegen_binary_op(estado, nodo)
         l_str = to_string_val(estado, left, lt)
         r_str = to_string_val(estado, right, rt)
         concat_fn = LLVMGetNamedFunction(mod, "zen_concat")
-        args = [l_str, r_str]
         last_expr_type = TIPO_STRING
-        retorna LLVMBuildCall(b, concat_fn, args, 2, "concat")
+        retorna zen_call2(b, concat_fn, l_str, r_str, "concat")
     # Aritmetica numerica
     l_d = to_double_val(estado, left, lt)
     r_d = to_double_val(estado, right, rt)
@@ -770,9 +777,8 @@ funcion codegen_binary_op(estado, nodo)
         retorna LLVMBuildFRem(b, l_d, r_d, "mod")
     si op == "^"
         pow_fn = LLVMGetNamedFunction(mod, "pow")
-        args = [l_d, r_d]
         last_expr_type = TIPO_NUMBER
-        retorna LLVMBuildCall(b, pow_fn, args, 2, "pow")
+        retorna zen_call2(b, pow_fn, l_d, r_d, "pow")
     muestra "ERROR: Operador desconocido '" + op + "' en linea " + texto(nodo_linea(nodo))
     salir(1)
     retorna zen_constreal(LLVMDoubleType(), 0)
@@ -846,11 +852,12 @@ funcion codegen_func_call(estado, nodo)
     mod = estado_modulo(estado)
     # Intentar con builtins primero (igual que en C++)
     builtin_res = codegen_builtin(estado, nombre, hijos, num_args, nodo)
-    si builtin_res != 0
+    # Usar zen_is_null para verificar (no != 0 porque strtod(NULL) crashea)
+    si zen_is_null(builtin_res) == "0"
         retorna builtin_res
     # Funcion de usuario
     func = LLVMGetNamedFunction(mod, nombre)
-    si func != 0
+    si zen_is_null(func) == "0"
         # Generar argumentos boxeados como i8*
         args = [0]
         i = 0
@@ -862,7 +869,7 @@ funcion codegen_func_call(estado, nodo)
             i = i + 1
         last_expr_type = TIPO_STRING
         si num_args == 0
-            retorna LLVMBuildCall(b, func, args, 1, "call")
+            retorna zen_call1(b, func, args[0], "call")
         si num_args == 1
             return zen_call1(b, func, args[0], "call")
         si num_args == 2
@@ -927,8 +934,7 @@ funcion codegen_builtin(estado, nombre, hijos, num_args, nodo)
         # malloc(2)
         malloc_fn = LLVMGetNamedFunction(mod, "malloc")
         two = LLVMConstInt(i64t, 2, 0)
-        margs = [two]
-        buf = LLVMBuildCall(b, malloc_fn, margs, 1, "chrbuf")
+        buf = zen_call1(b, malloc_fn, two, "chrbuf")
         # buf[0] = ch
         LLVMBuildStore(b, ch_i8, buf)
         # buf[1] = 0
@@ -989,10 +995,12 @@ funcion codegen_builtin(estado, nombre, hijos, num_args, nodo)
     si nombre == "numero" o nombre == "number" o nombre == "num" o nombre == "tonum"
         s = codegen_expresion(estado, hijos[0])
         s_str = to_string_val(estado, s, last_expr_type)
-        strtod_fn = LLVMGetNamedFunction(mod, "strtod")
-        nullp = LLVMConstPointerNull(LLVMPointerType(i8p, 0))
-        sargs = [s_str, nullp]
-        result = LLVMBuildCall(b, strtod_fn, sargs, 2, "num")
+        strtod_fn = LLVMGetNamedFunction(mod, "zen_strtod_safe")
+        si strtod_fn == 0
+            i8p2 = i8ptr_type()
+            fty2 = zen_function_type_1(LLVMDoubleType(), i8p2, 0)
+            strtod_fn = LLVMAddFunction(mod, "zen_strtod_safe", fty2)
+        result = zen_call1(b, strtod_fn, s_str, "num")
         last_expr_type = TIPO_NUMBER
         retorna result
     # ---- texto(n) -> string ----
@@ -1372,10 +1380,10 @@ funcion codegen_member_access(estado, nodo)
 # ============================================================
 
 funcion codegen_statement(estado, nodo)
-    si zen_is_null(nodo) == 1
+    si zen_is_null(nodo) == "1"
         retorna 0
     tipo = nodo_tipo(nodo)
-    si zen_is_null(tipo) == 1
+    si zen_is_null(tipo) == "1"
         retorna 0
     b = estado_builder(estado)
     mod = estado_modulo(estado)
@@ -1630,7 +1638,7 @@ funcion codegen_if(estado, nodo)
     si n > k + 1
         else_bb = zen_appendbasicblock(func, "else")
     merge_bb = zen_appendbasicblock(func, "endif")
-    si else_bb != 0
+    si zen_is_null(else_bb) == "0"
         zen_condbr(b, cond_bool, then_bb, else_bb)
     sino
         zen_condbr(b, cond_bool, then_bb, merge_bb)
@@ -1646,7 +1654,7 @@ funcion codegen_if(estado, nodo)
     si bloque_actual_tiene_terminator(b) == falso
         zen_br(b, merge_bb)
     # Else body
-    si else_bb != 0
+    si zen_is_null(else_bb) == "0"
         zen_positionbuilder(b, else_bb)
         i = k + 1
         mientras i < n
@@ -1993,26 +2001,34 @@ funcion codegen_programa(estado, programa)
     i = 0
     mientras i < n
         nodo = programa[i]
-        si nodo_tipo(nodo) == NODO_STRUCT_DECL
-            nombre = nodo_nombre(nodo)
-            hijos = nodo_hijos(nodo)
-            campos = []
-            nc = longitud(hijos)
-            j = 0
-            mientras j < nc
-                agregar(campos, nodo_valor(hijos[j]))
-                j = j + 1
-            registrar_struct(nombre, campos)
-        si nodo_tipo(nodo) == NODO_EXTERN_DECL
-            codegen_statement(estado, nodo)
+        si zen_is_null(nodo) == "1"
+            printf("WARN: nodo NULL en programa[")
+            printf(i)
+            printf("] PASS 0\n")
+        sino
+            si nodo_tipo(nodo) == NODO_STRUCT_DECL
+                nombre = nodo_nombre(nodo)
+                hijos = nodo_hijos(nodo)
+                campos = []
+                nc = longitud(hijos)
+                j = 0
+                mientras j < nc
+                    agregar(campos, nodo_valor(hijos[j]))
+                    j = j + 1
+                registrar_struct(nombre, campos)
+            si nodo_tipo(nodo) == NODO_EXTERN_DECL
+                codegen_statement(estado, nodo)
         i = i + 1
     # PASS 1: Pre-escanear variables globales (todas son i8* boxed)
     i = 0
     mientras i < n
         nodo = programa[i]
-        si nodo_tipo(nodo) == NODO_ASSIGN
-            nombre = nodo_nombre(nodo)
-            get_o_crear_global(estado, nombre)
+        si zen_is_null(nodo) == "1"
+            # skip NULL
+        sino
+            si nodo_tipo(nodo) == NODO_ASSIGN
+                nombre = nodo_nombre(nodo)
+                get_o_crear_global(estado, nombre)
         i = i + 1
     # Crear main()
     i32t = LLVMInt32Type()
@@ -2049,16 +2065,22 @@ funcion codegen_programa(estado, programa)
     i = 0
     mientras i < n
         nodo = programa[i]
-        si nodo_tipo(nodo) == NODO_FUNC_DECL
-            codegen_func_decl(estado, nodo)
+        si zen_is_null(nodo) == "1"
+            # skip NULL
+        sino
+            si nodo_tipo(nodo) == NODO_FUNC_DECL
+                codegen_func_decl(estado, nodo)
         i = i + 1
     # PASS 3: Generar resto del codigo de nivel superior
     i = 0
     mientras i < n
         nodo = programa[i]
-        tipo = nodo_tipo(nodo)
-        si tipo != NODO_FUNC_DECL y tipo != NODO_STRUCT_DECL y tipo != NODO_EXTERN_DECL
-            codegen_statement(estado, nodo)
+        si zen_is_null(nodo) == "1"
+            # skip NULL
+        sino
+            tipo = nodo_tipo(nodo)
+            si tipo != NODO_FUNC_DECL y tipo != NODO_STRUCT_DECL y tipo != NODO_EXTERN_DECL
+                codegen_statement(estado, nodo)
         i = i + 1
     # ret 0
     zen_retval(b, LLVMConstInt(i32t, 0, 0))
@@ -2074,15 +2096,15 @@ funcion codegen_compilar(estado, ruta_salida)
     retorna 0
 
 funcion codegen_compilar_nativo(estado, ruta_obj)
-    LLVMInitializeX86TargetInfo()
-    LLVMInitializeX86Target()
-    LLVMInitializeX86TargetMC()
-    LLVMInitializeX86AsmPrinter()
-    triple = LLVMGetDefaultTargetTriple()
-    target_ptr = 0
-    error_ptr = 0
-    LLVMGetTargetFromTriple(triple, 0, 0)
-    tm = LLVMCreateTargetMachine(0, triple, "", 0, 0, 0, 0)
-    LLVMTargetMachineEmitToFile(tm, estado_modulo(estado), ruta_obj, 0, 0)
-    LLVMDisposeTargetMachine(tm)
+    # Workaround: usar llc externo porque LLVMGetTargetFromTriple necesita
+    # output parameters (ptr a ptr) que Zen no soporta bien
+    # 1. Escribir IR a archivo temporal .ll
+    ll_file = ruta_obj + ".ll"
+    LLVMPrintModuleToFile(estado_modulo(estado), ll_file, nada)
+    # 2. Ejecutar llc para compilar .ll a .o
+    cmd = "llc-14 -filetype=obj " + ll_file + " -o " + ruta_obj
+    system(cmd)
+    # 3. Borrar el .ll temporal
+    cmd2 = "rm -f " + ll_file
+    system(cmd2)
     retorna 0
